@@ -1,0 +1,23 @@
+{
+  "projects": {
+    "default": "hz-360fa"
+  },
+  "targets": {
+    "hz-360fa": {
+      "hosting": {
+        "privacypolicy": [
+          "hz-360fa"
+        ],
+        "tutorial": [
+          "ch9tutoria"
+        ],
+        "developer": [
+          "funbatter"
+        ],
+        "web": [
+          "channeru9"
+        ]
+      }
+    }
+  }
+}

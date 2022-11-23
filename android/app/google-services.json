@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "593075386775",
+    "project_id": "hz-360fa",
+    "storage_bucket": "hz-360fa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:593075386775:android:7e439b9d03cd0c87c2ecd2",
+        "android_client_info": {
+          "package_name": "com.soda.app_55hz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "593075386775-nb8e64fbqn02fnth87k5gf43765etr5j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.soda.app_55hz",
+            "certificate_hash": "95c1d79e7d2d37b465b0e089c187ab69bb08848b"
+          }
+        },
+        {
+          "client_id": "593075386775-m3k0ibban701dvc2oom0oqt88mjh740a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAtNER8-EqZN9-o-h9eu5H7ibG-4OdSxkY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "593075386775-cqf1upbik1uvhlmadjos3pgpfs84cm3f.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "593075386775-acvea1ljv6gs5vup38evqnt7mupq7ocs.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.soda.ch9.dev.ch9Dev"
+              }
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-3482694581552522~4576618849"
+    }
+  ],
+  "configuration_version": "1"
+}

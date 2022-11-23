@@ -1,0 +1,6 @@
+version: "Apple Swift version 5.6.1 (swiftlang-5.6.0.323.66 clang-1316.0.20.12)"
+options: "ec7aaba4734d0e1e1f3d2bf654472d6cb282965fbe5c84d81bab5507b1762ca2"
+build_start_time: [1665034964, 542584896]
+build_end_time: [1665034964, 718459129]
+inputs:
+  "/Users/takuyaishikawa/Desktop/app_55hz/ios/Runner/AppDelegate.swift": !private [1649125997, 0]

@@ -1,0 +1,759 @@
+// ignore_for_file: must_be_immutable, use_build_context_synchronously, missing_return
+
+import 'dart:math';
+import 'package:app_55hz/main/admob.dart';
+import 'package:app_55hz/presentation/talk/talk_model.dart';
+import 'package:app_55hz/presentation/talk_add/talk_add_page.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+
+import '../../domain/post.dart';
+
+class TalkPage extends StatelessWidget {
+  String title;
+  String postID;
+  String uid;
+  String threadID;
+  String threadUid;
+  AdInterstitial adInterstitial;
+  bool resSort;
+  DateTime upDateAt;
+  Post post;
+  BannerAd banner = BannerAd(
+    listener: const BannerAdListener(),
+    size: AdSize.banner,
+    adUnitId: AdInterstitial.bannerAdUnitId,
+    request: const AdRequest(),
+  )..load();
+
+  TalkPage(
+      {Key key,
+      this.title,
+      this.postID,
+      this.uid,
+      this.threadID,
+      this.threadUid,
+      this.resSort,
+      this.adInterstitial,
+      this.upDateAt,
+      this.post})
+      : super(key: key);
+
+  int postCount = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    return ChangeNotifierProvider.value(
+      value: TalkModel()
+        ..fetchMyFavorite(uid)
+        ..getTalk(postID, threadID, threadUid, resSort, uid)
+        ..fetchBlockList(uid),
+      child: Scaffold(
+        appBar: AppBar(
+            flexibleSpace: const Image(
+              image: AssetImage('images/washi1.png'),
+              fit: BoxFit.cover,
+              color: Color(0xff616138),
+              colorBlendMode: BlendMode.modulate,
+            ),
+            leading: IconButton(
+              iconSize: 30,
+              icon: const Icon(
+                Feather.chevron_left,
+                color: Color(0xffFCFAF2),
+              ),
+              onPressed: () async {
+                Navigator.pop(context);
+              },
+            ),
+            actions: [
+              Consumer<TalkModel>(builder: (context, model, child) {
+                final favoriteThreads = model.favoriteThread;
+                return favoriteThreads.isNotEmpty
+                    ? Row(
+                        children: [
+                          threadUid == uid
+                              ? IconButton(
+                                  onPressed: () async {
+                                    await model.getTalk(postID, threadID,
+                                        threadUid, resSort, uid);
+                                    await showAccessBlockList(context, model);
+                                  },
+                                  icon: const Icon(Feather.user_x))
+                              : const Icon(null),
+                          IconButton(
+                              onPressed: () async {
+                                await model.changeReverse().then((value) async {
+                                  if (adInterstitial.ready == false) {
+                                    adInterstitial.createAd();
+                                  }
+                                  adInterstitial.counter = 7;
+                                });
+                                await model.getTalk(
+                                    postID, threadID, threadUid, resSort, uid);
+                              },
+                              icon: Transform.rotate(
+                                  angle: 90 * pi / 180,
+                                  child: const Icon(Feather.repeat))),
+                          IconButton(
+                              onPressed: () async {
+                                if (favoriteThreads.first.favoriteThreads
+                                    .contains(postID.substring(10))) {
+                                  await model.deleteFavorite(
+                                      uid, postID, postID.substring(10));
+                                } else {
+                                  await model.addFavorite(uid, title, threadID,
+                                      postID, threadUid, postID.substring(10));
+                                }
+                              },
+                              icon: favoriteThreads.first.favoriteThreads
+                                      .contains(postID.substring(10))
+                                  ? const Icon(
+                                      Icons.favorite,
+                                      color: Color(0xffD0104C),
+                                    )
+                                  : const Icon(Icons.favorite_border))
+                        ],
+                      )
+                    : const Icon(null);
+              })
+            ],
+            title: Text(title,
+                style: GoogleFonts.sawarabiMincho(
+                    color: const Color(0xffFCFAF2), fontSize: 16))),
+        backgroundColor: const Color(0xffFCFAF2),
+        body: Consumer<TalkModel>(builder: (context, model, child) {
+          final talks = model.talks;
+          ScrollController scrollController = ScrollController();
+
+          Future getMore() async {
+            if (scrollController.position.pixels ==
+                scrollController.position.maxScrollExtent) {
+              adInterstitial.counter++;
+              await model.getMoreTalk(postID, threadID);
+            }
+          }
+
+          return Stack(
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                  colorFilter: ColorFilter.mode(
+                    const Color(0xffFCFAF2).withOpacity(0.4),
+                    BlendMode.dstATop,
+                  ),
+                  image: const AssetImage('images/washi1.png'),
+                  fit: BoxFit.fill,
+                )),
+              ),
+              Column(
+                children: [
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        adInterstitial.counter++;
+                        await model.getTalk(
+                            postID, threadID, threadUid, resSort, uid);
+                      },
+                      child: ListView.builder(
+                        cacheExtent: 9999,
+                        controller: scrollController..addListener(getMore),
+                        itemCount: talks.length,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          final blockUsers = model.blockUser;
+                          if (postCount < talks[index].count) {
+                            postCount = talks[index].count;
+                          }
+                          if (talks[index].badCount.length >= 5 ||
+                              blockUsers.contains(talks[index].uid)) {
+                            return const SizedBox();
+                          } else {
+                            return Slidable(
+                              actionPane: const SlidableBehindActionPane(),
+                              secondaryActions: [
+                                threadUid == uid && talks[index].uid != uid
+                                    ? IconSlideAction(
+                                        color: const Color(0xffFCFAF2),
+                                        caption: 'アクブロ',
+                                        onTap: () async {
+                                          await model.deleteFavorite(
+                                              talks[index].uid,
+                                              postID,
+                                              postID.substring(10));
+                                          await model.addAccsessBlock(
+                                              context,
+                                              threadID,
+                                              postID,
+                                              talks[index].uid);
+                                        },
+                                        icon: Feather.user_x,
+                                      )
+                                    : const SizedBox(width: 0.1),
+                                talks[index].uid == uid
+                                    ? IconSlideAction(
+                                        color: const Color(0xffFCFAF2),
+                                        caption: '削除',
+                                        onTap: () {
+                                          deleteAdd(
+                                              model, context, talks[index]);
+                                        },
+                                        icon: Feather.trash,
+                                      )
+                                    : IconSlideAction(
+                                        color: const Color(0xffFCFAF2),
+                                        caption: '報告',
+                                        onTap: () {
+                                          badAdd(model, context, talks[index]);
+                                        },
+                                        icon: Feather.alert_triangle,
+                                      ),
+                              ],
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                    border: Border(
+                                        top: BorderSide(
+                                            color: Color(0xff43341B)))),
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const SizedBox(width: 7),
+                                            TextButton(
+                                                style: ButtonStyle(
+                                                  minimumSize:
+                                                      MaterialStateProperty.all(
+                                                          Size.zero),
+                                                  tapTargetSize:
+                                                      MaterialTapTargetSize
+                                                          .shrinkWrap,
+                                                ),
+                                                child: Text(
+                                                  talks[index].count.toString(),
+                                                  style: GoogleFonts
+                                                      .sawarabiMincho(
+                                                    color:
+                                                        const Color(0xff43341B),
+                                                  ),
+                                                ),
+                                                onPressed: () async {
+                                                  await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            AddTalkPage(
+                                                              count: postCount,
+                                                              popID: postID,
+                                                              threadID:
+                                                                  threadID,
+                                                              uid: uid,
+                                                              resNumber: talks[
+                                                                      index]
+                                                                  .count
+                                                                  .toString(),
+                                                              upDateAt:
+                                                                  upDateAt,
+                                                            ),
+                                                        fullscreenDialog: true),
+                                                  );
+                                                }),
+                                            Text(
+                                              ':',
+                                              style: GoogleFonts.sawarabiMincho(
+                                                color: const Color(0xff43341B),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: size.width * 0.31,
+                                              child: Text(
+                                                  talks[index].name == ""
+                                                      ? '名無しさん'
+                                                      : talks[index].name,
+                                                  style: GoogleFonts
+                                                      .sawarabiMincho(
+                                                          color: const Color(
+                                                              0xff43341B))),
+                                            ),
+                                            Text(
+                                                '${talks[index].createdAt.year}/${talks[index].createdAt.month}/${talks[index].createdAt.day} ${talks[index].createdAt.hour}:${talks[index].createdAt.minute}:${talks[index].createdAt.second}.${talks[index].createdAt.millisecond}',
+                                                style:
+                                                    GoogleFonts.sawarabiMincho(
+                                                        color: const Color(
+                                                            0xff43341B),
+                                                        fontSize: 10.0),
+                                                textAlign: TextAlign.left),
+                                            talks[index].uid == threadUid
+                                                ? Text(
+                                                    '  (主)',
+                                                    style: GoogleFonts
+                                                        .sawarabiMincho(
+                                                            color: const Color(
+                                                                0xff2EA9DF),
+                                                            fontSize: 8.0),
+                                                  )
+                                                : const SizedBox()
+                                          ],
+                                        ),
+                                        TextButton(
+                                          style: ButtonStyle(
+                                            minimumSize:
+                                                MaterialStateProperty.all(
+                                                    Size.zero),
+                                            tapTargetSize: MaterialTapTargetSize
+                                                .shrinkWrap,
+                                          ),
+                                          child: Text(
+                                            'ID:${talks[index].uid.substring(20)}',
+                                            textAlign: TextAlign.left,
+                                            style: GoogleFonts.sawarabiMincho(
+                                                color: const Color(0xff33A6B8),
+                                                fontSize: 8),
+                                          ),
+                                          onPressed: () {
+                                            blockDialog(
+                                                context,
+                                                uid,
+                                                talks[index].uid,
+                                                model,
+                                                blockUsers);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                      width: size.width * 0.87,
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: const [
+                                          SizedBox(width: 10),
+                                        ],
+                                      ),
+                                    ),
+                                    Row(
+                                      children: [
+                                        const SizedBox(width: 12),
+                                        SizedBox(
+                                          width: size.width * 0.85,
+                                          child: SelectableText(
+                                            talks[index].comment,
+                                            textAlign: TextAlign.left,
+                                            style: GoogleFonts.sawarabiMincho(
+                                              color: const Color(0xff43341B),
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14.0,
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        const SizedBox(width: 12),
+                                        SizedBox(
+                                            width: size.width * 0.85,
+                                            child: talks[index].url == ""
+                                                ? null
+                                                : blockUsers.contains(
+                                                        talks[index]
+                                                            .uid
+                                                            .substring(20))
+                                                    ? null
+                                                    : RichText(
+                                                        maxLines: 2,
+                                                        text: TextSpan(
+                                                            children: [
+                                                              TextSpan(
+                                                                  text: talks[
+                                                                          index]
+                                                                      .url,
+                                                                  style: GoogleFonts
+                                                                      .sawarabiMincho(
+                                                                    color: const Color(
+                                                                        0xff33A6B8),
+                                                                    fontSize:
+                                                                        14.0,
+                                                                  ),
+                                                                  recognizer:
+                                                                      TapGestureRecognizer()
+                                                                        ..onTap =
+                                                                            () async {
+                                                                          if (await canLaunch(
+                                                                              talks[index].url)) {
+                                                                            await launch(talks[index].url);
+                                                                          } else {
+                                                                            try {
+                                                                              await launch(talks[index].url);
+                                                                            } catch (e) {
+                                                                              print('error');
+                                                                              await errorDialog(context);
+                                                                            }
+                                                                          }
+                                                                        }
+                                                                        ..onSecondaryTap =
+                                                                            () async {})
+                                                            ]))),
+                                      ],
+                                    ),
+                                    Center(
+                                      child: Container(
+                                          alignment: Alignment.center,
+                                          width: size.width * 0.85,
+                                          child: talks[index].imgURL == ''
+                                              ? null
+                                              : blockUsers.contains(talks[index]
+                                                      .uid
+                                                      .substring(20))
+                                                  ? null
+                                                  : GestureDetector(
+                                                      onTap: () async {
+                                                        if (await canLaunch(
+                                                            talks[index]
+                                                                .imgURL)) {
+                                                          await launch(
+                                                              talks[index]
+                                                                  .imgURL);
+                                                        } else {
+                                                          try {
+                                                            await launch(
+                                                                talks[index]
+                                                                    .imgURL);
+                                                          } catch (e) {
+                                                            print('error');
+                                                            await errorDialog(
+                                                                context);
+                                                          }
+                                                        }
+                                                      },
+                                                      child: Image.network(
+                                                        talks[index].imgURL,
+                                                        fit: BoxFit.fill,
+                                                        loadingBuilder:
+                                                            (BuildContext
+                                                                    context,
+                                                                Widget child,
+                                                                ImageChunkEvent
+                                                                    loadingProgress) {
+                                                          if (loadingProgress ==
+                                                              null) {
+                                                            return child;
+                                                          }
+                                                          return Center(
+                                                            child:
+                                                                CircularProgressIndicator(
+                                                              value: loadingProgress
+                                                                          .expectedTotalBytes !=
+                                                                      null
+                                                                  ? loadingProgress
+                                                                          .cumulativeBytesLoaded /
+                                                                      loadingProgress
+                                                                          .expectedTotalBytes
+                                                                  : null,
+                                                            ),
+                                                          );
+                                                        },
+                                                      ))),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        }),
+        bottomNavigationBar: SizedBox(
+          height: 64,
+          child: AdWidget(
+            ad: banner,
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: const Color(0xff0C4842),
+          child: const Icon(Feather.edit_2),
+          onPressed: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddTalkPage(
+                  count: postCount,
+                  popID: postID,
+                  threadID: threadID,
+                  uid: uid,
+                  upDateAt: upDateAt,
+                  post: post.uid != uid ? post : null,
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Future badAdd(TalkModel model, BuildContext context, dynamic talk) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black54,
+          title: Text('違反報告しますか？',
+              style: GoogleFonts.sawarabiMincho(
+                color: const Color(0xffFCFAF2),
+              )),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                TextButton(
+                  child: Text('いいえ',
+                      style: GoogleFonts.sawarabiMincho(
+                          color: const Color(0xff33A6B8),
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.bold)),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: Text('はい',
+                      style: GoogleFonts.sawarabiMincho(
+                          color: const Color(0xff33A6B8),
+                          fontSize: 15.0,
+                          fontWeight: FontWeight.bold)),
+                  onPressed: () async {
+                    await model.badAdd(threadID, postID, talk, uid);
+                    Navigator.of(context).pop();
+                    await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.black54,
+                            title: Text('通報しました',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.sawarabiMincho(
+                                  color: const Color(0xffFCFAF2),
+                                )),
+                          );
+                        });
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future deleteAdd(TalkModel model, BuildContext context, dynamic talk) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black54,
+          title: Text(
+            '投稿を削除しますか？',
+            style: GoogleFonts.sawarabiMincho(
+                color: const Color(0xffFCFAF2),
+                fontSize: 15.0,
+                fontWeight: FontWeight.bold),
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                TextButton(
+                  child: Text('いいえ',
+                      style: GoogleFonts.sawarabiMincho(
+                          color: const Color(0xff33A6B8),
+                          fontWeight: FontWeight.bold)),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: Text('はい',
+                      style: GoogleFonts.sawarabiMincho(
+                          color: const Color(0xff33A6B8),
+                          fontWeight: FontWeight.bold)),
+                  onPressed: () async {
+                    await model.deleteAdd(threadID, postID, talk);
+                    Navigator.of(context).pop();
+                    await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.black54,
+                            title: Text('投稿を削除しました',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.sawarabiMincho(
+                                  color: const Color(0xffFCFAF2),
+                                )),
+                          );
+                        });
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future errorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black54,
+          title: Text('URLが誤っているため\n表示できません',
+              style:
+                  GoogleFonts.sawarabiMincho(color: const Color(0xffFCFAF2))),
+          actions: [
+            TextButton(
+              child: const Text('閉じる'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future blockDialog(BuildContext context, String uid, String blockUser,
+      TalkModel model, List blockUsers) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.black54,
+          title: Text('${blockUser.substring(20)}をブロックしますか？',
+              style:
+                  GoogleFonts.sawarabiMincho(color: const Color(0xffFCFAF2))),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                TextButton(
+                  child: const Text('いいえ'),
+                  onPressed: () async {
+                    Navigator.of(context).pop();
+                  },
+                ),
+                TextButton(
+                  child: const Text('ブロックする'),
+                  onPressed: () async {
+                    await model.addToBlockList(uid, blockUser);
+                    Navigator.of(context).pop();
+                    await showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            backgroundColor: Colors.black54,
+                            title: Text('${blockUser.substring(20)}をブロックしました',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.sawarabiMincho(
+                                  color: const Color(0xffFCFAF2),
+                                )),
+                          );
+                        });
+                  },
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future showAccessBlockList(BuildContext context, TalkModel model) async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Center(
+          child: SizedBox(
+            height: 500,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (model.accessBlockList.isNotEmpty)
+                  SizedBox(
+                      height: 400,
+                      child: ListView.builder(
+                        itemCount: model.accessBlockList.length,
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          return Card(
+                            color: const Color(0xffFCFAF2),
+                            child: ListTile(
+                              title: Text(
+                                  '${model.accessBlockList[index].toString().substring(20)}のアクセスブロックを解除',
+                                  style: GoogleFonts.sawarabiMincho(
+                                      color: const Color(0xff43341B),
+                                      fontSize: 15.0,
+                                      fontWeight: FontWeight.bold)),
+                              onTap: () async {
+                                await model.removeAccsessBlock(
+                                    context,
+                                    threadID,
+                                    postID,
+                                    model.accessBlockList[index].toString());
+                              },
+                            ),
+                          );
+                        },
+                      ))
+                else
+                  Padding(
+                    padding: const EdgeInsets.all(30.0),
+                    child: Text('ブロックしてるユーザーはいません',
+                        style: GoogleFonts.sawarabiMincho(
+                            color: const Color(0xffFCFAF2),
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.bold)),
+                  ),
+                ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: const Color(0xff0C4842),
+                    ),
+                    onPressed: () async {
+                      Navigator.of(context).pop();
+                    },
+                    child: Text('閉じる',
+                        style: GoogleFonts.sawarabiMincho(
+                            color: const Color(0xffFCFAF2),
+                            fontSize: 15.0,
+                            fontWeight: FontWeight.bold)))
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

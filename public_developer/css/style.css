@@ -1,0 +1,31 @@
+h1 {
+    color: #43341B;
+  }
+h2{
+    color: #43341B;
+  }
+p{
+    color: #43341B;
+  }
+  a{
+      color: #33A6B8;
+  }
+  .resizeimage img { width: 70%; }
+  .resizeimageApp img { width: 30%; }
+  .resizeimageGoogle img { width: 35%; }
+  .resizeimageQR img { width: 20%; }
+
+ 
+  .wrap{
+    margin-bottom: 20px;
+    height:100px;
+  }
+  .box{
+    display:inline-block;
+    text-align:center;
+    width: 1000px;
+    height: 1000px;
+  }
+  div.center {text-align: center;}
+
+  

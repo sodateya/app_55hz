@@ -1,0 +1,6 @@
+version: "Apple Swift version 5.5.1 (swiftlang-1300.0.31.4 clang-1300.0.29.6)"
+options: "fc8c34b102b980692abf8bab5974a93cc50c5056c58165eecd2bb41177fd4931"
+build_start_time: [1642215082, 284602165]
+build_end_time: [1642215082, 384639024]
+inputs:
+  "/Users/takuyaishikawa/Desktop/Various/Test Flutter/2022.1.14/app_55hz/ios/Runner/AppDelegate.swift": !dirty [1618595276, 0]
