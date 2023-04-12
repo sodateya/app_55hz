@@ -2,7 +2,10 @@
 
 import 'package:app_55hz/domain/thread.dart';
 import 'package:app_55hz/main/admob.dart';
+import 'package:app_55hz/presentation/add_thread/add_thread_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../list/list_model.dart';
@@ -14,7 +17,14 @@ class AllThread extends StatelessWidget {
   String sort;
   String uid;
   AdInterstitial adInterstitial;
-  AllThread({Key key, this.thread, this.sort, this.uid, this.adInterstitial})
+  List<Thread> threadList;
+  AllThread(
+      {Key key,
+      this.thread,
+      this.sort,
+      this.uid,
+      this.adInterstitial,
+      this.threadList})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -258,26 +268,11 @@ class AllThread extends StatelessWidget {
                                                               builder:
                                                                   (context) {
                                                                 return TalkPage(
-                                                                  threadID: posts[
-                                                                          index]
-                                                                      .threadId,
-                                                                  postID: posts[
-                                                                          index]
-                                                                      .documentID,
-                                                                  title: posts[
-                                                                          index]
-                                                                      .title,
                                                                   uid: uid,
-                                                                  threadUid:
-                                                                      posts[index]
-                                                                          .uid,
                                                                   resSort: model
                                                                       .resSort,
                                                                   adInterstitial:
                                                                       adInterstitial,
-                                                                  upDateAt: posts[
-                                                                          index]
-                                                                      .upDateAt,
                                                                   post: posts[
                                                                       index],
                                                                 );
@@ -334,6 +329,30 @@ class AllThread extends StatelessWidget {
             );
           }),
         ),
+        floatingActionButton:
+            Consumer<ListModel>(builder: (context, model, child) {
+          return FloatingActionButton.extended(
+            elevation: 9,
+            heroTag: 011,
+            backgroundColor: const Color(0xff0C4842).withOpacity(0.7),
+            label: Row(
+              children: [
+                Text(
+                  'スレを建てる',
+                  style: GoogleFonts.sawarabiMincho(
+                      textStyle: Theme.of(context).textTheme.headlineMedium,
+                      color: const Color(0xffFCFAF2),
+                      fontSize: 15.0,
+                      fontWeight: FontWeight.bold),
+                ),
+                const Icon(Feather.edit),
+              ],
+            ),
+            onPressed: () {
+              model.showBottmoSheet(context, threadList, adInterstitial, uid);
+            },
+          );
+        }),
       ),
     );
   }

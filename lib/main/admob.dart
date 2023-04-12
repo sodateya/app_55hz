@@ -92,7 +92,7 @@ class AdInterstitial with ChangeNotifier {
       return 'ca-app-pub-3482694581552522/6996339951';
     } else if (Platform.isIOS) {
       return 'ca-app-pub-3482694581552522/9439601709';
-    } else {}
+    }
   }
 
   static String get bannerAdUnitId {
@@ -100,7 +100,7 @@ class AdInterstitial with ChangeNotifier {
       return 'ca-app-pub-3482694581552522/3657134860';
     } else if (Platform.isIOS) {
       return 'ca-app-pub-3482694581552522/5888672841';
-    } else {}
+    }
   }
 }
 // banner ca-app-pub-3482694581552522/5888672841

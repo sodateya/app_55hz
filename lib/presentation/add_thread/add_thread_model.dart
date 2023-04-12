@@ -3,6 +3,7 @@ import 'package:app_55hz/domain/thread.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../domain/post.dart';
 
@@ -16,6 +17,8 @@ class AddThreadModel extends ChangeNotifier {
   DateTime upDateAt = DateTime.now();
   String token = '';
   Post post;
+  bool resSort;
+
   Future startLoading() async {
     isLoading = true;
     notifyListeners();
@@ -26,13 +29,15 @@ class AddThreadModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future getToken() async {
-    final token = await FirebaseMessaging.instance.getToken();
-    this.token = token;
-    notifyListeners();
+  Future getResSort() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    resSort = pref.getBool('resSort');
+    return resSort;
   }
 
   Future addThreadToFirebase(Thread thread, String uid, List blockUsers) async {
+    final token = await FirebaseMessaging.instance.getToken();
+
     final db = FirebaseFirestore.instance
         .collection('thread')
         .doc(thread.documentID)
@@ -52,9 +57,9 @@ class AddThreadModel extends ChangeNotifier {
       'threadId': thread.documentID,
       'postCount': 0,
       'mainToken': token
-    }).then((result) {
-      popTitle = title;
-      postID = result.id;
+    }).then((result) async {
+      final doc = await result.get();
+      post = Post(doc);
     });
   }
 }

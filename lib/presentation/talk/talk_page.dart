@@ -1,9 +1,11 @@
 // ignore_for_file: must_be_immutable, use_build_context_synchronously, missing_return
 
 import 'dart:math';
+import 'package:app_55hz/domain/custom_cache_manager.dart';
 import 'package:app_55hz/main/admob.dart';
 import 'package:app_55hz/presentation/talk/talk_model.dart';
 import 'package:app_55hz/presentation/talk_add/talk_add_page.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
@@ -16,14 +18,9 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import '../../domain/post.dart';
 
 class TalkPage extends StatelessWidget {
-  String title;
-  String postID;
   String uid;
-  String threadID;
-  String threadUid;
   AdInterstitial adInterstitial;
   bool resSort;
-  DateTime upDateAt;
   Post post;
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
@@ -32,17 +29,7 @@ class TalkPage extends StatelessWidget {
     request: const AdRequest(),
   )..load();
 
-  TalkPage(
-      {Key key,
-      this.title,
-      this.postID,
-      this.uid,
-      this.threadID,
-      this.threadUid,
-      this.resSort,
-      this.adInterstitial,
-      this.upDateAt,
-      this.post})
+  TalkPage({Key key, this.uid, this.resSort, this.adInterstitial, this.post})
       : super(key: key);
 
   int postCount = 0;
@@ -53,7 +40,7 @@ class TalkPage extends StatelessWidget {
     return ChangeNotifierProvider.value(
       value: TalkModel()
         ..fetchMyFavorite(uid)
-        ..getTalk(postID, threadID, threadUid, resSort, uid)
+        ..getTalk(post, resSort, uid)
         ..fetchBlockList(uid),
       child: Scaffold(
         appBar: AppBar(
@@ -63,27 +50,16 @@ class TalkPage extends StatelessWidget {
               color: Color(0xff616138),
               colorBlendMode: BlendMode.modulate,
             ),
-            leading: IconButton(
-              iconSize: 30,
-              icon: const Icon(
-                Feather.chevron_left,
-                color: Color(0xffFCFAF2),
-              ),
-              onPressed: () async {
-                Navigator.pop(context);
-              },
-            ),
             actions: [
               Consumer<TalkModel>(builder: (context, model, child) {
                 final favoriteThreads = model.favoriteThread;
                 return favoriteThreads.isNotEmpty
                     ? Row(
                         children: [
-                          threadUid == uid
+                          post.uid == uid
                               ? IconButton(
                                   onPressed: () async {
-                                    await model.getTalk(postID, threadID,
-                                        threadUid, resSort, uid);
+                                    await model.getTalk(post, resSort, uid);
                                     await showAccessBlockList(context, model);
                                   },
                                   icon: const Icon(Feather.user_x))
@@ -96,8 +72,7 @@ class TalkPage extends StatelessWidget {
                                   }
                                   adInterstitial.counter = 7;
                                 });
-                                await model.getTalk(
-                                    postID, threadID, threadUid, resSort, uid);
+                                await model.getTalk(post, resSort, uid);
                               },
                               icon: Transform.rotate(
                                   angle: 90 * pi / 180,
@@ -105,16 +80,14 @@ class TalkPage extends StatelessWidget {
                           IconButton(
                               onPressed: () async {
                                 if (favoriteThreads.first.favoriteThreads
-                                    .contains(postID.substring(10))) {
-                                  await model.deleteFavorite(
-                                      uid, postID, postID.substring(10));
+                                    .contains(post.documentID.substring(10))) {
+                                  await model.deleteFavorite(uid, post);
                                 } else {
-                                  await model.addFavorite(uid, title, threadID,
-                                      postID, threadUid, postID.substring(10));
+                                  await model.addFavorite(uid, post);
                                 }
                               },
                               icon: favoriteThreads.first.favoriteThreads
-                                      .contains(postID.substring(10))
+                                      .contains(post.documentID.substring(10))
                                   ? const Icon(
                                       Icons.favorite,
                                       color: Color(0xffD0104C),
@@ -125,7 +98,7 @@ class TalkPage extends StatelessWidget {
                     : const Icon(null);
               })
             ],
-            title: Text(title,
+            title: Text(post.title,
                 style: GoogleFonts.sawarabiMincho(
                     color: const Color(0xffFCFAF2), fontSize: 16))),
         backgroundColor: const Color(0xffFCFAF2),
@@ -137,7 +110,7 @@ class TalkPage extends StatelessWidget {
             if (scrollController.position.pixels ==
                 scrollController.position.maxScrollExtent) {
               adInterstitial.counter++;
-              await model.getMoreTalk(postID, threadID);
+              await model.getMoreTalk(post);
             }
           }
 
@@ -162,8 +135,7 @@ class TalkPage extends StatelessWidget {
                     child: RefreshIndicator(
                       onRefresh: () async {
                         adInterstitial.counter++;
-                        await model.getTalk(
-                            postID, threadID, threadUid, resSort, uid);
+                        await model.getTalk(post, resSort, uid);
                       },
                       child: ListView.builder(
                         cacheExtent: 9999,
@@ -182,20 +154,15 @@ class TalkPage extends StatelessWidget {
                             return Slidable(
                               actionPane: const SlidableBehindActionPane(),
                               secondaryActions: [
-                                threadUid == uid && talks[index].uid != uid
+                                post.uid == uid && talks[index].uid != uid
                                     ? IconSlideAction(
                                         color: const Color(0xffFCFAF2),
                                         caption: 'アクブロ',
                                         onTap: () async {
                                           await model.deleteFavorite(
-                                              talks[index].uid,
-                                              postID,
-                                              postID.substring(10));
+                                              talks[index].uid, post);
                                           await model.addAccsessBlock(
-                                              context,
-                                              threadID,
-                                              postID,
-                                              talks[index].uid);
+                                              context, post, talks[index].uid);
                                         },
                                         icon: Feather.user_x,
                                       )
@@ -256,17 +223,12 @@ class TalkPage extends StatelessWidget {
                                                     MaterialPageRoute(
                                                         builder: (context) =>
                                                             AddTalkPage(
-                                                              count: postCount,
-                                                              popID: postID,
-                                                              threadID:
-                                                                  threadID,
+                                                              post: post,
                                                               uid: uid,
                                                               resNumber: talks[
                                                                       index]
                                                                   .count
                                                                   .toString(),
-                                                              upDateAt:
-                                                                  upDateAt,
                                                             ),
                                                         fullscreenDialog: true),
                                                   );
@@ -296,7 +258,7 @@ class TalkPage extends StatelessWidget {
                                                             0xff43341B),
                                                         fontSize: 10.0),
                                                 textAlign: TextAlign.left),
-                                            talks[index].uid == threadUid
+                                            talks[index].uid == post.uid
                                                 ? Text(
                                                     '  (主)',
                                                     style: GoogleFonts
@@ -439,33 +401,37 @@ class TalkPage extends StatelessWidget {
                                                           }
                                                         }
                                                       },
-                                                      child: Image.network(
-                                                        talks[index].imgURL,
+                                                      child: CachedNetworkImage(
+                                                        imageUrl:
+                                                            talks[index].imgURL,
                                                         fit: BoxFit.fill,
-                                                        loadingBuilder:
-                                                            (BuildContext
-                                                                    context,
-                                                                Widget child,
-                                                                ImageChunkEvent
-                                                                    loadingProgress) {
-                                                          if (loadingProgress ==
-                                                              null) {
-                                                            return child;
-                                                          }
-                                                          return Center(
-                                                            child:
-                                                                CircularProgressIndicator(
-                                                              value: loadingProgress
-                                                                          .expectedTotalBytes !=
-                                                                      null
-                                                                  ? loadingProgress
-                                                                          .cumulativeBytesLoaded /
-                                                                      loadingProgress
-                                                                          .expectedTotalBytes
-                                                                  : null,
+                                                        cacheManager:
+                                                            customCacheManager,
+                                                        placeholder: (context,
+                                                                url) =>
+                                                            SizedBox(
+                                                                child: Column(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .center,
+                                                          children: [
+                                                            const SizedBox(
+                                                              width: 80,
+                                                              height: 80,
+                                                              child: Image(
+                                                                image: AssetImage(
+                                                                    'images/logo.gif'),
+                                                              ),
                                                             ),
-                                                          );
-                                                        },
+                                                            Text('〜読み込み中〜',
+                                                                style: GoogleFonts
+                                                                    .sawarabiMincho(
+                                                                        color: const Color(
+                                                                            0xff43341B),
+                                                                        fontSize:
+                                                                            21)),
+                                                          ],
+                                                        )),
                                                       ))),
                                     ),
                                   ],
@@ -496,12 +462,8 @@ class TalkPage extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => AddTalkPage(
-                  count: postCount,
-                  popID: postID,
-                  threadID: threadID,
                   uid: uid,
-                  upDateAt: upDateAt,
-                  post: post.uid != uid ? post : null,
+                  post: post,
                 ),
               ),
             );
@@ -542,7 +504,7 @@ class TalkPage extends StatelessWidget {
                           fontSize: 15.0,
                           fontWeight: FontWeight.bold)),
                   onPressed: () async {
-                    await model.badAdd(threadID, postID, talk, uid);
+                    await model.badAdd(post, talk, uid);
                     Navigator.of(context).pop();
                     await showDialog(
                         context: context,
@@ -598,7 +560,7 @@ class TalkPage extends StatelessWidget {
                           color: const Color(0xff33A6B8),
                           fontWeight: FontWeight.bold)),
                   onPressed: () async {
-                    await model.deleteAdd(threadID, postID, talk);
+                    await model.deleteAdd(post, talk);
                     Navigator.of(context).pop();
                     await showDialog(
                         context: context,
@@ -718,10 +680,7 @@ class TalkPage extends StatelessWidget {
                                       fontSize: 15.0,
                                       fontWeight: FontWeight.bold)),
                               onTap: () async {
-                                await model.removeAccsessBlock(
-                                    context,
-                                    threadID,
-                                    postID,
+                                await model.removeAccsessBlock(context, post,
                                     model.accessBlockList[index].toString());
                               },
                             ),

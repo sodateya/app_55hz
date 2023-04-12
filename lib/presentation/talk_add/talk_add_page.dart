@@ -12,11 +12,7 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 
 class AddTalkPage extends StatelessWidget {
-  Thread thread;
   Post post;
-  int count;
-  String popID;
-  String threadID;
   String uid;
   String resNumber;
   TextEditingController nameController = TextEditingController();
@@ -24,7 +20,6 @@ class AddTalkPage extends StatelessWidget {
   TextEditingController commentController = TextEditingController();
   TextEditingController imageController = TextEditingController();
   File imageFile;
-  DateTime upDateAt;
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
@@ -32,17 +27,12 @@ class AddTalkPage extends StatelessWidget {
     request: const AdRequest(),
   )..load();
 
-  AddTalkPage(
-      {Key key,
-      this.thread,
-      this.post,
-      this.count,
-      this.popID,
-      this.threadID,
-      this.uid,
-      this.resNumber,
-      this.upDateAt})
-      : super(key: key);
+  AddTalkPage({
+    Key key,
+    this.post,
+    this.uid,
+    this.resNumber,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -96,10 +86,6 @@ class AddTalkPage extends StatelessWidget {
                     padding: EdgeInsets.only(bottom: bottomSpace),
                     child: Consumer<AddTalkModel>(
                       builder: (context, model, child) {
-                        if (post != null) {
-                          model.getMainToken(threadID, popID);
-                          print(model.mainToken);
-                        }
                         nameController.text == ''
                             ? nameController.text = model.name
                             : nameController.text = nameController.text;
@@ -287,17 +273,10 @@ class AddTalkPage extends StatelessWidget {
                                                   model.url =
                                                       urlController.text;
                                                   try {
-                                                    await model.startLoading();
-                                                    // ignore: use_build_context_synchronously
                                                     await addTalk(
                                                         model, context);
-                                                  } finally {
-                                                    if (post != null ) {
-                                                      await model.push(
-                                                          'あなたのスレにコメがつきました',
-                                                          post.mainToken);
-                                                    }
-                                                    await model.endLoading();
+                                                  } catch (e) {
+                                                    print(e.toString());
                                                   }
                                                 },
                                           child: Text(
@@ -425,10 +404,9 @@ class AddTalkPage extends StatelessWidget {
   }
 
   Future addTalk(AddTalkModel model, BuildContext context) async {
-    try {
-      await model.addTalkToFirebase(
-          thread, post, count, popID, threadID, uid, upDateAt);
-      await showDialog(
+    if (model.comment != '') {
+      model.addTalkToFirebase(post, uid);
+      showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
@@ -445,10 +423,10 @@ class AddTalkPage extends StatelessWidget {
           );
         },
       );
-    } catch (e) {
-      final snackBar = SnackBar(
-        backgroundColor: const Color(0xffD0104C),
-        content: Text(e.toString()),
+    } else {
+      const snackBar = SnackBar(
+        backgroundColor: Color(0xffD0104C),
+        content: Text('コメントを入力してください'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }

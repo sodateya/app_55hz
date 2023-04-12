@@ -28,12 +28,18 @@ class DefaultDrawer extends StatelessWidget {
   bool isChanged = false;
   ListModel model;
 
-  DefaultDrawer(
-      {Key key, this.uid, this.auth, this.isChanged, this.model, this.sort})
-      : super(key: key);
+  DefaultDrawer({
+    Key key,
+    this.uid,
+    this.auth,
+    this.isChanged,
+    this.model,
+    this.sort,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return Theme(
       data: Theme.of(context).copyWith(
           canvasColor: const Color(0xff939650),
@@ -165,8 +171,11 @@ class DefaultDrawer extends StatelessWidget {
                               await Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                      builder: (context) =>
-                                          TalkToAdminPage(uid: uid)));
+                                      builder: (context) => TalkToAdminPage(
+                                            size: size,
+                                            uid: uid,
+                                            adInterstitial: adInterstitial,
+                                          )));
                             }, '管理人とお話し', Feather.message_circle),
                             DrawerTile(() async {
                               await launch('https://hz-360fa.web.app/');
@@ -193,13 +202,13 @@ class DefaultDrawer extends StatelessWidget {
                                       builder: (context) => Login(
                                           adInterstitial: adInterstitial)));
                             }, 'ログアウト', Feather.log_out),
-                            DrawerTile(() async {
-                              await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          FriendPage(uid: uid)));
-                            }, 'test', Feather.log_out),
+                            // DrawerTile(() async {
+                            //   await Navigator.push(
+                            //       context,
+                            //       MaterialPageRoute(
+                            //           builder: (context) =>
+                            //               FriendPage(uid: uid)));
+                            // }, 'test', Feather.log_out),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Row(

@@ -1,4 +1,5 @@
 import 'package:app_55hz/domain/myPost.dart';
+import 'package:app_55hz/domain/post.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -8,6 +9,7 @@ class MyFavoritePageModel extends ChangeNotifier {
   final firestore = FirebaseFirestore.instance;
   DocumentSnapshot lastDocument;
   List blockList = [];
+  Post post;
 
   Future getBlockList(String uid) async {
     final querySnapshot = await firestore
@@ -59,16 +61,15 @@ class MyFavoritePageModel extends ChangeNotifier {
     }
   }
 
-  Future<DateTime> getThreadData(String threadID, String postID) async {
-    final threadDate = await firestore
+  Future<Post> getThreadData(String threadID, String postID) async {
+    final doc = await firestore
         .collection('thread')
         .doc(threadID)
         .collection('post')
         .doc(postID)
         .get();
-    final dateAt = await threadDate.data()['upDateAt'];
-    final DateTime upDateAt = await dateAt.toDate();
-    return upDateAt;
+    post = Post(doc);
+    return post;
   }
 
   Future deleteFavorite(

@@ -39,7 +39,8 @@ class Home extends StatelessWidget {
         ..setConfig()
         ..getConfig()
         ..upLoadUdid(uid)
-        ..fetchVersion(context),
+        ..fetchVersion(context)
+        ..resetBadge(),
       child: Consumer<ListModel>(
         builder: (context, model, child) {
           final sort = model.timeSort;
@@ -51,10 +52,12 @@ class Home extends StatelessWidget {
               .toList();
           final listPage = threads
               .map((Thread thread) => ListPage(
-                  thread: thread,
-                  uid: uid,
-                  sort: sort,
-                  adInterstitial: adInterstitial))
+                    thread: thread,
+                    uid: uid,
+                    sort: sort,
+                    adInterstitial: adInterstitial,
+                    threadList: model.threads,
+                  ))
               .toList();
 
           return DefaultTabController(
@@ -88,11 +91,11 @@ class Home extends StatelessWidget {
                           await model.changeTime();
                         },
                         icon: const Icon(Icons.history)),
-                    IconButton(
-                        onPressed: () async {
-                          await searchThread(context);
-                        },
-                        icon: const Icon(Feather.search)),
+                    // IconButton(
+                    //     onPressed: () async {
+                    //       await searchThread(context);
+                    //     },
+                    //     icon: const Icon(Feather.search)),
                   ],
                   title: Column(
                     children: [
@@ -196,62 +199,62 @@ class Home extends StatelessWidget {
                                     fontSize: 15.0,
                                     fontWeight: FontWeight.bold),
                               )),
-                          TextButton(
-                              onPressed: () async {
-                                if (searchWord != null) {
-                                  Navigator.of(context).pop();
-                                  await Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => SearchTabPage(
-                                                uid: uid,
-                                                searchWord: searchWord,
-                                              )));
-                                  print(searchWord);
-                                } else {
-                                  showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          backgroundColor:
-                                              const Color(0xffFCFAF2),
-                                          title: Text(
-                                            ' 検索ワードを入力してください',
-                                            style: GoogleFonts.sawarabiMincho(
-                                              color: const Color(0xff43341B),
-                                              fontSize: 17,
-                                            ),
-                                          ),
-                                          content: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              TextButton(
-                                                  onPressed: () async {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  child: Text(
-                                                    '閉じる',
-                                                    style: GoogleFonts
-                                                        .sawarabiMincho(
-                                                      color: const Color(
-                                                          0xff43341B),
-                                                      fontSize: 15.0,
-                                                    ),
-                                                  ))
-                                            ],
-                                          ),
-                                        );
-                                      });
-                                }
-                              },
-                              child: Text(
-                                '検索',
-                                style: GoogleFonts.sawarabiMincho(
-                                    color: const Color(0xff33A6B8),
-                                    fontSize: 15.0,
-                                    fontWeight: FontWeight.bold),
-                              )),
+                          // TextButton(
+                          //     onPressed: () async {
+                          //       if (searchWord != null) {
+                          //         Navigator.of(context).pop();
+                          //         await Navigator.push(
+                          //             context,
+                          //             MaterialPageRoute(
+                          //                 builder: (context) => SearchTabPage(
+                          //                       uid: uid,
+                          //                       searchWord: searchWord,
+                          //                     )));
+                          //         print(searchWord);
+                          //       } else {
+                          //         showDialog(
+                          //             context: context,
+                          //             builder: (BuildContext context) {
+                          //               return AlertDialog(
+                          //                 backgroundColor:
+                          //                     const Color(0xffFCFAF2),
+                          //                 title: Text(
+                          //                   ' 検索ワードを入力してください',
+                          //                   style: GoogleFonts.sawarabiMincho(
+                          //                     color: const Color(0xff43341B),
+                          //                     fontSize: 17,
+                          //                   ),
+                          //                 ),
+                          //                 content: Row(
+                          //                   mainAxisAlignment:
+                          //                       MainAxisAlignment.end,
+                          //                   children: [
+                          //                     TextButton(
+                          //                         onPressed: () async {
+                          //                           Navigator.of(context).pop();
+                          //                         },
+                          //                         child: Text(
+                          //                           '閉じる',
+                          //                           style: GoogleFonts
+                          //                               .sawarabiMincho(
+                          //                             color: const Color(
+                          //                                 0xff43341B),
+                          //                             fontSize: 15.0,
+                          //                           ),
+                          //                         ))
+                          //                   ],
+                          //                 ),
+                          //               );
+                          //             });
+                          //       }
+                          //     },
+                          //     child: Text(
+                          //       '検索',
+                          //       style: GoogleFonts.sawarabiMincho(
+                          //           color: const Color(0xff33A6B8),
+                          //           fontSize: 15.0,
+                          //           fontWeight: FontWeight.bold),
+                          //     )),
                         ],
                       ),
                       TextButton(

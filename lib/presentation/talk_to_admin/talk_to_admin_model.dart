@@ -104,12 +104,33 @@ class TalkToAdminModel extends ChangeNotifier {
     });
   }
 
-  Future pickImage() async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      imageFile = File(pickedFile.path);
+  Future addImage(String uid) async {
+    final doc = FirebaseFirestore.instance.collection('inquiry').doc();
+    String imgURL;
+    if (imageFile != null) {
+      final task = await FirebaseStorage.instance
+          .ref('talk/${doc.id}')
+          .putFile(imageFile);
+      imgURL = await task.ref.getDownloadURL();
     }
-    notifyListeners();
+    await doc.set({
+      'comment': '',
+      'createdAt': Timestamp.now(),
+      'uid': uid,
+      'count': 0,
+      'badCount': [],
+      'url': '',
+      'name': handleName,
+      'imgURL': imgURL ?? '',
+    });
+    // push(message, token, myInfo);
+  }
+
+  Future pickImage() async {
+    final pickedFile = await picker.pickImage(
+        source: ImageSource.gallery, maxHeight: 400, maxWidth: 400);
+    imageFile = File(pickedFile.path);
+    return imageFile;
   }
 
   Future resetImage() {
@@ -121,7 +142,6 @@ class TalkToAdminModel extends ChangeNotifier {
 
   Future getName() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-
     if (pref.getString('handleName') == null) {
       await pref.setString('handleName', '名無しさん');
       handleName = pref.getString('handleName');

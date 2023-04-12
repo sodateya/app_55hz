@@ -34,7 +34,7 @@ class AddThreadPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
-      value: AddThreadModel()..getToken(),
+      value: AddThreadModel(),
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(
@@ -143,6 +143,7 @@ class AddThreadPage extends StatelessWidget {
   }
 
   Future addThread(AddThreadModel model, BuildContext context) async {
+    final bool resSort = await model.getResSort();
     try {
       await model.addThreadToFirebase(thread, uid, blockUsers);
       await showDialog(
@@ -161,14 +162,10 @@ class AddThreadPage extends StatelessWidget {
                     context,
                     MaterialPageRoute(
                       builder: (context) => TalkPage(
-                        threadID: thread.documentID,
-                        postID: model.postID,
-                        title: model.title,
-                        threadUid: uid,
-                        uid: uid,
-                        adInterstitial: adInterstitial,
-                        upDateAt: model.upDateAt,
-                      ),
+                          uid: uid,
+                          adInterstitial: adInterstitial,
+                          post: model.post,
+                          resSort: resSort),
                     ),
                   );
                 },

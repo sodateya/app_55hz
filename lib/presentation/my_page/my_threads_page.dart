@@ -30,7 +30,7 @@ class MyThreadsPage extends StatelessWidget {
     return ChangeNotifierProvider.value(
       value: MyThreadsModel()
         ..getConfig()
-        ..getMyFavorite(uid, sort),
+        ..getMyPost(uid, sort),
       child: Consumer<MyThreadsModel>(builder: (context, model, child) {
         final posts = model.posts;
         sort = model.timeSort;
@@ -38,7 +38,7 @@ class MyThreadsPage extends StatelessWidget {
         void getMore() async {
           if (scrollController.position.pixels ==
               scrollController.position.maxScrollExtent) {
-            model.getMoreMyFavorite(uid, sort);
+            model.getMoreMyPost(uid, sort);
           }
         }
 
@@ -54,7 +54,7 @@ class MyThreadsPage extends StatelessWidget {
               IconButton(
                   onPressed: () async {
                     await model.changeTime().then((value) async {
-                      await model.getMyFavorite(uid, value);
+                      await model.getMyPost(uid, value);
                     });
                   },
                   icon: const Icon(Icons.history)),
@@ -112,7 +112,7 @@ class MyThreadsPage extends StatelessWidget {
                     Expanded(
                       child: RefreshIndicator(
                         onRefresh: () async {
-                          await model.getMyFavorite(uid, sort);
+                          await model.getMyPost(uid, sort);
                         },
                         child: SizedBox(
                           height: size.height * 0.8,
@@ -165,13 +165,10 @@ class MyThreadsPage extends StatelessWidget {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => TalkPage(
-                                              threadID: posts[index].threadId,
-                                              postID: posts[index].documentID,
-                                              title: posts[index].title,
                                               uid: uid,
                                               adInterstitial: adInterstitial,
-                                              threadUid: uid,
-                                              upDateAt: posts[index].upDateAt,
+                                              post: posts[index],
+                                              resSort: model.resSort,
                                             ),
                                           ),
                                         );

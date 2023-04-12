@@ -129,29 +129,24 @@ class MyFavoritePage extends StatelessWidget {
 
                                           onTap: () async {
                                             try {
-                                              final upDateAt =
-                                                  await model.getThreadData(
+                                              await model
+                                                  .getThreadData(
                                                       posts[index].threadID,
-                                                      posts[index].postID);
-                                              // ignore: use_build_context_synchronously
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      TalkPage(
-                                                    threadID:
-                                                        posts[index].threadID,
-                                                    postID: posts[index].postID,
-                                                    title: posts[index].title,
-                                                    uid: uid,
-                                                    adInterstitial:
-                                                        adInterstitial,
-                                                    threadUid:
-                                                        posts[index].threadUid,
-                                                    upDateAt: upDateAt,
-                                                  ),
-                                                ),
-                                              );
+                                                      posts[index].postID)
+                                                  .then(
+                                                      (value) => Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder:
+                                                                  (context) =>
+                                                                      TalkPage(
+                                                                uid: uid,
+                                                                adInterstitial:
+                                                                    adInterstitial,
+                                                                post: value,
+                                                              ),
+                                                            ),
+                                                          ));
                                             } catch (e) {
                                               deleteFavoriteDialog(
                                                   context,

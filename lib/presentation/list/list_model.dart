@@ -2,9 +2,12 @@ import 'dart:io';
 
 import 'package:app_55hz/domain/post.dart';
 import 'package:app_55hz/domain/thread.dart';
+import 'package:app_55hz/main/admob.dart';
+import 'package:app_55hz/presentation/add_thread/add_thread_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_udid/flutter_udid.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:package_info_plus/package_info_plus.dart';
@@ -34,6 +37,10 @@ class ListModel extends ChangeNotifier {
     return isUpdateToday;
   }
 
+  void resetBadge() {
+    FlutterAppBadger.removeBadge();
+  }
+
   Future getToken(String uid) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     if (pref.getBool('token$uid') == null) {
@@ -50,9 +57,7 @@ class ListModel extends ChangeNotifier {
         });
         await pref.setBool('$uid', true);
       }
-    } else {
-      print('OK');
-    }
+    } else {}
   }
 
   Future checkMyBD(String uid) async {
@@ -476,5 +481,86 @@ class ListModel extends ChangeNotifier {
       'read': FieldValue.arrayUnion([uid])
     });
     notifyListeners();
+  }
+
+  Future showBottmoSheet(
+    BuildContext context,
+    List<Thread> threadList,
+    AdInterstitial ad,
+    String uid,
+  ) {
+    showModalBottomSheet(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: const EdgeInsets.only(
+            left: 20,
+            right: 20,
+            top: 10,
+          ),
+          height: 400,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('images/washi1.png'),
+              fit: BoxFit.cover,
+              colorFilter:
+                  ColorFilter.mode(Color(0xffFCFAF2), BlendMode.modulate),
+            ),
+            color: Color(0xffFCFAF2),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('板選択',
+                  style: GoogleFonts.sawarabiMincho(
+                      color: const Color(0xff43341B),
+                      fontSize: 21.0,
+                      fontWeight: FontWeight.bold)),
+              const SizedBox(height: 20),
+              Expanded(
+                  child: SingleChildScrollView(
+                child: Wrap(
+                  children: [
+                    for (var thread in threadList) ...{
+                      thread.title == 'すべて' || thread.title == '今日のトピック'
+                          ? const SizedBox.shrink()
+                          : Padding(
+                              padding: const EdgeInsets.only(left: 5),
+                              child: ActionChip(
+                                onPressed: () async {
+                                  await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => AddThreadPage(
+                                                thread: thread,
+                                                title: thread.title,
+                                                uid: uid,
+                                                adInterstitial: ad,
+                                                blockUsers: blockUser,
+                                              )));
+                                },
+                                backgroundColor: const Color(0xff939650),
+                                label: Text('${thread.title}板',
+                                    style: GoogleFonts.sawarabiMincho(
+                                        fontSize: 13.0,
+                                        fontWeight: FontWeight.bold)),
+                              ),
+                            ),
+                    }
+                  ],
+                ),
+              )),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

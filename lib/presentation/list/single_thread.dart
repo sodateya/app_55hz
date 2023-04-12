@@ -68,7 +68,7 @@ class ThreadList extends StatelessWidget {
                             final postUid = posts[index].uid.substring(20);
                             return posts[index].accessBlock.contains(uid) ||
                                     blockUsers.contains(posts[index].uid)
-                                ? const SizedBox()
+                                ? const SizedBox.shrink()
                                 : Card(
                                     elevation: 9,
                                     shape: const RoundedRectangleBorder(
@@ -236,6 +236,8 @@ class ThreadList extends StatelessWidget {
                                                     ],
                                                   ),
                                                   onTap: () async {
+                                                    print(
+                                                        posts[index].mainToken);
                                                     await Navigator.push(
                                                         context,
                                                         MaterialPageRoute(
@@ -243,26 +245,11 @@ class ThreadList extends StatelessWidget {
                                                                 false,
                                                             builder: (context) {
                                                               return TalkPage(
-                                                                threadID: posts[
-                                                                        index]
-                                                                    .threadId,
-                                                                postID: posts[
-                                                                        index]
-                                                                    .documentID,
-                                                                title:
-                                                                    posts[index]
-                                                                        .title,
                                                                 uid: uid,
-                                                                threadUid:
-                                                                    posts[index]
-                                                                        .uid,
                                                                 resSort: model
                                                                     .resSort,
                                                                 adInterstitial:
                                                                     adInterstitial,
-                                                                upDateAt: posts[
-                                                                        index]
-                                                                    .upDateAt,
                                                                 post: posts[
                                                                     index],
                                                               );

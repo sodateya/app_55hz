@@ -7,12 +7,19 @@ import 'all_thread.dart';
 
 // ignore: must_be_immutable
 class ListPage extends StatefulWidget {
-  ListPage({Key key, this.thread, this.uid, this.sort, this.adInterstitial})
+  ListPage(
+      {Key key,
+      this.thread,
+      this.uid,
+      this.sort,
+      this.adInterstitial,
+      this.threadList})
       : super(key: key);
   AdInterstitial adInterstitial;
   Thread thread;
   String uid;
   String sort;
+  List<Thread> threadList;
 
   @override
   // ignore: library_private_types_in_public_api
@@ -27,7 +34,7 @@ class _ListPageState extends State<ListPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-
+    // widget.threadList.removeRange(0, 1);
     return Scaffold(
         backgroundColor: const Color(0xffFCFAF2),
         body: Container(
@@ -38,14 +45,16 @@ class _ListPageState extends State<ListPage>
                     thread: widget.thread,
                     sort: widget.sort,
                     uid: widget.uid,
-                    adInterstitial: widget.adInterstitial);
+                    adInterstitial: widget.adInterstitial,
+                    threadList: widget.threadList);
                 break;
               case '今日のトピック':
                 return TodayThread(
                     thread: widget.thread,
                     sort: widget.sort,
                     uid: widget.uid,
-                    adInterstitial: widget.adInterstitial);
+                    adInterstitial: widget.adInterstitial,
+                    threadList: widget.threadList);
                 break;
               default:
                 return ThreadList(

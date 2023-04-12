@@ -42,65 +42,54 @@ class AddTalkModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future addTalkToFirebase(Thread thread, Post post, int count, String popID,
-      String threadID, String uid, DateTime upDateAt) async {
+  void addTalkToFirebase(Post post, String uid) async {
     if (comment.isEmpty) {
       throw ('コメントを入力してください');
+    } else {
+      startLoading();
+      final doc = FirebaseFirestore.instance
+          .collection('thread')
+          .doc(post.threadId)
+          .collection('post')
+          .doc(post.documentID)
+          .collection('talk')
+          .doc();
+      String imgURL;
+      if (imageFile != null) {
+        final task = await FirebaseStorage.instance
+            .ref('talk/${doc.id}')
+            .putFile(imageFile);
+        imgURL = await task.ref.getDownloadURL();
+      }
+      await doc.set({
+        'comment': comment,
+        'createdAt': Timestamp.now(),
+        'uid': uid,
+        'count': FieldValue.increment(1),
+        'badCount': [],
+        'url': url.trim(),
+        'name': name,
+        'imgURL': imgURL ?? imgURLtext.trim(),
+      });
+      await FirebaseFirestore.instance
+          .collection('thread')
+          .doc(post.threadId)
+          .collection('post')
+          .doc(post.documentID)
+          .update({
+        'read': [uid.substring(20)],
+        'upDateAt': Timestamp.now(),
+        'postCount': isUpdateToday(post.upDateAt) ? FieldValue.increment(1) : 1
+      });
+      if (post.mainToken != null) {
+        await push('あなたのスレにコメントがつきました', post.mainToken);
+      }
+      endLoading();
     }
-
-    threadID ??= thread.documentID;
-    popID ??= post.documentID;
-    final doc = FirebaseFirestore.instance
-        .collection('thread')
-        .doc(threadID)
-        .collection('post')
-        .doc(popID)
-        .collection('talk')
-        .doc();
-
-    String imgURL;
-    if (imageFile != null) {
-      final task = await FirebaseStorage.instance
-          .ref('talk/${doc.id}')
-          .putFile(imageFile);
-      imgURL = await task.ref.getDownloadURL();
-    }
-
-    await doc.set({
-      'comment': comment,
-      'createdAt': Timestamp.now(),
-      'uid': uid,
-      'count': count + 1,
-      'badCount': [],
-      'url': url.trim(),
-      'name': name,
-      'imgURL': imgURL ?? imgURLtext.trim(),
-    });
-    FirebaseFirestore.instance
-        .collection('thread')
-        .doc(threadID)
-        .collection('post')
-        .doc(popID)
-        .update({
-      'read': [uid.substring(20)],
-      'upDateAt': Timestamp.now(),
-      'postCount': isUpdateToday(upDateAt) ? FieldValue.increment(1) : 1
-    });
-  }
-
-  Future getMainToken(String threadID, String popID) async {
-    final doc = await FirebaseFirestore.instance
-        .collection('thread')
-        .doc(threadID)
-        .collection('post')
-        .doc(popID)
-        .get();
-    mainToken = doc.data()['mainToken'];
-    notifyListeners();
   }
 
   Future pickImage() async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       imageFile = File(pickedFile.path);
       notifyListeners();

@@ -1,21 +1,23 @@
-// ignore_for_file: must_be_immutable, missing_return
-
+// ignore: unused_import
 import 'dart:io';
+import 'package:app_55hz/domain/custom_cache_manager.dart';
+import 'package:app_55hz/main/admob.dart';
+import 'package:app_55hz/presentation/talk_to_admin/picture_page.dart';
+import 'package:app_55hz/presentation/talk_to_admin/talk_to_admin_model.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../main/admob.dart';
-import 'talk_to_admin_model.dart';
 
 File imageFile;
 TextEditingController commentController = TextEditingController();
 
 class TalkToAdminPage extends StatelessWidget {
-  TalkToAdminPage({Key key, this.uid, this.adInterstitial}) : super(key: key);
-
+  TalkToAdminPage({Key key, this.uid, this.adInterstitial, this.size})
+      : super(key: key);
+  Size size;
   AdInterstitial adInterstitial;
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
@@ -25,248 +27,113 @@ class TalkToAdminPage extends StatelessWidget {
   )..load();
   String uid;
   final adominUid = 'rerVaRIZp9Zo9HTu8iwySUWAmi02';
-
   @override
   Widget build(BuildContext context) {
-    final Size size = MediaQuery.of(context).size;
     return ChangeNotifierProvider.value(
-      value: TalkToAdminModel()
-        ..getTalk()
-        ..getName(),
-      child: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          appBar: AppBar(
-              flexibleSpace: const Image(
-                image: AssetImage('images/washi1.png'),
-                fit: BoxFit.cover,
-                color: Color(0xff2d3441),
-                colorBlendMode: BlendMode.modulate,
-              ),
-              leading: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(
-                      Feather.chevron_left,
-                      color: Color(0xfffbecd6),
-                    ),
-                    onPressed: () async {
-                      Navigator.pop(context);
-                    },
+        value: TalkToAdminModel()
+          ..getTalk()
+          ..getName(),
+        child: Builder(builder: (ctx) {
+          return GestureDetector(
+            onTap: () => FocusScope.of(ctx).unfocus(),
+            child: Scaffold(
+                appBar: AppBar(
+                  flexibleSpace: const Image(
+                    image: AssetImage('images/washi1.png'),
+                    fit: BoxFit.cover,
+                    color: Color(0xff2d3441),
+                    colorBlendMode: BlendMode.modulate,
                   ),
-                ],
-              ),
-              title: Text('管理人とお話し',
-                  style: GoogleFonts.sawarabiMincho(
-                      color: const Color(0xffFCFAF2)))),
-          backgroundColor: const Color(0xffFCFAF2),
-          body: Consumer<TalkToAdminModel>(builder: (context, model, child) {
-            final talks = model.talks;
-            // ignore: no_leading_underscores_for_local_identifiers
-            ScrollController _scrollController = ScrollController();
-            Future getMore() async {
-              if (_scrollController.position.pixels ==
-                  _scrollController.position.maxScrollExtent) {
-                await model.getMoreTalk();
-                adInterstitial.counter++;
-              }
-            }
+                  title: Text('管理人とお話し',
+                      style: GoogleFonts.sawarabiMincho(
+                          color: const Color(0xffFCFAF2))),
+                ),
+                body: Consumer<TalkToAdminModel>(
+                    builder: (context, model, child) {
+                  final talks = model.talks;
+                  // ignore: no_leading_underscores_for_local_identifiers
+                  ScrollController _scrollController = ScrollController();
+                  Future getMore() async {
+                    if (_scrollController.position.pixels ==
+                        _scrollController.position.maxScrollExtent) {
+                      await model.getMoreTalk();
+                      adInterstitial.counter++;
+                    }
+                  }
 
-            return Stack(
-              children: [
-                Container(
-                  height: MediaQuery.of(context).size.height,
-                  width: MediaQuery.of(context).size.width,
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                    colorFilter: ColorFilter.mode(
-                      const Color(0xffFCFAF2).withOpacity(0.4),
-                      BlendMode.dstATop,
-                    ),
-                    image: const AssetImage('images/washi1.png'),
-                    fit: BoxFit.fill,
-                  )),
-                ),
-                SizedBox(
-                  height: size.height,
-                  child: Column(
+                  return Stack(
                     children: [
-                      SizedBox(
-                        height: 64,
-                        child: AdWidget(
-                          ad: banner,
-                        ),
-                      ),
-                      Expanded(
-                        child: Align(
-                          alignment: Alignment.topCenter,
-                          child: ListView.builder(
-                            reverse: true,
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            cacheExtent: 9999,
-                            controller: _scrollController..addListener(getMore),
-                            itemCount: talks.length,
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            itemBuilder: (context, index) {
-                              if (talks[index].uid == adominUid) {
-                                return adminsTalk(
-                                    context, size, talks, index, model, uid);
-                              } else {
-                                return otheresTalk(
-                                    context, size, talks, index, model, uid);
-                              }
-                            },
+                      Container(
+                        height: size.height,
+                        width: size.width,
+                        decoration: BoxDecoration(
+                            image: DecorationImage(
+                          colorFilter: ColorFilter.mode(
+                            const Color(0xffFCFAF2).withOpacity(0.4),
+                            BlendMode.dstATop,
                           ),
-                        ),
+                          image: const AssetImage('images/washi1.png'),
+                          fit: BoxFit.fill,
+                        )),
                       ),
-                      imageFile == null
-                          ? const SizedBox()
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: SizedBox(
-                                      width: 150,
-                                      height: 100,
-                                      child: Image.file(imageFile)),
-                                ),
-                                Column(
-                                  children: [
-                                    IconButton(
-                                        onPressed: () async {
-                                          await model.resetImage();
-                                          imageFile = model.imageFile;
-                                        },
-                                        icon: const Icon(FontAwesome.trash_o)),
-                                    IconButton(
-                                        onPressed: () async {
-                                          await model.pickImage();
-                                          imageFile = model.imageFile;
-                                        },
-                                        icon: const Icon(FontAwesome.edit)),
-                                  ],
-                                )
-                              ],
-                            ),
-                    ],
-                  ),
-                ),
-                if (model.isLoading)
-                  Container(
-                      width: size.width,
-                      height: size.height,
-                      color: Colors.black54,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      Column(
                         children: [
-                          const SizedBox(
-                            width: 250,
-                            height: 250,
-                            child: Image(
-                              image: AssetImage('images/logo.gif'),
+                          SizedBox(
+                            height: 64,
+                            child: AdWidget(
+                              ad: banner,
                             ),
                           ),
-                          Text('〜アップロード中〜',
-                              style: GoogleFonts.sawarabiMincho(
-                                color: const Color(0xffFCFAF2),
-                              )),
+                          Expanded(
+                              child: ListView.builder(
+                                  controller: _scrollController
+                                    ..addListener(getMore),
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  reverse: true,
+                                  cacheExtent: 9999,
+                                  shrinkWrap: true,
+                                  itemCount: model.talks.length,
+                                  itemBuilder: (ctx, index) {
+                                    return talks[index].uid == adominUid
+                                        ? adminsTalk(
+                                            ctx, size, talks, index, model, uid)
+                                        : otheresTalk(ctx, size, talks, index,
+                                            model, uid);
+                                  })),
+                          InputForm(ctx, model, uid, size)
                         ],
-                      ))
-              ],
-            );
-          }),
-          bottomNavigationBar:
-              Consumer<TalkToAdminModel>(builder: (context, model, child) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                    color: const Color(0xff2d3441),
-                    image: DecorationImage(
-                      colorFilter: ColorFilter.mode(
-                          const Color(0xff2d3441).withAlpha(0),
-                          BlendMode.dstATop),
-                      image: const AssetImage('images/washi1.png'),
-                      fit: BoxFit.fill,
-                    )),
-                height: size.height * 0.12,
-                child: Center(
-                  child: Row(
-                    children: [
-                      IconButton(
-                          onPressed: () async {
-                            FocusScope.of(context).unfocus();
-                            await model.pickImage();
-                            imageFile = model.imageFile;
-                            print(model.imageFile);
-                          },
-                          icon: const Icon(
-                            Feather.image,
-                            color: Color(0xffFCFAF2),
-                          )),
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10),
-                        child: SizedBox(
-                          height: size.height * 0.1,
-                          width: size.width * 0.7,
-                          child: TextField(
-                              onChanged: (value) => model.comment = value,
-                              style: GoogleFonts.sawarabiMincho(
-                                fontSize: 12,
-                                color: const Color(0xffFCFAF2),
-                              ),
-                              maxLength: 128,
-                              controller: commentController,
-                              decoration: InputDecoration(
-                                counterStyle: GoogleFonts.sawarabiMincho(
-                                    color: const Color(0xffFCFAF2)),
-                                labelText: 'メッセージを入力',
-                                alignLabelWithHint: true,
-                                labelStyle: GoogleFonts.sawarabiMincho(
-                                    color: const Color(0xffFCFAF2)),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  borderSide: const BorderSide(
-                                      color: Color(0xffFCFAF2)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  borderSide: const BorderSide(
-                                      color: Color(0xffFCFAF2), width: 3.0),
-                                ),
-                              )),
-                        ),
                       ),
-                      model.isLoading
-                          ? const SizedBox()
-                          : IconButton(
-                              onPressed: model.isLoading
-                                  ? null
-                                  : () async {
-                                      addComment(context, model, uid);
-                                    },
-                              icon: const Icon(
-                                Feather.send,
-                                color: Color(0xffFCFAF2),
-                              ))
+                      if (model.isLoading)
+                        Container(
+                            width: size.width,
+                            height: size.height,
+                            color: Colors.black54,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(
+                                  width: 250,
+                                  height: 250,
+                                  child: Image(
+                                    image: AssetImage('images/logo.gif'),
+                                  ),
+                                ),
+                                Text('〜アップロード中〜',
+                                    style: GoogleFonts.sawarabiMincho(
+                                      color: const Color(0xffFCFAF2),
+                                    )),
+                              ],
+                            )),
                     ],
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
-      ),
-    );
+                  );
+                })),
+          );
+        }));
   }
 }
 
-Widget adminsTalk(BuildContext context, size, List talks, int index,
+Widget adminsTalk(BuildContext context, Size size, List talks, int index,
     TalkToAdminModel model, String uid) {
   return GestureDetector(
     onLongPress: () async => uid == model.adominUid
@@ -297,7 +164,7 @@ Widget adminsTalk(BuildContext context, size, List talks, int index,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     talks[index].comment == ''
-                        ? const SizedBox()
+                        ? const SizedBox.shrink()
                         : Flexible(
                             child: Container(
                               padding: const EdgeInsets.all(5.0),
@@ -331,7 +198,7 @@ Widget adminsTalk(BuildContext context, size, List talks, int index,
               ),
               const SizedBox(height: 5),
               talks[index].imgURL == ''
-                  ? const SizedBox()
+                  ? const SizedBox.shrink()
                   : Padding(
                       padding: const EdgeInsets.only(bottom: 5),
                       child: SizedBox(
@@ -345,141 +212,27 @@ Widget adminsTalk(BuildContext context, size, List talks, int index,
                               children: [
                                 SizedBox(
                                   width: size.width * 0.3,
-                                  child: Image.network(
-                                    talks[index].imgURL,
+                                  child: CachedNetworkImage(
+                                    imageUrl: talks[index].imgURL,
                                     fit: BoxFit.fill,
-                                    loadingBuilder: (BuildContext context,
-                                        Widget child,
-                                        ImageChunkEvent loadingProgress) {
-                                      if (loadingProgress == null) {
-                                        return child;
-                                      }
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes
-                                              : null,
+                                    cacheManager: customCacheManager,
+                                    placeholder: (context, url) => SizedBox(
+                                        child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const SizedBox(
+                                          child: Image(
+                                            image:
+                                                AssetImage('images/logo.gif'),
+                                          ),
                                         ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            )),
-                      ),
-                    ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-Widget otheresTalk(BuildContext context, size, List talks, int index,
-    TalkToAdminModel model, String uid) {
-  return GestureDetector(
-    onLongPress: () async => talks[index].uid == uid || uid == model.adominUid
-        ? await deleteAdd(model, context, talks[index])
-        : null,
-    child: Padding(
-      padding: const EdgeInsets.all(3.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(3.0),
-                child: SizedBox(
-                  width: size.width * 0.8,
-                  child: Text(
-                    '${talks[index].name} (${talks[index].uid.substring(20)})',
-                    style: GoogleFonts.sawarabiMincho(
-                        color: const Color(0xff4f535a), fontSize: 8),
-                    textAlign: TextAlign.right,
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: size.width * 0.8,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                        '${talks[index].createdAt.year}/${talks[index].createdAt.month}/${talks[index].createdAt.day} ${talks[index].createdAt.hour}:${talks[index].createdAt.minute}',
-                        style: GoogleFonts.sawarabiMincho(
-                            color: const Color(0xff4f535a), fontSize: 7.0),
-                        textAlign: TextAlign.left),
-                    const SizedBox(width: 5),
-                    Flexible(
-                      child: talks[index].comment == ''
-                          ? const SizedBox()
-                          : Container(
-                              padding: const EdgeInsets.all(5.0),
-                              decoration: BoxDecoration(
-                                border:
-                                    Border.all(color: const Color(0xff2d3441)),
-                                borderRadius: BorderRadius.circular(10),
-                                color: const Color(0xff2d3441),
-                              ),
-                              child: Text(
-                                talks[index].comment,
-                                textAlign: TextAlign.left,
-                                style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xffFCFAF2),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14.0,
-                                ),
-                              ),
-                            ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 10),
-              talks[index].imgURL == ''
-                  ? const SizedBox()
-                  : Padding(
-                      padding: const EdgeInsets.only(bottom: 5.0),
-                      child: SizedBox(
-                        width: size.width * 0.8,
-                        child: GestureDetector(
-                            onTap: () async {
-                              launch(talks[index].imgURL);
-                            },
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                SizedBox(
-                                  width: size.width * 0.3,
-                                  child: Image.network(
-                                    talks[index].imgURL,
-                                    fit: BoxFit.fill,
-                                    loadingBuilder: (BuildContext context,
-                                        Widget child,
-                                        ImageChunkEvent loadingProgress) {
-                                      if (loadingProgress == null) {
-                                        return child;
-                                      }
-                                      return Center(
-                                        child: CircularProgressIndicator(
-                                          value: loadingProgress
-                                                      .expectedTotalBytes !=
-                                                  null
-                                              ? loadingProgress
-                                                      .cumulativeBytesLoaded /
-                                                  loadingProgress
-                                                      .expectedTotalBytes
-                                              : null,
-                                        ),
-                                      );
-                                    },
+                                        Text('〜読み込み中〜',
+                                            style: GoogleFonts.sawarabiMincho(
+                                              color: const Color(0xff0000),
+                                            )),
+                                      ],
+                                    )),
                                   ),
                                 ),
                               ],
@@ -561,5 +314,231 @@ Future deleteAdd(TalkToAdminModel model, BuildContext context, dynamic talk) {
         ],
       );
     },
+  );
+}
+
+Widget otheresTalk(BuildContext context, Size size, List talks, int index,
+    TalkToAdminModel model, String uid) {
+  return GestureDetector(
+    onLongPress: () async => talks[index].uid == uid || uid == model.adominUid
+        ? await deleteAdd(model, context, talks[index])
+        : null,
+    child: Padding(
+      padding: const EdgeInsets.all(3.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(3.0),
+                child: SizedBox(
+                  width: size.width * 0.8,
+                  child: Text(
+                    '${talks[index].name} (${talks[index].uid.substring(20)})',
+                    style: GoogleFonts.sawarabiMincho(
+                        color: const Color(0xff4f535a), fontSize: 8),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: size.width * 0.8,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                        '${talks[index].createdAt.year}/${talks[index].createdAt.month}/${talks[index].createdAt.day} ${talks[index].createdAt.hour}:${talks[index].createdAt.minute}',
+                        style: GoogleFonts.sawarabiMincho(
+                            color: const Color(0xff4f535a), fontSize: 7.0),
+                        textAlign: TextAlign.left),
+                    const SizedBox(width: 5),
+                    Flexible(
+                      child: talks[index].comment == ''
+                          ? const SizedBox.shrink()
+                          : Container(
+                              padding: const EdgeInsets.all(5.0),
+                              decoration: BoxDecoration(
+                                border:
+                                    Border.all(color: const Color(0xff2d3441)),
+                                borderRadius: BorderRadius.circular(10),
+                                color: const Color(0xff2d3441),
+                              ),
+                              child: Text(
+                                talks[index].comment,
+                                textAlign: TextAlign.left,
+                                style: GoogleFonts.sawarabiMincho(
+                                  color: const Color(0xffFCFAF2),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              talks[index].imgURL == ''
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: const EdgeInsets.only(bottom: 5.0),
+                      child: SizedBox(
+                        width: size.width * 0.8,
+                        child: GestureDetector(
+                            onTap: () async {
+                              launch(talks[index].imgURL);
+                            },
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                SizedBox(
+                                  width: size.width * 0.3,
+                                  child: CachedNetworkImage(
+                                    imageUrl: talks[index].imgURL,
+                                    fit: BoxFit.fill,
+                                    cacheManager: customCacheManager,
+                                    placeholder: (context, url) => SizedBox(
+                                        child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        const SizedBox(
+                                          child: Image(
+                                            image:
+                                                AssetImage('images/logo.gif'),
+                                          ),
+                                        ),
+                                        Text('〜読み込み中〜',
+                                            style: GoogleFonts.sawarabiMincho(
+                                              color: const Color(0xff0000),
+                                            )),
+                                      ],
+                                    )),
+                                  ),
+                                ),
+                              ],
+                            )),
+                      ),
+                    ),
+            ],
+          ),
+        ],
+      ),
+    ),
+  );
+}
+
+Widget InputForm(
+    BuildContext context, TalkToAdminModel model, String uid, Size size) {
+  return Container(
+    alignment: Alignment.bottomCenter,
+    margin: const EdgeInsets.all(15.0),
+    child: IntrinsicHeight(
+      child: Row(
+        children: [
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.photo_camera, color: Colors.blueAccent),
+                onPressed: () async {
+                  await model.pickImage().then((value) => value != null
+                      ? Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PicturePage(
+                              ontap: () async {
+                                await model.addImage(
+                                  uid,
+                                );
+                              },
+                              imageFile: model.imageFile,
+                              size: size,
+                            ),
+                            fullscreenDialog: true,
+                          ))
+                      : print(value));
+                },
+              ),
+            ],
+          ),
+          Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(35.0),
+                // ignore: prefer_const_literals_to_create_immutables
+                boxShadow: [
+                  const BoxShadow(
+                      offset: Offset(0, 3), blurRadius: 5, color: Colors.grey)
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: Column(
+                    children: [
+                      Scrollbar(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 15),
+                          child: TextField(
+                            maxLines: 10,
+                            minLines: 1,
+                            onChanged: (value) {
+                              model.comment = value;
+                            },
+                            controller: commentController,
+                            decoration: const InputDecoration(
+                                hintText: "メッセージを入力...",
+                                hintStyle: TextStyle(color: Colors.blueAccent),
+                                border: InputBorder.none),
+                          ),
+                        ),
+                      ),
+                    ],
+                  )),
+                ],
+              ),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              model.isLoading == false
+                  ? IconButton(
+                      icon: const Icon(Icons.send, color: Colors.blueAccent),
+                      onPressed: () async {
+                        try {
+                          model.startLoading();
+                          await model.addThreadToFirebase(uid);
+                        } catch (e) {
+                          final snackBar = SnackBar(
+                            backgroundColor: Colors.redAccent,
+                            behavior: SnackBarBehavior.floating,
+                            duration: const Duration(milliseconds: 1000),
+                            margin: const EdgeInsets.only(
+                              bottom: 40,
+                            ),
+                            content: Text(
+                              e.toString(),
+                              textAlign: TextAlign.center,
+                            ),
+                          );
+                          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                        } finally {
+                          model.endLoading();
+                        }
+                        commentController.clear();
+                        model.comment = '';
+                        model.imageFile = null;
+                      },
+                    )
+                  : const SizedBox.shrink(),
+            ],
+          )
+        ],
+      ),
+    ),
   );
 }

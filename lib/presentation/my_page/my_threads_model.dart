@@ -13,8 +13,9 @@ class MyThreadsModel extends ChangeNotifier {
   DocumentSnapshot lastDocument;
   String timeSort = 'createdAt';
   bool threadSort;
+  bool resSort;
 
-  Future getMyFavorite(String uid, String sort) async {
+  Future getMyPost(String uid, String sort) async {
     final querySnapshot = await firestore
         .collectionGroup('post')
         .where('uid', whereIn: [uid])
@@ -26,12 +27,10 @@ class MyThreadsModel extends ChangeNotifier {
       final myPosts = querySnapshot.docs.map((doc) => Post(doc)).toList();
       posts = myPosts;
       notifyListeners();
-    } catch (e) {
-      print('NoFavo');
-    }
+    } catch (e) {}
   }
 
-  Future getMoreMyFavorite(String uid, String sort) async {
+  Future getMoreMyPost(String uid, String sort) async {
     try {
       final docs = await firestore
           .collectionGroup('post')
@@ -67,6 +66,7 @@ class MyThreadsModel extends ChangeNotifier {
     SharedPreferences pref = await SharedPreferences.getInstance();
     threadSort = pref.getBool('threadSort');
     threadSort == false ? timeSort = 'createdAt' : timeSort = 'upDateAt';
+    resSort = pref.getBool('resSort');
     notifyListeners();
   }
 
