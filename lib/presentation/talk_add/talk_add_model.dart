@@ -81,7 +81,7 @@ class AddTalkModel extends ChangeNotifier {
         'upDateAt': Timestamp.now(),
         'postCount': isUpdateToday(post.upDateAt) ? FieldValue.increment(1) : 1
       });
-      if (post.mainToken != null) {
+      if (post.mainToken != null && post.uid != uid) {
         await push('あなたのスレにコメントがつきました', post.mainToken);
       }
       endLoading();
@@ -102,6 +102,7 @@ class AddTalkModel extends ChangeNotifier {
   }
 
   Future push(String text, String token) async {
+    print('通知オクター');
     final functions = FirebaseFunctions.instanceFor(region: 'asia-northeast1');
     final callable = functions.httpsCallable('pushSubmitFromApp');
     await callable({'id': text, 'token': token});
