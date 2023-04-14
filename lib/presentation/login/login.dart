@@ -1,509 +1,472 @@
-// ignore_for_file: use_build_context_synchronously, non_constant_identifier_names, deprecated_member_use, missing_return
+// ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
+
 import 'package:app_55hz/main/admob.dart';
 import 'package:app_55hz/main/home.dart';
-import 'package:app_55hz/presentation/login/login_model.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:app_55hz/presentation/login/forgot_password.dart';
+import 'package:app_55hz/presentation/login/registration.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
 import 'package:sign_button/sign_button.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'dart:math';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import '../login/email_check.dart';
-import '../login/registration.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-// ignore: must_be_immutable
+import 'email_check.dart';
+
+import 'login_model.dart';
+
 class Login extends StatelessWidget {
   AdInterstitial adInterstitial;
-
-  @override
-  Login({Key key, this.adInterstitial}) : super(key: key);
-
   GoogleSignInAccount googleUser;
   GoogleSignInAuthentication googleAuth;
   AuthCredential credential;
 
-  String login_Email = ""; // 入力されたメールアドレス
-  String login_Password = ""; // 入力されたパスワード
+  Login({Key key, this.adInterstitial}) : super(key: key);
 
+  String login_Email = ""; // 入力されたメールアドレス
+  String login_Password = "";
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
     adUnitId: AdInterstitial.bannerAdUnitId,
     request: const AdRequest(),
   )..load();
+
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
     return ChangeNotifierProvider.value(
         value: LoginModel(),
         child: Consumer<LoginModel>(builder: (context, model, child) {
           return Scaffold(
-            backgroundColor: const Color(0xffFCFAF2),
-            body: GestureDetector(
-              onTap: () => FocusScope.of(context).unfocus(),
-              child: Stack(
+              body: Stack(
                 children: [
                   Container(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                        image: DecorationImage(
-                      colorFilter: ColorFilter.mode(
-                        const Color(0xffFCFAF2).withOpacity(0.4),
-                        BlendMode.dstATop,
-                      ),
-                      image: const AssetImage('images/washi1.png'),
-                      fit: BoxFit.fill,
-                    )),
-                  ),
-                  Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Flexible(
-                          child: Container(
-                            alignment: Alignment.center,
-                            width: size.width * 0.5,
-                            height: size.width * 0.5,
-                            child: Transform.rotate(
-                              angle: 23.4 * pi / 180,
-                              child: const Image(
-                                image: AssetImage('images/logo.png'),
-                              ),
-                            ),
-                          ),
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                          image: DecorationImage(
+                        colorFilter: ColorFilter.mode(
+                          const Color(0xffFCFAF2).withOpacity(0.4),
+                          BlendMode.dstATop,
                         ),
-
-                        // メールアドレスの入力フォーム
-                        Padding(
-                            padding:
-                                const EdgeInsets.fromLTRB(25.0, 0, 25.0, 0),
-                            child: TextFormField(
-                              decoration:
-                                  const InputDecoration(labelText: "メールアドレス"),
-                              onChanged: (String value) {
-                                login_Email = value;
-                              },
-                            )),
-
-                        // パスワードの入力フォーム
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(25.0, 0, 25.0, 10.0),
-                          child: TextFormField(
-                            decoration: const InputDecoration(
-                                labelText: "パスワード（8～20文字）"),
-                            obscureText: true, // パスワードが見えないようRにする
-                            maxLength: 20, // 入力可能な文字数
-                            onChanged: (String value) {
-                              login_Password = value;
-                            },
+                        image: const AssetImage('images/washi1.png'),
+                        fit: BoxFit.fill,
+                      ))),
+                  GestureDetector(
+                    onTap: () {
+                      primaryFocus?.unfocus();
+                    },
+                    child: SingleChildScrollView(
+                      child: SafeArea(
+                          child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: DefaultTextStyle(
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
                           ),
-                        ),
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                const SizedBox(height: 30),
 
-                        // ログイン失敗時のエラーメッセージ
-                        Padding(
-                          padding:
-                              const EdgeInsets.fromLTRB(20.0, 0, 20.0, 5.0),
-                          child: Text(
-                            model.infoText,
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                        ),
+                                Container(
+                                    alignment: Alignment.center,
+                                    width: 150,
+                                    height: 150,
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(20)),
+                                    child: Image.asset('images/logo.png')),
 
-                        // ログインボタンの配置
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            ButtonTheme(
-                              minWidth: size.width * 0.45,
-                              // height: 100.0,
-                              child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      primary: Colors.blue[50]),
+                                // メールアドレスの入力フォーム
 
-                                  // ボタンクリック後にアカウント作成用の画面の遷移する。
-                                  onPressed: () {
-                                    if (model.ischeckedAgree == true) {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          fullscreenDialog: true,
-                                          builder: (BuildContext context) =>
-                                              const Registration(),
-                                        ),
-                                      );
-                                    } else {
-                                      agreeDialog(context, model);
-                                    }
-                                  },
-                                  child: const Text(
-                                    'アカウントを作成する',
-                                    style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue),
-                                  )),
-                            ),
-                            ButtonTheme(
-                              minWidth: size.width * 0.45,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
+                                TextFormField(
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: const InputDecoration(
+                                    labelStyle: TextStyle(
+                                      fontSize: 12,
+                                    ),
+                                    labelText: 'メールアドレス',
                                   ),
-                                  primary: const Color(0xff39bdcc),
+                                  onChanged: (String value) {
+                                    login_Email = value;
+                                  },
                                 ),
-
-                                onPressed: () async {
-                                  if (model.ischeckedAgree == true) {
-                                    try {
-                                      // メール/パスワードでログイン
-                                      model.result = await model.auth
-                                          .signInWithEmailAndPassword(
-                                        email: login_Email,
-                                        password: login_Password,
-                                      );
-                                      final isFirstLogin = model
-                                          .result.additionalUserInfo.isNewUser;
-
-                                      // ログイン成功
-                                      model.user =
-                                          model.result.user; // ログインユーザーのIDを取得
-
-                                      // Email確認が済んでいる場合のみHome画面へ
-                                      if (isFirstLogin) {
-                                        if (model.user.emailVerified) {
-                                          await model
-                                              .createUserDatabase(model.user);
-                                          await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => Home(
-                                                  auth: model.auth,
-                                                  uid: model.user.uid,
-                                                  adInterstitial:
-                                                      adInterstitial,
-                                                ),
-                                              ));
-                                        } else {
-                                          await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    Emailcheck(
-                                                      email: login_Email,
-                                                      pswd: login_Password,
-                                                      from: 2,
-                                                      adInterstitial:
-                                                          adInterstitial,
-                                                    )),
-                                          );
-                                        }
-                                      } else {
-                                        if (model.user.emailVerified) {
-                                          await Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => Home(
-                                                  auth: model.auth,
-                                                  uid: model.user.uid,
-                                                  adInterstitial:
-                                                      adInterstitial,
-                                                ),
-                                              ));
-                                        } else {
-                                          await Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                                builder: (context) =>
-                                                    Emailcheck(
-                                                      email: login_Email,
-                                                      pswd: login_Password,
-                                                      from: 2,
-                                                      adInterstitial:
-                                                          adInterstitial,
-                                                    )),
-                                          );
-                                        }
-                                      }
-                                    } catch (e) {
-                                      // ログインに失敗した場合
-                                      model.loginErrorMessage(e);
-                                    }
-                                  } else {
-                                    await agreeDialog(context, model);
-                                  }
-                                },
-
-                                // ボタン内の文字や書式
-                                child: const Text(
-                                  'ログイン',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white),
+                                const SizedBox(height: 24),
+                                TextFormField(
+                                  obscureText: true,
+                                  keyboardType: TextInputType.visiblePassword,
+                                  decoration: const InputDecoration(
+                                    labelStyle: TextStyle(fontSize: 12),
+                                    labelText: 'パスワード',
+                                  ),
+                                  onChanged: (String value) {
+                                    login_Password = value;
+                                  },
                                 ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // ログイン失敗時のエラーメッセージ
-                        TextButton(
-                          child: const Text('上記メールアドレスにパスワード再設定メールを送信'),
-                          onPressed: () => model.auth
-                              .sendPasswordResetEmail(email: login_Email),
-                        ),
+                                const SizedBox(height: 24),
 
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SignInButton.mini(
-                              buttonType: ButtonType.google,
-                              onPressed: () async {
-                                if (model.ischeckedAgree == true) {
-                                  googleUser = await GoogleSignIn().signIn();
-                                  googleAuth = await googleUser.authentication;
-                                  credential = GoogleAuthProvider.credential(
-                                    accessToken: googleAuth.accessToken,
-                                    idToken: googleAuth.idToken,
-                                  );
-                                  try {
-                                    final result = await model.auth
-                                        .signInWithCredential(credential);
-                                    final isFirstLogin =
-                                        result.additionalUserInfo.isNewUser;
-                                    if (isFirstLogin) {
-                                      final user = result.user;
-                                      await model.createUserDatabase(user);
-                                      await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => Home(
-                                              auth: model.auth,
-                                              uid: user.uid,
-                                            ),
-                                          ));
-                                    } else {
-                                      final user = result.user;
-                                      await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => Home(
-                                              auth: model.auth,
-                                              uid: user.uid,
-                                              adInterstitial: adInterstitial,
-                                            ),
-                                          ));
-                                    }
-                                  } catch (e) {
-                                    print(e);
-                                  }
-                                } else {
-                                  await agreeDialog(context, model);
-                                }
-                              },
-                            ),
-                            Platform.isIOS
-                                ? SignInButton.mini(
-                                    buttonType: ButtonType.apple,
-                                    onPressed: () async {
-                                      if (model.ischeckedAgree == true) {
-                                        final appleIdCredential =
-                                            await SignInWithApple
-                                                .getAppleIDCredential(
-                                          scopes: [
-                                            AppleIDAuthorizationScopes.email,
-                                            AppleIDAuthorizationScopes.fullName,
-                                          ],
-                                        );
-                                        final oAuthProvider =
-                                            OAuthProvider('apple.com');
-                                        final credential =
-                                            oAuthProvider.credential(
-                                          idToken:
-                                              appleIdCredential.identityToken,
-                                          accessToken: appleIdCredential
-                                              .authorizationCode,
-                                        );
-                                        try {
-                                          final result = await model.auth
-                                              .signInWithCredential(credential);
-                                          final isFirstLogin = result
-                                              .additionalUserInfo.isNewUser;
-                                          if (isFirstLogin) {
-                                            final user = result.user;
-                                            await model
-                                                .createUserDatabase(user);
-                                            await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => Home(
-                                                    auth: model.auth,
-                                                    uid: user.uid,
-                                                  ),
-                                                ));
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      20.0, 0, 20.0, 5.0),
+                                  child: Text(
+                                    model.infoText,
+                                    style: const TextStyle(color: Colors.red),
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 32,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Checkbox(
+                                        value: model.agreeToTerms,
+                                        onChanged: (value) {
+                                          if (model.readTerms == false) {
+                                            showDialog(
+                                                context: context,
+                                                builder: (context) {
+                                                  return AlertDialog(
+                                                    title: const Text(
+                                                        '利用規約をお読みになってから同意してください'),
+                                                    actions: [
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .spaceAround,
+                                                        children: [
+                                                          TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: const Text(
+                                                                  '閉じる')),
+                                                          TextButton(
+                                                              onPressed: () {
+                                                                launchUrl(
+                                                                  Uri.parse(
+                                                                      'https://hz-360fa.web.app/'),
+                                                                );
+                                                                model
+                                                                    .isReadTerms(
+                                                                        true);
+                                                                model
+                                                                    .isAgreeToTerms(
+                                                                        value);
+                                                                Navigator.pop(
+                                                                    context);
+                                                              },
+                                                              child: const Text(
+                                                                  '利用規約を読む'))
+                                                        ],
+                                                      )
+                                                    ],
+                                                  );
+                                                });
                                           } else {
-                                            final user = result.user;
-                                            await Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => Home(
-                                                    auth: model.auth,
-                                                    uid: user.uid,
-                                                    adInterstitial:
-                                                        adInterstitial,
-                                                  ),
-                                                ));
+                                            model.isAgreeToTerms(value);
                                           }
-                                        } catch (e) {
-                                          print(e);
-                                        }
-                                      } else {
-                                        await agreeDialog(context, model);
-                                      }
-                                    })
-                                : const SizedBox()
-                          ],
-                        ),
-                        RichText(
-                          text: TextSpan(
-                              style: const TextStyle(color: Colors.black),
-                              children: [
-                                const TextSpan(
-                                  text: '使用前に必ず\n ',
+                                        },
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          launchUrl(
+                                            Uri.parse(
+                                                'https://hz-360fa.web.app/'),
+                                          );
+                                          model.isReadTerms(true);
+                                        },
+                                        child: Text('ご利用規約',
+                                            style: GoogleFonts.sawarabiMincho(
+                                                color: const Color(0xff33A6B8),
+                                                fontWeight: FontWeight.bold)),
+                                      )
+                                    ],
+                                  ),
                                 ),
-                                TextSpan(
-                                    text: '利用規約・プライバシーポリシー',
-                                    style: const TextStyle(
-                                        color: Colors.blue, fontSize: 15),
-                                    recognizer: TapGestureRecognizer()
-                                      ..onTap = () async {
-                                        await model.lunchTermsOfService();
-                                        await model.readAgree();
-                                      }),
-                                const TextSpan(text: 'に同意してください')
-                              ]),
-                        ),
-                        const SizedBox(height: 20),
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    clipBehavior: Clip.antiAlias,
+                                    onPressed: model.agreeToTerms == false
+                                        ? null
+                                        : () async {
+                                            try {
+                                              // メール/パスワードでログイン
+                                              model.result = await model.auth
+                                                  .signInWithEmailAndPassword(
+                                                email: login_Email,
+                                                password: login_Password,
+                                              );
+                                              // ログイン成功
+                                              model.user = model.result
+                                                  .user; // ログインユーザーのIDを取得
 
-                        model.isreadAgree == true
-                            ? model.ischeckedAgree == true
-                                ? const SizedBox()
-                                : ElevatedButton(
-                                    onPressed: () async {
-                                      await agreeCheckDialog(context, model);
-                                    },
-                                    child: const Text('利用規約・プライバシーポリシーに同意します'))
-                            : ElevatedButton(
-                                onPressed: () {
-                                  agreeDialog(context, model);
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  primary: Colors.grey, //ボタンの背景色
+                                              if (model.user.emailVerified) {
+                                                await Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          Home(
+                                                        auth: model.auth,
+                                                        uid: model.user.uid,
+                                                        adInterstitial:
+                                                            adInterstitial,
+                                                      ),
+                                                    ));
+                                              } else {
+                                                await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          Emailcheck(
+                                                            email: login_Email,
+                                                            pswd:
+                                                                login_Password,
+                                                            from: 2,
+                                                          )),
+                                                );
+                                              }
+                                            } catch (e) {
+                                              print(e);
+                                              // ログインに失敗した場合
+                                              model.loginErrorMessage(e);
+                                            }
+                                          },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      elevation: 1,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(40),
+                                      ),
+                                    ),
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      child: Ink(
+                                        decoration: BoxDecoration(
+                                          color: const Color(0xff33A6B8)
+                                              .withOpacity(0.5),
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 10,
+                                            horizontal: 15,
+                                          ),
+                                          alignment: Alignment.center,
+                                          child: Text('メールログイン',
+                                              style: GoogleFonts.sawarabiMincho(
+                                                  color:
+                                                      const Color(0xff43341B))),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                                child: const Text(
-                                  '利用規約・プライバシーポリシーに同意します',
-                                  style: TextStyle(color: Colors.black54),
+                                const SizedBox(height: 12),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    clipBehavior: Clip.antiAlias,
+                                    onPressed: model.agreeToTerms == false
+                                        ? null
+                                        : () async {
+                                            Navigator.of(context).push(
+                                              MaterialPageRoute(
+                                                fullscreenDialog: true,
+                                                builder:
+                                                    (BuildContext context) =>
+                                                        const Registration(),
+                                              ),
+                                            );
+                                          },
+                                    style: ElevatedButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      elevation: 1,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(40),
+                                      ),
+                                    ),
+                                    child: SizedBox(
+                                      width: double.infinity,
+                                      child: Ink(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(4),
+                                        ),
+                                        child: Container(
+                                          // 上と下は余白なし
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 10,
+                                            horizontal: 15,
+                                          ),
+                                          color: const Color(0xffFCFAF2)
+                                              .withOpacity(0.5),
+                                          alignment: Alignment.center,
+                                          child: Text('新規登録',
+                                              style: GoogleFonts.sawarabiMincho(
+                                                  color:
+                                                      const Color(0xff43341B))),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                      ],
+                                const SizedBox(height: 12),
+                                Row(
+                                  mainAxisAlignment: Platform.isIOS
+                                      ? MainAxisAlignment.spaceAround
+                                      : MainAxisAlignment.center,
+                                  children: [
+                                    Platform.isIOS
+                                        ? SignInButton.mini(
+                                            buttonType: ButtonType.apple,
+                                            onPressed: model.agreeToTerms ==
+                                                    false
+                                                ? null
+                                                : () async {
+                                                    final appleIdCredential =
+                                                        await SignInWithApple
+                                                            .getAppleIDCredential(
+                                                      scopes: [
+                                                        AppleIDAuthorizationScopes
+                                                            .email,
+                                                        AppleIDAuthorizationScopes
+                                                            .fullName,
+                                                      ],
+                                                    );
+                                                    final oAuthProvider =
+                                                        OAuthProvider(
+                                                            'apple.com');
+                                                    final credential =
+                                                        oAuthProvider
+                                                            .credential(
+                                                      idToken: appleIdCredential
+                                                          .identityToken,
+                                                      accessToken:
+                                                          appleIdCredential
+                                                              .authorizationCode,
+                                                    );
+                                                    try {
+                                                      final result = await model
+                                                          .auth
+                                                          .signInWithCredential(
+                                                              credential);
+
+                                                      final user = result.user;
+                                                      await model
+                                                          .createUserDatabase(
+                                                              user);
+                                                      await Navigator
+                                                          .pushAndRemoveUntil(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder:
+                                                                    (context) =>
+                                                                        Home(
+                                                                  auth: model
+                                                                      .auth,
+                                                                  uid: user.uid,
+                                                                  adInterstitial:
+                                                                      adInterstitial,
+                                                                ),
+                                                              ),
+                                                              (_) => false);
+                                                    } catch (e) {
+                                                      print(e);
+                                                    }
+                                                  })
+                                        : const SizedBox.shrink(),
+                                    SignInButton.mini(
+                                      buttonType: ButtonType.google,
+                                      onPressed: model.agreeToTerms == false
+                                          ? null
+                                          : () async {
+                                              googleUser = (await GoogleSignIn()
+                                                  .signIn());
+                                              googleAuth = await googleUser
+                                                  .authentication;
+                                              credential =
+                                                  GoogleAuthProvider.credential(
+                                                accessToken:
+                                                    googleAuth.accessToken,
+                                                idToken: googleAuth.idToken,
+                                              );
+                                              try {
+                                                final result = await model.auth
+                                                    .signInWithCredential(
+                                                        credential);
+                                                final user = result.user;
+                                                await model
+                                                    .createUserDatabase(user);
+                                                await Navigator
+                                                    .pushAndRemoveUntil(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Home(
+                                                            auth: model.auth,
+                                                            uid: user.uid,
+                                                            adInterstitial:
+                                                                adInterstitial,
+                                                          ),
+                                                        ),
+                                                        (_) => false);
+                                              } catch (e) {
+                                                print(e);
+                                              }
+                                            },
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        Navigator.of(context).push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ForgotPassword(),
+                                          ),
+                                        );
+                                      },
+                                      child: Text('パスワードを忘れた方はこちら',
+                                          style: GoogleFonts.sawarabiMincho(
+                                              color: const Color(0xff33A6B8),
+                                              fontWeight: FontWeight.bold)),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )),
                     ),
                   ),
                 ],
               ),
-            ),
-            bottomNavigationBar: SizedBox(
-              height: 64,
-              child: AdWidget(
-                ad: banner,
-              ),
-            ),
-          );
+              bottomNavigationBar: SizedBox(
+                  height: 60,
+                  child: AdWidget(
+                    ad: banner,
+                  )));
         }));
-  }
-
-  Future agreeDialog(BuildContext context, LoginModel model) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text("利用規約・プライバシーポリシーを最後までお読みになって同意してください"),
-          actions: [
-            TextButton(
-                child: const Text("OK"),
-                onPressed: () async {
-                  model.readAgree();
-                  model.lunchTermsOfService();
-                  Navigator.pop(context);
-                }),
-            const SizedBox(width: 20),
-          ],
-        );
-      },
-    );
-  }
-
-  Future agreeCheckDialog(BuildContext context, LoginModel model) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text("利用規約・プライバシーポリシーに同意しますか？"),
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                TextButton(
-                    child: const Text("NO"),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    }),
-                TextButton(
-                    child: const Text("OK"),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      model.checkedAgree();
-                    }),
-              ],
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future errorDialog(
-    BuildContext context,
-  ) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) {
-        return AlertDialog(
-          backgroundColor: Colors.black54,
-          title: Text('エラーが発生しましたもう一度お試しください',
-              style:
-                  GoogleFonts.sawarabiMincho(color: const Color(0xffFCFAF2))),
-          actions: [
-            TextButton(
-              child: const Text('閉じる'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
   }
 }

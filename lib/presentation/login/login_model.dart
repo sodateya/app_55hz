@@ -3,9 +3,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_udid/flutter_udid.dart';
-import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'authentication_error.dart';
+import 'dart:math' as math;
 
 class LoginModel extends ChangeNotifier {
   final auth = FirebaseAuth.instance;
@@ -15,7 +15,33 @@ class LoginModel extends ChangeNotifier {
   bool ischeckedAgree = false;
   UserCredential result;
   User user;
-  AuthorizationCredentialAppleID appleIdCredential;
+  String name;
+  bool agreeToTerms = false;
+  bool readTerms = false;
+  bool isUsedQR;
+  String randomStr = "";
+  String email;
+
+  void isAgreeToTerms(bool value) {
+    agreeToTerms = value ?? false;
+    notifyListeners();
+  }
+
+  void isReadTerms(bool value) {
+    readTerms = value ?? false;
+    notifyListeners();
+  }
+
+  Future randomString(int length) async {
+    randomStr = "";
+    var random = math.Random();
+    for (var i = 0; i < length; i++) {
+      int alphaNum = 65 + random.nextInt(26);
+      int isLower = random.nextBool() ? 32 : 0;
+      randomStr += String.fromCharCode(alphaNum + isLower);
+    }
+    return await randomStr;
+  }
 
   Future readAgree() async {
     isreadAgree = true;
@@ -36,28 +62,59 @@ class LoginModel extends ChangeNotifier {
 
   Future createUserDatabase(User user) async {
     final token = await FirebaseMessaging.instance.getToken();
-    await FirebaseFirestore.instance
-        .collection('user')
-        .doc(user.uid)
-        .collection('blockList')
-        .doc(user.uid.substring(20))
-        .set({'blockUsers': []});
-    await FirebaseFirestore.instance
-        .collection('user')
-        .doc(user.uid)
-        .collection('favoriteList')
-        .doc(user.uid.substring(25))
-        .set({'favoriteThreads': []});
-    await FirebaseFirestore.instance.collection('user').doc(user.uid).set({
-      'uid': user.uid,
-      'uid20': user.uid.substring(20),
-      'udid': await FlutterUdid.udid,
-      'pushToken': token
-    });
+    final userCollection = await FirebaseFirestore.instance
+        .collection("user")
+        .where('uid', isEqualTo: user.uid)
+        .get();
+    final docs = userCollection.docs;
+    if (docs.isEmpty) {
+      final mydoc = FirebaseFirestore.instance.collection('user').doc(user.uid);
+      await mydoc
+          .collection('blockList')
+          .doc(user.uid.substring(20))
+          .set({'blockUsers': []});
+      await mydoc
+          .collection('favoriteList')
+          .doc(user.uid.substring(25))
+          .set({'favoriteThreads': []});
+      await mydoc.set({
+        'uid': user.uid,
+        'uid20': user.uid.substring(20),
+        'udid': await FlutterUdid.udid,
+        'pushToken': token
+      });
+
+      print('追加しました');
+    } else {
+      final mydoc = FirebaseFirestore.instance.collection('user').doc(user.uid);
+      await mydoc.update({'pushToken': token});
+      print('既に登録済みのユーザーでした');
+    }
   }
 
-  Future lunchTermsOfService() async {
-    await launch('https://hz-360fa.web.app/');
+  // Future lunchTermsOfService() async {
+  //   await launch('https://hz-360fa.web.app/');
+  //   notifyListeners();
+  // }
+
+  void openMailApp() async {
+    final String title = Uri.encodeComponent('お問い合わせメール');
+    final String body = Uri.encodeComponent('〜お問い合わせ内容〜 ');
+    const mailAddress = 'bassknot7@gmail.com'; //メールアドレス
+    notifyListeners();
+
+    return launchMail(
+      'mailto:$mailAddress?subject=$title&body=$body',
+    );
+  }
+
+  Future<void> launchMail(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      final Error error = ArgumentError('Error launching $url');
+      throw error;
+    }
     notifyListeners();
   }
 }

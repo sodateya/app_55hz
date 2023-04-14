@@ -253,8 +253,9 @@ class AccountDeletePage extends StatelessWidget {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) => Login(
-                                                          adInterstitial:
-                                                              adInterstitial)));
+                                                          // adInterstitial:
+                                                          //     adInterstitial
+                                                          )));
                                             } catch (e) {
                                               await showDialog(
                                                 context: context,
@@ -304,9 +305,9 @@ class AccountDeletePage extends StatelessWidget {
                                                               await Navigator.push(
                                                                   context,
                                                                   MaterialPageRoute(
-                                                                      builder: (context) =>
-                                                                          Login(
-                                                                              adInterstitial: adInterstitial)));
+                                                                      builder: (context) => Login(
+                                                                          // adInterstitial: adInterstitial
+                                                                          )));
                                                             },
                                                           ),
                                                         ],

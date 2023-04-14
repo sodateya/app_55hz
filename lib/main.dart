@@ -52,7 +52,9 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
       ],
       home: auth.currentUser == null
-          ? Login(adInterstitial: adInterstitial)
+          ? Login(
+              // adInterstitial: adInterstitial
+              )
           : Home(
               key: key,
               auth: auth,

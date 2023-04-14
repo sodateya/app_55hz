@@ -200,7 +200,8 @@ class DefaultDrawer extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Login(
-                                          adInterstitial: adInterstitial)));
+                                          // adInterstitial: adInterstitial
+                                          )));
                             }, 'ログアウト', Feather.log_out),
                             // DrawerTile(() async {
                             //   await Navigator.push(
