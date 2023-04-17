@@ -106,10 +106,7 @@ class TalkModel extends ChangeNotifier {
     });
   }
 
-  Future addFavorite(
-    String uid,
-    Post post,
-  ) async {
+  Future addFavorite(String uid, Post post) async {
     await FirebaseFirestore.instance
         .collection('user')
         .doc(uid)

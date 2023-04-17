@@ -42,7 +42,7 @@ class AddTalkModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addTalkToFirebase(Post post, String uid) async {
+  Future addTalkToFirebase(Post post, String uid) async {
     if (comment.isEmpty) {
       throw ('コメントを入力してください');
     } else {

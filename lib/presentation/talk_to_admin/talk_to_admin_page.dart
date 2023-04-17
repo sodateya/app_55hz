@@ -38,12 +38,19 @@ class TalkToAdminPage extends StatelessWidget {
             onTap: () => FocusScope.of(ctx).unfocus(),
             child: Scaffold(
                 appBar: AppBar(
-                  flexibleSpace: const Image(
-                    image: AssetImage('images/washi1.png'),
-                    fit: BoxFit.cover,
-                    color: Color(0xff2d3441),
-                    colorBlendMode: BlendMode.modulate,
+                  flexibleSpace: Container(
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('images/washi1.png'),
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(
+                          Color(0xff2d3441),
+                          BlendMode.modulate,
+                        ),
+                      ),
+                    ),
                   ),
+                  backgroundColor: const Color(0xff2d3441),
                   title: Text('管理人とお話し',
                       style: GoogleFonts.sawarabiMincho(
                           color: const Color(0xffFCFAF2))),
@@ -101,7 +108,8 @@ class TalkToAdminPage extends StatelessWidget {
                                         : otheresTalk(ctx, size, talks, index,
                                             model, uid);
                                   })),
-                          InputForm(ctx, model, uid, size)
+                          InputForm(ctx, model, uid, size),
+                          const SizedBox(height: 20)
                         ],
                       ),
                       if (model.isLoading)

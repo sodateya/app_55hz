@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable
+// ignore_for_file: must_be_immutable, use_build_context_synchronously
 
 import 'dart:io';
 import 'package:app_55hz/domain/post.dart';
@@ -49,11 +49,17 @@ class AddTalkPage extends StatelessWidget {
           backgroundColor: const Color(0xffFCFAF2),
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
-            flexibleSpace: const Image(
-              image: AssetImage('images/washi1.png'),
-              fit: BoxFit.cover,
-              color: Color(0xff616138),
-              colorBlendMode: BlendMode.modulate,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('images/washi1.png'),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Color(0xff616138),
+                    BlendMode.modulate,
+                  ),
+                ),
+              ),
             ),
             backgroundColor: const Color(0xff616138),
             title: Text(
@@ -405,7 +411,7 @@ class AddTalkPage extends StatelessWidget {
 
   Future addTalk(AddTalkModel model, BuildContext context) async {
     if (model.comment != '') {
-      model.addTalkToFirebase(post, uid);
+      await model.addTalkToFirebase(post, uid);
       showDialog(
         context: context,
         builder: (BuildContext context) {
