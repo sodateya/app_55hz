@@ -208,7 +208,7 @@ class DefaultDrawer extends StatelessWidget {
                             //       context,
                             //       MaterialPageRoute(
                             //           builder: (context) =>
-                            //               FriendPage(uid: uid)));
+                            //               TestPage(uid: uid)));
                             // }, 'test', Feather.log_out),
                             Padding(
                               padding: const EdgeInsets.all(8.0),

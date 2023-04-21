@@ -25,17 +25,24 @@ class BlockListPage extends StatelessWidget {
         child: Scaffold(
             backgroundColor: const Color(0xffFCFAF2),
             appBar: AppBar(
-              flexibleSpace: const Image(
-                image: AssetImage('images/washi1.png'),
-                fit: BoxFit.cover,
-                color: Color(0xff1C1C1C),
-                colorBlendMode: BlendMode.modulate,
+              flexibleSpace: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('images/washi1.png'),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      Color(0xff1C1C1C),
+                      BlendMode.modulate,
+                    ),
+                  ),
+                ),
               ),
               title: Text('ブロックリスト',
                   style: GoogleFonts.sawarabiMincho(
                       color: const Color(0xffFCFAF2),
                       fontSize: 25.0,
                       fontWeight: FontWeight.bold)),
+              backgroundColor: const Color(0xff1C1C1C),
             ),
             body: Stack(
               children: [

@@ -15,6 +15,7 @@ class AddTalkPage extends StatelessWidget {
   Post post;
   String uid;
   String resNumber;
+  int count;
   TextEditingController nameController = TextEditingController();
   TextEditingController urlController = TextEditingController();
   TextEditingController commentController = TextEditingController();
@@ -27,15 +28,12 @@ class AddTalkPage extends StatelessWidget {
     request: const AdRequest(),
   )..load();
 
-  AddTalkPage({
-    Key key,
-    this.post,
-    this.uid,
-    this.resNumber,
-  }) : super(key: key);
+  AddTalkPage({Key key, this.post, this.uid, this.resNumber, this.count})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    print(count + 1);
     if (commentController.text == '' && resNumber != null) {
       commentController.text = '>>$resNumber';
     }
@@ -43,261 +41,250 @@ class AddTalkPage extends StatelessWidget {
     final bottomSpace = MediaQuery.of(context).viewInsets.bottom;
     return ChangeNotifierProvider.value(
       value: AddTalkModel()..getName(),
-      child: GestureDetector(
-        onTap: () => FocusScope.of(context).unfocus(),
-        child: Scaffold(
-          backgroundColor: const Color(0xffFCFAF2),
-          resizeToAvoidBottomInset: false,
-          appBar: AppBar(
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('images/washi1.png'),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    Color(0xff616138),
-                    BlendMode.modulate,
-                  ),
+      child: Scaffold(
+        backgroundColor: const Color(0xffFCFAF2),
+        resizeToAvoidBottomInset: false,
+        appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('images/washi1.png'),
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                  Color(0xff616138),
+                  BlendMode.modulate,
                 ),
               ),
             ),
-            backgroundColor: const Color(0xff616138),
-            title: Text(
-              'レスポンス',
-              style: GoogleFonts.sawarabiMincho(
-                  color: const Color(0xffFCFAF2),
-                  fontSize: 20.0,
-                  fontWeight: FontWeight.bold),
-            ),
           ),
-          body: Stack(
-            children: [
-              Container(
-                height: MediaQuery.of(context).size.height,
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                  colorFilter: ColorFilter.mode(
-                    const Color(0xffFCFAF2).withOpacity(0.4),
-                    BlendMode.dstATop,
-                  ),
-                  image: const AssetImage('images/washi1.png'),
-                  fit: BoxFit.fill,
-                )),
-              ),
-              Center(
-                child: SingleChildScrollView(
-                  reverse: true,
-                  child: Padding(
-                    padding: EdgeInsets.only(bottom: bottomSpace),
-                    child: Consumer<AddTalkModel>(
-                      builder: (context, model, child) {
-                        nameController.text == ''
-                            ? nameController.text = model.name
-                            : nameController.text = nameController.text;
-                        return Stack(
-                          children: [
-                            Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                child,
-                                Container(
-                                  child: imageFile == null
-                                      ? Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            SizedBox(
-                                              width: size.width * 0.75,
-                                              child: TextFormField(
-                                                  style: GoogleFonts
-                                                      .sawarabiMincho(
-                                                    color:
-                                                        const Color(0xff43341B),
+          backgroundColor: const Color(0xff616138),
+          title: Text(
+            'レスポンス',
+            style: GoogleFonts.sawarabiMincho(
+                color: const Color(0xffFCFAF2),
+                fontSize: 20.0,
+                fontWeight: FontWeight.bold),
+          ),
+        ),
+        body: Stack(
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                colorFilter: ColorFilter.mode(
+                  const Color(0xffFCFAF2).withOpacity(0.4),
+                  BlendMode.dstATop,
+                ),
+                image: const AssetImage('images/washi1.png'),
+                fit: BoxFit.fill,
+              )),
+            ),
+            Center(
+              child: SingleChildScrollView(
+                reverse: true,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: bottomSpace),
+                  child: Consumer<AddTalkModel>(
+                    builder: (context, model, child) {
+                      nameController.text == ''
+                          ? nameController.text = model.name
+                          : nameController.text = nameController.text;
+                      return Stack(
+                        children: [
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              child,
+                              Container(
+                                child: imageFile == null
+                                    ? Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: size.width * 0.75,
+                                            child: TextFormField(
+                                                style:
+                                                    GoogleFonts.sawarabiMincho(
+                                                  color:
+                                                      const Color(0xff43341B),
+                                                ),
+                                                maxLength: 2048,
+                                                controller: imageController,
+                                                decoration: InputDecoration(
+                                                  labelText: '画像URL',
+                                                  enabledBorder:
+                                                      OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            25.0),
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color:
+                                                                Colors.black54),
                                                   ),
-                                                  maxLength: 2048,
-                                                  controller: imageController,
-                                                  decoration: InputDecoration(
-                                                    labelText: '画像URL',
-                                                    enabledBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              25.0),
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color: Colors
-                                                                  .black54),
-                                                    ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              25.0),
-                                                      borderSide:
-                                                          const BorderSide(
-                                                              color: Color(
-                                                                  0xff33A6B8),
-                                                              width: 3.0),
-                                                    ),
-                                                  )),
-                                            ),
-                                            IconButton(
-                                                onPressed: () async {
-                                                  FocusScope.of(context)
-                                                      .unfocus();
-                                                  await model.pickImage();
-                                                  imageFile = model.imageFile;
-                                                  imageController.clear();
-                                                },
-                                                icon:
-                                                    const Icon(Feather.camera))
-                                          ],
-                                        )
-                                      : Column(
-                                          children: [
-                                            Stack(
-                                              children: [
-                                                Center(
-                                                  child: Column(
+                                                  focusedBorder:
+                                                      OutlineInputBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            25.0),
+                                                    borderSide:
+                                                        const BorderSide(
+                                                            color: Color(
+                                                                0xff33A6B8),
+                                                            width: 3.0),
+                                                  ),
+                                                )),
+                                          ),
+                                          IconButton(
+                                              onPressed: () async {
+                                                FocusScope.of(context)
+                                                    .unfocus();
+                                                await model.pickImage();
+                                                imageFile = model.imageFile;
+                                                imageController.clear();
+                                              },
+                                              icon: const Icon(Feather.camera))
+                                        ],
+                                      )
+                                    : Column(
+                                        children: [
+                                          Stack(
+                                            children: [
+                                              Center(
+                                                child: Column(
+                                                  children: [
+                                                    const SizedBox(height: 20),
+                                                    SizedBox(
+                                                        width: 150,
+                                                        height: 100,
+                                                        child: Image.file(
+                                                            imageFile)),
+                                                  ],
+                                                ),
+                                              ),
+                                              Column(
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
                                                     children: [
                                                       const SizedBox(
-                                                          height: 20),
-                                                      SizedBox(
-                                                          width: 150,
-                                                          height: 100,
-                                                          child: Image.file(
-                                                              imageFile)),
+                                                          width: 150),
+                                                      ElevatedButton(
+                                                          style: ButtonStyle(
+                                                              backgroundColor:
+                                                                  MaterialStateProperty.all<Color>(
+                                                                      const Color(
+                                                                          0xff0C4842)),
+                                                              minimumSize:
+                                                                  MaterialStateProperty.all<Size>(
+                                                                      const Size(
+                                                                          30, 30)),
+                                                              shape: MaterialStateProperty.all<
+                                                                      CircleBorder>(
+                                                                  const CircleBorder())),
+                                                          onPressed: () {
+                                                            model.resetImage();
+                                                            imageFile =
+                                                                model.imageFile;
+                                                          },
+                                                          child: const Icon(
+                                                              Feather.x)),
                                                     ],
                                                   ),
-                                                ),
-                                                Column(
-                                                  children: [
-                                                    Row(
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                          Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              SizedBox(
+                                                width: size.width * 0.5,
+                                                child: ElevatedButton(
+                                                    style: ElevatedButton.styleFrom(
+                                                        primary: const Color(
+                                                            0xff0C4842) //ボタンの背景色
+                                                        ),
+                                                    onPressed: () async {
+                                                      await model.pickImage();
+                                                      imageFile =
+                                                          model.imageFile;
+                                                    },
+                                                    child: Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
                                                               .center,
                                                       children: [
+                                                        const Icon(
+                                                            Feather.edit),
                                                         const SizedBox(
-                                                            width: 150),
-                                                        ElevatedButton(
-                                                            style: ButtonStyle(
-                                                                backgroundColor:
-                                                                    MaterialStateProperty.all<Color>(
-                                                                        const Color(
-                                                                            0xff0C4842)),
-                                                                minimumSize:
-                                                                    MaterialStateProperty.all<Size>(
-                                                                        const Size(
-                                                                            30,
-                                                                            30)),
-                                                                shape: MaterialStateProperty.all<
-                                                                        CircleBorder>(
-                                                                    const CircleBorder())),
-                                                            onPressed: () {
-                                                              model
-                                                                  .resetImage();
-                                                              imageFile = model
-                                                                  .imageFile;
-                                                            },
-                                                            child: const Icon(
-                                                                Feather.x)),
-                                                      ],
-                                                    ),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: [
-                                                SizedBox(
-                                                  width: size.width * 0.5,
-                                                  child: ElevatedButton(
-                                                      style: ElevatedButton.styleFrom(
-                                                          primary: const Color(
-                                                              0xff0C4842) //ボタンの背景色
+                                                            width: 10),
+                                                        Text(
+                                                          '写真を編集',
+                                                          style: GoogleFonts
+                                                              .sawarabiMincho(
+                                                            color: const Color(
+                                                                0xffFCFAF2),
                                                           ),
-                                                      onPressed: () async {
-                                                        await model.pickImage();
-                                                        imageFile =
-                                                            model.imageFile;
-                                                      },
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          const Icon(
-                                                              Feather.edit),
-                                                          const SizedBox(
-                                                              width: 10),
-                                                          Text(
-                                                            '写真を編集',
-                                                            style: GoogleFonts
-                                                                .sawarabiMincho(
-                                                              color: const Color(
-                                                                  0xffFCFAF2),
-                                                            ),
-                                                          )
-                                                        ],
-                                                      )),
-                                                ),
-                                              ],
-                                            )
-                                          ],
+                                                        )
+                                                      ],
+                                                    )),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                              ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 40, right: 30),
+                                    child: ElevatedButton(
+                                        style: ElevatedButton.styleFrom(
+                                          primary: const Color(0xff0C4842),
                                         ),
-                                ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 40, right: 30),
-                                      child: ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            primary: const Color(0xff0C4842),
+                                        onPressed: model.isLoading
+                                            ? null
+                                            : () async {
+                                                if (imageController.text !=
+                                                    null) {
+                                                  model.imgURLtext =
+                                                      imageController.text;
+                                                }
+                                                if (imageFile != null) {
+                                                  model.imageFile = imageFile;
+                                                }
+                                                model.comment =
+                                                    commentController.text;
+                                                model.name =
+                                                    nameController.text;
+                                                model.url = urlController.text;
+
+                                                try {
+                                                  await addTalk(model, context);
+                                                } catch (e) {
+                                                  model.endLoading();
+                                                }
+                                              },
+                                        child: Text(
+                                          '投稿する',
+                                          style: GoogleFonts.sawarabiMincho(
+                                            color: const Color(0xffFCFAF2),
                                           ),
-                                          onPressed: model.isLoading
-                                              ? null
-                                              : () async {
-                                                  FocusScope.of(context)
-                                                      .unfocus();
-                                                  if (imageController.text !=
-                                                      null) {
-                                                    model.imgURLtext =
-                                                        imageController.text;
-                                                  }
-                                                  if (imageFile != null) {
-                                                    model.imageFile = imageFile;
-                                                  }
-                                                  model.comment =
-                                                      commentController.text;
-                                                  model.name =
-                                                      nameController.text;
-                                                  model.url =
-                                                      urlController.text;
-                                                  try {
-                                                    await addTalk(
-                                                        model, context);
-                                                  } catch (e) {
-                                                    print(e.toString());
-                                                  }
-                                                },
-                                          child: Text(
-                                            '投稿する',
-                                            style: GoogleFonts.sawarabiMincho(
-                                              color: const Color(0xffFCFAF2),
-                                            ),
-                                          )),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            if (model.isLoading)
-                              Container(
+                                        )),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          model.isLoading
+                              ? Container(
                                   width: size.width,
                                   height: size.height,
                                   color: Colors.black54,
@@ -317,92 +304,92 @@ class AddTalkPage extends StatelessWidget {
                                           )),
                                     ],
                                   ))
-                          ],
-                        );
-                      },
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            width: size.width * 0.9,
-                            child: TextField(
-                                style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xff43341B),
-                                ),
-                                maxLength: 20,
-                                controller: nameController,
-                                decoration: InputDecoration(
-                                  labelText: '名前:名無しさん',
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    borderSide:
-                                        const BorderSide(color: Colors.black54),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xff33A6B8), width: 3.0),
-                                  ),
-                                )),
-                          ),
-                          SizedBox(
-                            width: size.width * 0.9,
-                            child: TextField(
-                                style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xff43341B),
-                                ),
-                                maxLength: 1024,
-                                keyboardType: TextInputType.multiline,
-                                maxLines: null,
-                                controller: commentController,
-                                decoration: InputDecoration(
-                                  labelText: 'コメント',
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    borderSide:
-                                        const BorderSide(color: Colors.black54),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xff33A6B8), width: 3.0),
-                                  ),
-                                )),
-                          ),
-                          SizedBox(
-                            width: size.width * 0.9,
-                            child: TextField(
-                                style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xff43341B),
-                                ),
-                                maxLength: 2048,
-                                controller: urlController,
-                                decoration: InputDecoration(
-                                  labelText: '関連URL',
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    borderSide:
-                                        const BorderSide(color: Colors.black54),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(25.0),
-                                    borderSide: const BorderSide(
-                                        color: Color(0xff33A6B8), width: 3.0),
-                                  ),
-                                )),
-                          ),
+                              : const SizedBox.shrink()
                         ],
-                      ),
+                      );
+                    },
+                    child: Column(
+                      children: [
+                        SizedBox(
+                          width: size.width * 0.9,
+                          child: TextField(
+                              style: GoogleFonts.sawarabiMincho(
+                                color: const Color(0xff43341B),
+                              ),
+                              maxLength: 20,
+                              controller: nameController,
+                              decoration: InputDecoration(
+                                labelText: '名前:名無しさん',
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.black54),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xff33A6B8), width: 3.0),
+                                ),
+                              )),
+                        ),
+                        SizedBox(
+                          width: size.width * 0.9,
+                          child: TextField(
+                              style: GoogleFonts.sawarabiMincho(
+                                color: const Color(0xff43341B),
+                              ),
+                              maxLength: 1024,
+                              keyboardType: TextInputType.multiline,
+                              maxLines: null,
+                              controller: commentController,
+                              decoration: InputDecoration(
+                                labelText: 'コメント',
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.black54),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xff33A6B8), width: 3.0),
+                                ),
+                              )),
+                        ),
+                        SizedBox(
+                          width: size.width * 0.9,
+                          child: TextField(
+                              style: GoogleFonts.sawarabiMincho(
+                                color: const Color(0xff43341B),
+                              ),
+                              maxLength: 2048,
+                              controller: urlController,
+                              decoration: InputDecoration(
+                                labelText: '関連URL',
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide:
+                                      const BorderSide(color: Colors.black54),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                  borderSide: const BorderSide(
+                                      color: Color(0xff33A6B8), width: 3.0),
+                                ),
+                              )),
+                        ),
+                      ],
                     ),
                   ),
                 ),
               ),
-            ],
-          ),
-          bottomNavigationBar: SizedBox(
-            height: 64,
-            child: AdWidget(
-              ad: banner,
             ),
+          ],
+        ),
+        bottomNavigationBar: SizedBox(
+          height: 64,
+          child: AdWidget(
+            ad: banner,
           ),
         ),
       ),
@@ -411,7 +398,7 @@ class AddTalkPage extends StatelessWidget {
 
   Future addTalk(AddTalkModel model, BuildContext context) async {
     if (model.comment != '') {
-      await model.addTalkToFirebase(post, uid);
+      await model.addTalkToFirebase(post, uid, count);
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -421,6 +408,7 @@ class AddTalkPage extends StatelessWidget {
               TextButton(
                 child: const Text('OK'),
                 onPressed: () async {
+                  await model.endLoading();
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
                 },

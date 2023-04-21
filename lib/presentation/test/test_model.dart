@@ -1,5 +1,8 @@
 // ignore_for_file: missing_return
 
+import 'dart:io';
+
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
@@ -7,10 +10,97 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_picker/Picker.dart';
 import 'package:flutter_udid/flutter_udid.dart';
+import 'package:record/record.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:video_player/video_player.dart';
 
 class TestModel extends ChangeNotifier {
+  Record record = Record(); // 録音
+  bool recordingStatus = false; // 録音状態(true:録音中/false:停止中)
+  AudioPlayer audioPlayer = AudioPlayer(); // 再生
+  bool playingStatus = false; // 再生状態(true:再生中/false:停止中)
+  final now = DateTime.now();
+  VideoPlayerController controller;
+  String localFile;
+  File audioFile;
+  // void initset() {
+  //   controller = VideoPlayerController.network(
+  //       'https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4')
+  //     ..initialize().then((_) {});
+  //   notifyListeners();
+  // }
+
+// 録音開始
+  void startRecording() async {
+    // 権限確認
+    if (await record.hasPermission()) {
+      // 録音ファイルを指定
+      final directory = await getApplicationDocumentsDirectory();
+      String pathToWrite = directory.path;
+      localFile = pathToWrite + '/$now.m4a';
+
+      // 録音開始
+      await record.start(
+        path: localFile,
+        encoder: AudioEncoder.aacLc,
+        bitRate: 128000,
+        samplingRate: 44100,
+      );
+    }
+  }
+
+// 録音停止
+  void stopRecording() async {
+    await record.stop();
+    audioFile = File(localFile);
+    print(audioFile);
+  }
+
+// 再生開始
+  void startPlaying() async {
+    // 再生するファイルを指定
+    final directory = await getApplicationDocumentsDirectory();
+    // String pathToWrite = directory.path;
+    // final localFile = pathToWrite + '/sample.m4a';
+
+    // 再生開始
+    await audioPlayer.play(DeviceFileSource(localFile));
+
+    // 再生終了後、ステータス変更
+    audioPlayer.onPlayerComplete.listen((event) {
+      playingStatus = false;
+      notifyListeners();
+    });
+  }
+
+  // 再生一時停止
+  void pausePlaying() async {
+    await audioPlayer.pause();
+  }
+
+  String statusMessage() {
+    String msg = '';
+
+    if (recordingStatus) {
+      if (playingStatus) {
+        msg = '-'; // 録音○、再生○（発生しない）
+      } else {
+        msg = '録音中'; // 録音×、再生○
+      }
+    } else {
+      if (playingStatus) {
+        msg = '再生中'; // 録音○、再生×
+      } else {
+        msg = '待機中'; // 録音×、再生×
+      }
+    }
+
+    return msg;
+  }
+  // =============================================================================//
+
   String udid = 'UDID';
   String token = '';
   String title;
@@ -18,6 +108,8 @@ class TestModel extends ChangeNotifier {
   TimeOfDay time = TimeOfDay.now(); //時計で決めた時の時間(初期値は現在時刻)
   DateTime time2 = DateTime.now(); //ピッカーで決めた時の時間(初期値は現在時刻)
   DateTime finalDateTime; //最終的な日と時間
+
+// =============================================================================//
 
   Future getToken() async {
     final token = await FirebaseMessaging.instance.getToken();

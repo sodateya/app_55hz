@@ -44,12 +44,19 @@ class TalkPage extends StatelessWidget {
         ..fetchBlockList(uid),
       child: Scaffold(
         appBar: AppBar(
-            flexibleSpace: const Image(
-              image: AssetImage('images/washi1.png'),
-              fit: BoxFit.cover,
-              color: Color(0xff616138),
-              colorBlendMode: BlendMode.modulate,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('images/washi1.png'),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Color(0xff616138),
+                    BlendMode.modulate,
+                  ),
+                ),
+              ),
             ),
+            backgroundColor: const Color(0xff616138),
             actions: [
               Consumer<TalkModel>(builder: (context, model, child) {
                 final favoriteThreads = model.favoriteThread;
@@ -229,6 +236,7 @@ class TalkPage extends StatelessWidget {
                                                                       index]
                                                                   .count
                                                                   .toString(),
+                                                              count: postCount,
                                                             ),
                                                         fullscreenDialog: true),
                                                   );
@@ -464,6 +472,7 @@ class TalkPage extends StatelessWidget {
                 builder: (context) => AddTalkPage(
                   uid: uid,
                   post: post,
+                  count: postCount,
                 ),
               ),
             );

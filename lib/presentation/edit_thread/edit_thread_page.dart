@@ -48,11 +48,17 @@ class _EditThreadState extends State<EditThreadPage>
           preferredSize: const Size.fromHeight(60),
           child: Consumer<EditThreadModel>(builder: (context, model, child) {
             return AppBar(
-              flexibleSpace: const Image(
-                image: AssetImage('images/washi1.png'),
-                fit: BoxFit.cover,
-                color: Color(0xff616138),
-                colorBlendMode: BlendMode.modulate,
+              flexibleSpace: Container(
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('images/washi1.png'),
+                    fit: BoxFit.cover,
+                    colorFilter: ColorFilter.mode(
+                      Color(0xff616138),
+                      BlendMode.modulate,
+                    ),
+                  ),
+                ),
               ),
               leading: IconButton(
                 icon: const Icon(
@@ -71,6 +77,7 @@ class _EditThreadState extends State<EditThreadPage>
                     fontSize: 25.0,
                     fontWeight: FontWeight.bold),
               ),
+              backgroundColor: const Color(0xff616138),
             );
           }),
         ),

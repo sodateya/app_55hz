@@ -42,11 +42,11 @@ class AddTalkModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future addTalkToFirebase(Post post, String uid) async {
+  Future addTalkToFirebase(Post post, String uid, int count) async {
+    await startLoading();
     if (comment.isEmpty) {
       throw ('コメントを入力してください');
     } else {
-      startLoading();
       final doc = FirebaseFirestore.instance
           .collection('thread')
           .doc(post.threadId)
@@ -65,7 +65,7 @@ class AddTalkModel extends ChangeNotifier {
         'comment': comment,
         'createdAt': Timestamp.now(),
         'uid': uid,
-        'count': FieldValue.increment(1),
+        'count': count + 1,
         'badCount': [],
         'url': url.trim(),
         'name': name,
@@ -84,16 +84,17 @@ class AddTalkModel extends ChangeNotifier {
       if (post.mainToken != null && post.uid != uid) {
         await push('あなたのスレにコメントがつきました', post.mainToken);
       }
-      endLoading();
     }
+    await Future.delayed(Duration(seconds: 2)); // 2秒待機
+    await endLoading();
   }
 
   Future pickImage() async {
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       imageFile = File(pickedFile.path);
-      notifyListeners();
     }
+    return imageFile;
   }
 
   Future resetImage() {
@@ -102,7 +103,6 @@ class AddTalkModel extends ChangeNotifier {
   }
 
   Future push(String text, String token) async {
-    print('通知オクター');
     final functions = FirebaseFunctions.instanceFor(region: 'asia-northeast1');
     final callable = functions.httpsCallable('pushSubmitFromApp');
     await callable({'id': text, 'token': token});

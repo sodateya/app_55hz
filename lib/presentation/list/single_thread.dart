@@ -236,8 +236,6 @@ class ThreadList extends StatelessWidget {
                                                     ],
                                                   ),
                                                   onTap: () async {
-                                                    print(
-                                                        posts[index].mainToken);
                                                     await Navigator.push(
                                                         context,
                                                         MaterialPageRoute(

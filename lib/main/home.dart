@@ -71,11 +71,17 @@ class Home extends StatelessWidget {
                   sort: sort,
                 ),
                 appBar: AppBar(
-                  flexibleSpace: const Image(
-                    image: AssetImage('images/washi1.png'),
-                    fit: BoxFit.cover,
-                    color: Color(0xff616138),
-                    colorBlendMode: BlendMode.modulate,
+                  flexibleSpace: Container(
+                    decoration: const BoxDecoration(
+                      image: DecorationImage(
+                        image: AssetImage('images/washi1.png'),
+                        fit: BoxFit.cover,
+                        colorFilter: ColorFilter.mode(
+                          Color(0xff616138),
+                          BlendMode.modulate,
+                        ),
+                      ),
+                    ),
                   ),
                   leading: Builder(builder: (context) {
                     return IconButton(

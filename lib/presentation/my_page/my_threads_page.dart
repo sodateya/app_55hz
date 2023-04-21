@@ -44,11 +44,17 @@ class MyThreadsPage extends StatelessWidget {
 
         return Scaffold(
           appBar: AppBar(
-            flexibleSpace: const Image(
-              image: AssetImage('images/washi1.png'),
-              fit: BoxFit.cover,
-              color: Color(0xffBA9132),
-              colorBlendMode: BlendMode.modulate,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage('images/washi1.png'),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Color(0xffBA9132),
+                    BlendMode.modulate,
+                  ),
+                ),
+              ),
             ),
             actions: [
               IconButton(
@@ -87,6 +93,7 @@ class MyThreadsPage extends StatelessWidget {
                           ))
               ],
             ),
+            backgroundColor: const Color(0xffBA9132),
           ),
           backgroundColor: const Color(0xffFCFAF2),
           body: Stack(

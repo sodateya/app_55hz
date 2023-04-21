@@ -332,7 +332,7 @@ class Login extends StatelessWidget {
                                   children: [
                                     Platform.isIOS
                                         ? SignInButton.mini(
-                                            buttonType: ButtonType.apple,
+                                            buttonType: ButtonType.appleDark,
                                             onPressed: model.agreeToTerms ==
                                                     false
                                                 ? null
@@ -394,8 +394,8 @@ class Login extends StatelessWidget {
                                       onPressed: model.agreeToTerms == false
                                           ? null
                                           : () async {
-                                              googleUser = (await GoogleSignIn()
-                                                  .signIn());
+                                              googleUser =
+                                                  await GoogleSignIn().signIn();
                                               googleAuth = await googleUser
                                                   .authentication;
                                               credential =

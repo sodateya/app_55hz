@@ -45,6 +45,7 @@ class ProfileEditPage extends StatelessWidget {
                 fontSize: 25.0,
               ),
             ),
+            backgroundColor: const Color(0xff616138),
           ),
           backgroundColor: const Color(0xffFCFAF2),
           body: Consumer<ProfileEditModel>(builder: (context, model, child) {
