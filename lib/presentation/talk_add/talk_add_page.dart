@@ -2,7 +2,6 @@
 
 import 'dart:io';
 import 'package:app_55hz/domain/post.dart';
-import 'package:app_55hz/domain/thread.dart';
 import 'package:app_55hz/main/admob.dart';
 import 'package:app_55hz/presentation/talk_add/talk_add_model.dart';
 import 'package:flutter/material.dart';
@@ -33,14 +32,13 @@ class AddTalkPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(count + 1);
     if (commentController.text == '' && resNumber != null) {
       commentController.text = '>>$resNumber';
     }
     final Size size = MediaQuery.of(context).size;
     final bottomSpace = MediaQuery.of(context).viewInsets.bottom;
-    return ChangeNotifierProvider.value(
-      value: AddTalkModel()..getName(),
+    return ChangeNotifierProvider<AddTalkModel>(
+      create: (context) => AddTalkModel()..getName(),
       child: Scaffold(
         backgroundColor: const Color(0xffFCFAF2),
         resizeToAvoidBottomInset: false,
@@ -58,10 +56,10 @@ class AddTalkPage extends StatelessWidget {
             ),
           ),
           backgroundColor: const Color(0xff616138),
-          title: Text(
+          title: const Text(
             'レスポンス',
-            style: GoogleFonts.sawarabiMincho(
-                color: const Color(0xffFCFAF2),
+            style: TextStyle(
+                color: Color(0xffFCFAF2),
                 fontSize: 20.0,
                 fontWeight: FontWeight.bold),
           ),
@@ -104,10 +102,8 @@ class AddTalkPage extends StatelessWidget {
                                           SizedBox(
                                             width: size.width * 0.75,
                                             child: TextFormField(
-                                                style:
-                                                    GoogleFonts.sawarabiMincho(
-                                                  color:
-                                                      const Color(0xff43341B),
+                                                style: const TextStyle(
+                                                  color: Color(0xff43341B),
                                                 ),
                                                 maxLength: 2048,
                                                 controller: imageController,
@@ -218,16 +214,13 @@ class AddTalkPage extends StatelessWidget {
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
                                                               .center,
-                                                      children: [
-                                                        const Icon(
-                                                            Feather.edit),
-                                                        const SizedBox(
-                                                            width: 10),
+                                                      children: const [
+                                                        Icon(Feather.edit),
+                                                        SizedBox(width: 10),
                                                         Text(
                                                           '写真を編集',
-                                                          style: GoogleFonts
-                                                              .sawarabiMincho(
-                                                            color: const Color(
+                                                          style: TextStyle(
+                                                            color: Color(
                                                                 0xffFCFAF2),
                                                           ),
                                                         )
@@ -274,7 +267,7 @@ class AddTalkPage extends StatelessWidget {
                                               },
                                         child: Text(
                                           '投稿する',
-                                          style: GoogleFonts.sawarabiMincho(
+                                          style: TextStyle(
                                             color: const Color(0xffFCFAF2),
                                           ),
                                         )),
@@ -299,7 +292,7 @@ class AddTalkPage extends StatelessWidget {
                                         ),
                                       ),
                                       Text('〜アップロード中〜',
-                                          style: GoogleFonts.sawarabiMincho(
+                                          style: TextStyle(
                                             color: const Color(0xffFCFAF2),
                                           )),
                                     ],
@@ -313,7 +306,7 @@ class AddTalkPage extends StatelessWidget {
                         SizedBox(
                           width: size.width * 0.9,
                           child: TextField(
-                              style: GoogleFonts.sawarabiMincho(
+                              style: TextStyle(
                                 color: const Color(0xff43341B),
                               ),
                               maxLength: 20,
@@ -335,7 +328,7 @@ class AddTalkPage extends StatelessWidget {
                         SizedBox(
                           width: size.width * 0.9,
                           child: TextField(
-                              style: GoogleFonts.sawarabiMincho(
+                              style: TextStyle(
                                 color: const Color(0xff43341B),
                               ),
                               maxLength: 1024,
@@ -359,7 +352,7 @@ class AddTalkPage extends StatelessWidget {
                         SizedBox(
                           width: size.width * 0.9,
                           child: TextField(
-                              style: GoogleFonts.sawarabiMincho(
+                              style: TextStyle(
                                 color: const Color(0xff43341B),
                               ),
                               maxLength: 2048,

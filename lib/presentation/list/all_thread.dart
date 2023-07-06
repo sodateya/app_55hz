@@ -2,11 +2,8 @@
 
 import 'package:app_55hz/domain/thread.dart';
 import 'package:app_55hz/main/admob.dart';
-import 'package:app_55hz/presentation/add_thread/add_thread_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../list/list_model.dart';
 import '../talk/talk_page.dart';
@@ -87,10 +84,6 @@ class AllThread extends StatelessWidget {
                                   return const SizedBox();
                                 } else {
                                   return Card(
-                                      elevation: 9,
-                                      shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(20))),
                                       child: posts[index].badCount.length <= 5
                                           ? Container(
                                               decoration: BoxDecoration(
@@ -131,19 +124,14 @@ class AllThread extends StatelessWidget {
                                                             color: const Color(
                                                                 0xffD0104C),
                                                           ),
-                                                          child: Padding(
+                                                          child: const Padding(
                                                             padding:
-                                                                const EdgeInsets
-                                                                        .only(
+                                                                EdgeInsets.only(
                                                                     top: 3.0,
                                                                     right: 2),
                                                             child: Text('new',
-                                                                style: GoogleFonts.sawarabiMincho(
-                                                                    textStyle: Theme.of(
-                                                                            context)
-                                                                        .textTheme
-                                                                        .headline4,
-                                                                    color: const Color(
+                                                                style: TextStyle(
+                                                                    color: Color(
                                                                         0xffFCFAF2),
                                                                     fontSize:
                                                                         11,
@@ -166,18 +154,13 @@ class AllThread extends StatelessWidget {
                                                             TextAlign.left,
                                                         overflow:
                                                             TextOverflow.clip,
-                                                        style: GoogleFonts
-                                                            .sawarabiMincho(
-                                                                textStyle: Theme.of(
-                                                                        context)
-                                                                    .textTheme
-                                                                    .headline4,
-                                                                color: const Color(
-                                                                    0xff43341B),
-                                                                fontSize: 15.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
+                                                        style: const TextStyle(
+                                                            color: Color(
+                                                                0xff43341B),
+                                                            fontSize: 15.0,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .bold),
                                                       ),
                                                     ),
                                                     subtitle: Row(
@@ -210,23 +193,20 @@ class AllThread extends StatelessWidget {
                                                           },
                                                           child: Text(
                                                               '  ID : $postUid',
-                                                              style: GoogleFonts
-                                                                  .sawarabiMincho(
-                                                                      color: const Color(
-                                                                          0xffFCFAF2),
-                                                                      fontSize:
-                                                                          12.0)),
+                                                              style: const TextStyle(
+                                                                  color: Color(
+                                                                      0xffFCFAF2),
+                                                                  fontSize:
+                                                                      12.0)),
                                                         ),
                                                         const SizedBox(
                                                             width: 10),
                                                         Text(
                                                           '${posts[index].createdAt.year}/${posts[index].createdAt.month}/${posts[index].createdAt.day} ${posts[index].createdAt.hour}:${posts[index].createdAt.minute}:${posts[index].createdAt.second}.${posts[index].createdAt.millisecond}',
-                                                          style: GoogleFonts
-                                                              .sawarabiMincho(
-                                                                  color: const Color(
-                                                                      0xff43341B),
-                                                                  fontSize:
-                                                                      10.0),
+                                                          style: const TextStyle(
+                                                              color: Color(
+                                                                  0xff43341B),
+                                                              fontSize: 10.0),
                                                         ),
                                                       ],
                                                     ),
@@ -239,8 +219,8 @@ class AllThread extends StatelessWidget {
                                                                 index)
                                                             ? Text(
                                                                 '${posts[index].postCount.toString()}ｺﾒ/日',
-                                                                style: GoogleFonts.sawarabiMincho(
-                                                                    color: const Color(
+                                                                style: const TextStyle(
+                                                                    color: Color(
                                                                         0xff43341B),
                                                                     fontSize:
                                                                         13.0,
@@ -248,9 +228,10 @@ class AllThread extends StatelessWidget {
                                                                         FontWeight
                                                                             .bold),
                                                               )
-                                                            : Text('0ｺﾒ/日',
-                                                                style: GoogleFonts.sawarabiMincho(
-                                                                    color: const Color(
+                                                            : const Text(
+                                                                '0ｺﾒ/日',
+                                                                style: TextStyle(
+                                                                    color: Color(
                                                                         0xff43341B),
                                                                     fontSize:
                                                                         13.0,
@@ -291,6 +272,8 @@ class AllThread extends StatelessWidget {
                                                                     .documentID,
                                                                 uid.substring(
                                                                     20));
+                                                        posts[index].read.add(
+                                                            uid.substring(20));
                                                       }
                                                     },
                                                     onLongPress: () async {
@@ -336,16 +319,15 @@ class AllThread extends StatelessWidget {
             heroTag: 011,
             backgroundColor: const Color(0xff0C4842).withOpacity(0.7),
             label: Row(
-              children: [
+              children: const [
                 Text(
                   'スレを建てる',
-                  style: GoogleFonts.sawarabiMincho(
-                      textStyle: Theme.of(context).textTheme.headlineMedium,
-                      color: const Color(0xffFCFAF2),
+                  style: TextStyle(
+                      color: Color(0xffFCFAF2),
                       fontSize: 15.0,
                       fontWeight: FontWeight.bold),
                 ),
-                const Icon(Feather.edit),
+                Icon(Feather.edit),
               ],
             ),
             onPressed: () {
@@ -365,8 +347,7 @@ class AllThread extends StatelessWidget {
         return AlertDialog(
           backgroundColor: Colors.black54,
           title: Text('${blockUser.substring(20)}をブロックしますか？',
-              style:
-                  GoogleFonts.sawarabiMincho(color: const Color(0xffFCFAF2))),
+              style: const TextStyle(color: Color(0xffFCFAF2))),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -389,8 +370,8 @@ class AllThread extends StatelessWidget {
                             backgroundColor: Colors.black54,
                             title: Text('${blockUser.substring(20)}をブロックしました',
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xffFCFAF2),
+                                style: const TextStyle(
+                                  color: Color(0xffFCFAF2),
                                 )),
                           );
                         });
@@ -428,12 +409,12 @@ class AllThread extends StatelessWidget {
                     await showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialog(
+                          return const AlertDialog(
                             backgroundColor: Colors.black54,
                             title: Text('通報しました',
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xffFCFAF2),
+                                style: TextStyle(
+                                  color: Color(0xffFCFAF2),
                                 )),
                           );
                         });
@@ -473,12 +454,12 @@ class AllThread extends StatelessWidget {
                     await showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialog(
+                          return const AlertDialog(
                             backgroundColor: Colors.black54,
                             title: Text('投稿を削除しました',
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xffFCFAF2),
+                                style: TextStyle(
+                                  color: Color(0xffFCFAF2),
                                 )),
                           );
                         });

@@ -94,7 +94,7 @@ class TalkToAdminModel extends ChangeNotifier {
 
     await db.set({
       'comment': comment,
-      'createdAt': Timestamp.now(),
+      'createdAt': FieldValue.serverTimestamp(),
       'uid': uid,
       'count': 0,
       'badCount': [],
@@ -115,7 +115,7 @@ class TalkToAdminModel extends ChangeNotifier {
     }
     await doc.set({
       'comment': '',
-      'createdAt': Timestamp.now(),
+      'createdAt': FieldValue.serverTimestamp(),
       'uid': uid,
       'count': 0,
       'badCount': [],

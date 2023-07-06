@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'main/home.dart';
 
@@ -45,6 +46,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+          textTheme: GoogleFonts.sawarabiMinchoTextTheme(),
+          cardTheme: const CardTheme(
+            elevation: 9,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(20))),
+            color: Color(0xff939650),
+          )),
       debugShowCheckedModeBanner: false,
       // ignore: prefer_const_literals_to_create_immutables
       localizationsDelegates: [

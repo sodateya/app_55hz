@@ -70,11 +70,6 @@ class ThreadList extends StatelessWidget {
                                     blockUsers.contains(posts[index].uid)
                                 ? const SizedBox.shrink()
                                 : Card(
-                                    elevation: 9,
-                                    shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(20))),
-                                    color: const Color(0xff939650),
                                     child: posts[index].badCount.length <= 5
                                         ? Container(
                                             decoration: BoxDecoration(
@@ -256,6 +251,9 @@ class ThreadList extends StatelessWidget {
                                                         thread,
                                                         posts[index].documentID,
                                                         uid.substring(20));
+                                                    posts[index]
+                                                        .read
+                                                        .add(uid.substring(20));
                                                   },
                                                   onLongPress: () async {
                                                     if (posts[index].uid ==
@@ -324,7 +322,10 @@ class ThreadList extends StatelessWidget {
                 ),
                 backgroundColor: const Color(0xff0C4842).withOpacity(0.7),
                 onPressed: () async {
-                  await Navigator.push(
+                  if (adInterstitial.ready == false) {
+                    await adInterstitial.createAdforSerch();
+                  }
+                  adInterstitial.showAdforSerch(Navigator.push(
                       context,
                       MaterialPageRoute(
                           builder: (context) => AddThreadPage(
@@ -333,9 +334,7 @@ class ThreadList extends StatelessWidget {
                                 uid: uid,
                                 adInterstitial: adInterstitial,
                                 blockUsers: model.blockUser,
-                              )));
-                  adInterstitial.createAd();
-                  await adInterstitial.showAd();
+                              ))));
                 },
               );
             }),

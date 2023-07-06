@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -40,25 +42,27 @@ class AdInterstitial with ChangeNotifier {
 
   void createAd() async {
     print("### 広告を作成します");
-    await InterstitialAd.load(
-      adUnitId: interstitialAdUnitId,
-      request: const AdRequest(),
-      adLoadCallback: InterstitialAdLoadCallback(
-        onAdLoaded: (InterstitialAd ad) {
-          print('### add loaded');
-          _interstitialAd = ad;
-          missload = 0;
-          ready = true;
-        },
-        onAdFailedToLoad: (LoadAdError error) {
-          missload++;
-          _interstitialAd = null;
-          if (missload <= 2) {
-            createAd();
-          }
-        },
-      ),
-    );
+    if (!ready) {
+      await InterstitialAd.load(
+        adUnitId: interstitialAdUnitId,
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print('### add loaded');
+            _interstitialAd = ad;
+            missload = 0;
+            ready = true;
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            missload++;
+            _interstitialAd = null;
+            if (missload <= 2) {
+              createAd();
+            }
+          },
+        ),
+      );
+    }
   }
 
   Future<void> showAd() async {
@@ -74,6 +78,67 @@ class AdInterstitial with ChangeNotifier {
       onAdDismissedFullScreenContent: (InterstitialAd ad) {
         print("ad Disposed");
         ad.dispose();
+      },
+      onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError aderror) {
+        print('$ad OnAdFailed $aderror');
+        ad.dispose();
+        createAd();
+      },
+      onAdImpression: (InterstitialAd ad) => print('$ad impression occurred.'),
+    );
+
+    await _interstitialAd.show();
+    _interstitialAd = null;
+  }
+
+  Future<void> createAdforSerch() async {
+    print("### 広告を作成します");
+    if (!ready) {
+      // Completerを使用して広告がロードされたときに通知します。
+      Completer completer = Completer();
+
+      await InterstitialAd.load(
+        adUnitId: interstitialAdUnitId,
+        request: const AdRequest(),
+        adLoadCallback: InterstitialAdLoadCallback(
+          onAdLoaded: (InterstitialAd ad) {
+            print('### add loaded');
+            _interstitialAd = ad;
+            missload = 0;
+            ready = true;
+            completer.complete(); // 広告がロードされたので通知
+          },
+          onAdFailedToLoad: (LoadAdError error) {
+            missload++;
+            _interstitialAd = null;
+            if (missload <= 2) {
+              createAd();
+            } else {
+              completer.complete(); // 広告のロードに失敗したので通知
+            }
+          },
+        ),
+      );
+
+      return completer.future; // 広告がロードされるまで待機します。
+    }
+  }
+
+  Future<void> showAdforSerch(Future future) async {
+    ready = false;
+    if (_interstitialAd == null) {
+      print('Warning: attempt to show interstitial before loaded.');
+      return;
+    }
+    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+      onAdShowedFullScreenContent: (InterstitialAd ad) {
+        print("ad onAdshowedFullscreen");
+      },
+      onAdDismissedFullScreenContent: (InterstitialAd ad) {
+        print("ad Disposed");
+        ad.dispose();
+
+        future;
       },
       onAdFailedToShowFullScreenContent: (InterstitialAd ad, AdError aderror) {
         print('$ad OnAdFailed $aderror');

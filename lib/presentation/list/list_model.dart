@@ -1,7 +1,11 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:io';
 
+import 'package:algolia/algolia.dart';
 import 'package:app_55hz/domain/post.dart';
 import 'package:app_55hz/domain/thread.dart';
+import 'package:app_55hz/main.dart';
 import 'package:app_55hz/main/admob.dart';
 import 'package:app_55hz/presentation/add_thread/add_thread_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_udid/flutter_udid.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -238,126 +243,117 @@ class ListModel extends ChangeNotifier {
   }
 
   Future getPost(Thread thread, String sort) async {
-    final querySnapshot = firestore
+    final doc = await firestore
         .collection('thread')
         .doc(thread.documentID)
         .collection('post')
         .orderBy(sort, descending: true)
         .limit(documentLimit)
-        .snapshots();
+        .get();
     try {
-      querySnapshot.listen((snaphsots) async {
-        lastDocument = snaphsots.docs.last;
-        final posts = snaphsots.docs.map((doc) => Post(doc)).toList();
-        this.posts = posts;
-        notifyListeners();
-      });
+      lastDocument = doc.docs.last;
+      final posts = doc.docs.map((doc) => Post(doc)).toList();
+      this.posts = posts;
+      notifyListeners();
     } catch (e) {
       print(e);
     }
   }
 
   Future getAll(Thread thread, String sort) async {
-    final querySnapshot = firestore
+    final querySnapshot = await firestore
         .collectionGroup('post')
         .limit(documentLimit)
         .orderBy(sort, descending: true)
-        .snapshots();
+        .get();
     try {
-      querySnapshot.listen((snaphsots) async {
-        lastDocument = snaphsots.docs.last;
-        final posts = snaphsots.docs.map((doc) => Post(doc)).toList();
-        this.posts = posts;
-        notifyListeners();
-      });
+      lastDocument = querySnapshot.docs.last;
+      final posts = querySnapshot.docs.map((doc) => Post(doc)).toList();
+      this.posts = posts;
+      notifyListeners();
     } catch (e) {
       print(e);
     }
   }
 
   Future getMorePost(Thread thread, String sort) async {
-    final docs = firestore
+    final docs = await firestore
         .collection('thread')
         .doc(thread.documentID)
         .collection('post')
         .orderBy(sort, descending: true)
         .startAfterDocument(lastDocument)
         .limit(10)
-        .snapshots();
-    docs.listen((snapshots) async {
-      try {
-        lastDocument = snapshots.docs.last;
-        final posts = snapshots.docs.map((doc) => Post(doc)).toList();
-        this.posts.addAll(posts);
-      } catch (e) {
-        print('終了');
-      }
-      notifyListeners();
-    });
+        .get();
+
+    try {
+      lastDocument = docs.docs.last;
+      final posts = docs.docs.map((doc) => Post(doc)).toList();
+      this.posts.addAll(posts);
+    } catch (e) {
+      print('終了');
+    }
+    notifyListeners();
   }
 
   Future getMoreAllPost(Thread thread, String sort) async {
-    final docs = firestore
+    final docs = await firestore
         .collectionGroup('post')
         .orderBy(sort, descending: true)
         .startAfterDocument(lastDocument)
         .limit(10)
-        .snapshots();
-    docs.listen((snapshots) async {
-      try {
-        lastDocument = snapshots.docs.last;
-        final posts = snapshots.docs.map((doc) => Post(doc)).toList();
-        this.posts.addAll(posts);
-      } catch (e) {
-        print('終了');
-      }
-      notifyListeners();
-    });
+        .get();
+
+    try {
+      lastDocument = docs.docs.last;
+      final posts = docs.docs.map((doc) => Post(doc)).toList();
+      this.posts.addAll(posts);
+    } catch (e) {
+      print('終了');
+    }
+    notifyListeners();
   }
 
   DateTime today =
       DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
 
   Future getUpdateToday(Thread thread, String sort) async {
-    final querySnapshot = firestore
+    final querySnapshot = await firestore
         .collectionGroup('post')
         .limit(documentLimit)
         .orderBy('upDateAt', descending: true)
         .where('upDateAt', isGreaterThanOrEqualTo: today)
-        .snapshots();
+        .get();
     try {
-      querySnapshot.listen((snaphsots) async {
-        lastDocument = snaphsots.docs.last;
-        final posts = snaphsots.docs.map((doc) => Post(doc)).toList();
-        posts.sort(((a, b) => b.postCount.compareTo(a.postCount)));
-        this.posts = posts;
-        notifyListeners();
-      });
+      lastDocument = querySnapshot.docs.last;
+      final posts = querySnapshot.docs.map((doc) => Post(doc)).toList();
+      posts.sort(((a, b) => b.postCount.compareTo(a.postCount)));
+      this.posts = posts;
+      notifyListeners();
     } catch (e) {
       print(e);
     }
   }
 
   Future getMoreUpDateToday(Thread thread, String sort) async {
-    final docs = firestore
+    final docs = await firestore
         .collectionGroup('post')
         .orderBy('upDateAt', descending: true)
         .where('upDateAt', isGreaterThanOrEqualTo: today)
         .orderBy('postCount', descending: true)
         .startAfterDocument(lastDocument)
         .limit(10)
-        .snapshots();
-    docs.listen((snapshots) async {
-      try {
-        lastDocument = snapshots.docs.last;
-        final posts = snapshots.docs.map((doc) => Post(doc)).toList();
-        posts.sort(((a, b) => b.postCount.compareTo(a.postCount)));
-        this.posts.addAll(posts);
-      } catch (e) {
-        print('終了');
-      }
-      notifyListeners();
-    });
+        .get();
+
+    try {
+      lastDocument = docs.docs.last;
+      final posts = docs.docs.map((doc) => Post(doc)).toList();
+      posts.sort(((a, b) => b.postCount.compareTo(a.postCount)));
+      this.posts.addAll(posts);
+    } catch (e) {
+      print('終了');
+    }
+    notifyListeners();
   }
 
   // ignore: missing_return
@@ -535,7 +531,10 @@ class ListModel extends ChangeNotifier {
                               padding: const EdgeInsets.only(left: 5),
                               child: ActionChip(
                                 onPressed: () async {
-                                  await Navigator.push(
+                                  if (adInterstitial.ready == false) {
+                                    await adInterstitial.createAdforSerch();
+                                  }
+                                  adInterstitial.showAdforSerch(Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => AddThreadPage(
@@ -544,7 +543,7 @@ class ListModel extends ChangeNotifier {
                                                 uid: uid,
                                                 adInterstitial: ad,
                                                 blockUsers: blockUser,
-                                              )));
+                                              ))));
                                 },
                                 backgroundColor: const Color(0xff939650),
                                 label: Text('${thread.title}板',

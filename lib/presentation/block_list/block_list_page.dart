@@ -37,9 +37,9 @@ class BlockListPage extends StatelessWidget {
                   ),
                 ),
               ),
-              title: Text('ブロックリスト',
-                  style: GoogleFonts.sawarabiMincho(
-                      color: const Color(0xffFCFAF2),
+              title: const Text('ブロックリスト',
+                  style: TextStyle(
+                      color: Color(0xffFCFAF2),
                       fontSize: 25.0,
                       fontWeight: FontWeight.bold)),
               backgroundColor: const Color(0xff1C1C1C),
@@ -72,10 +72,10 @@ class BlockListPage extends StatelessWidget {
                               await model.fetchBlockList(uid);
                             },
                             child: model.blockList.isEmpty
-                                ? Center(
+                                ? const Center(
                                     child: Text('現在ブロックしているユーザーはいません',
-                                        style: GoogleFonts.sawarabiMincho(
-                                            color: const Color(0xff43341B),
+                                        style: TextStyle(
+                                            color: Color(0xff43341B),
                                             fontWeight: FontWeight.bold)),
                                   )
                                 : SizedBox(
@@ -110,14 +110,12 @@ class BlockListPage extends StatelessWidget {
                                                     model.blockList[index]
                                                         .toString()
                                                         .substring(20),
-                                                    style: GoogleFonts
-                                                        .sawarabiMincho(
-                                                            color: const Color(
-                                                                0xffFCFAF2),
-                                                            fontSize: 15.0,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold)),
+                                                    style: const TextStyle(
+                                                        color:
+                                                            Color(0xffFCFAF2),
+                                                        fontSize: 15.0,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
                                                 onTap: () async {
                                                   await unBlockDialog(
                                                       context,
@@ -153,8 +151,7 @@ class BlockListPage extends StatelessWidget {
         return AlertDialog(
           backgroundColor: Colors.black54,
           title: Text('${blockUser.substring(20)}をブロック解除しますか？',
-              style:
-                  GoogleFonts.sawarabiMincho(color: const Color(0xffFCFAF2))),
+              style: const TextStyle(color: Color(0xffFCFAF2))),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,

@@ -38,10 +38,10 @@ class ProfileEditPage extends StatelessWidget {
                 ),
               ),
             ),
-            title: Text(
+            title: const Text(
               'プロフィール編集',
-              style: GoogleFonts.sawarabiMincho(
-                color: const Color(0xffFCFAF2),
+              style: TextStyle(
+                color: Color(0xffFCFAF2),
                 fontSize: 25.0,
               ),
             ),
@@ -82,10 +82,10 @@ class ProfileEditPage extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 15),
-                        Text(
+                        const Text(
                           'あなたのハンドルネームは',
-                          style: GoogleFonts.sawarabiMincho(
-                            color: const Color(0xff43341B),
+                          style: TextStyle(
+                            color: Color(0xff43341B),
                             fontSize: 25,
                           ),
                         ),
@@ -94,8 +94,8 @@ class ProfileEditPage extends StatelessWidget {
                           width: size.width * 0.8,
                           child: Text(
                             model.handleName ?? '',
-                            style: GoogleFonts.sawarabiMincho(
-                                color: const Color(0xff43341B),
+                            style: const TextStyle(
+                                color: Color(0xff43341B),
                                 fontSize: 25,
                                 fontWeight: FontWeight.bold),
                           ),
@@ -106,8 +106,8 @@ class ProfileEditPage extends StatelessWidget {
                           child: Padding(
                               padding: const EdgeInsets.only(top: 10),
                               child: TextFormField(
-                                  style: GoogleFonts.sawarabiMincho(
-                                      color: const Color(0xff43341B),
+                                  style: const TextStyle(
+                                      color: Color(0xff43341B),
                                       fontSize: 13,
                                       fontWeight: FontWeight.bold),
                                   controller: nameController,
@@ -134,10 +134,10 @@ class ProfileEditPage extends StatelessWidget {
                             onPressed: () async {
                               await setName(model, context);
                             },
-                            child: Text(
+                            child: const Text(
                               '変更確定',
-                              style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xffFCFAF2),
+                              style: TextStyle(
+                                  color: Color(0xffFCFAF2),
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold),
                             )),

@@ -3,7 +3,7 @@ description: A new Flutter application.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 1.91.0+9
+version: 1.92.0+10
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -54,6 +54,7 @@ dependencies:
   record: ^4.4.4
   audioplayers: ^3.0.1
   video_player: ^2.6.1
+  algolia: ^1.1.2
 
 
 dependency_overrides:

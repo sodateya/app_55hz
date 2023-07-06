@@ -124,10 +124,7 @@ class MyFavoritePage extends StatelessWidget {
                                             posts[index].title,
                                             textAlign: TextAlign.left,
                                             overflow: TextOverflow.clip,
-                                            style: GoogleFonts.sawarabiMincho(
-                                                textStyle: Theme.of(context)
-                                                    .textTheme
-                                                    .headline4,
+                                            style: const TextStyle(
                                                 color: const Color(0xff43341B),
                                                 fontSize: 15.0,
                                                 fontWeight: FontWeight.bold),

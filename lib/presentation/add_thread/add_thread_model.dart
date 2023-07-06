@@ -48,8 +48,8 @@ class AddThreadModel extends ChangeNotifier {
 
     await db.add({
       'title': title,
-      'createdAt': Timestamp.now(),
-      'upDateAt': Timestamp.now(),
+      'createdAt': FieldValue.serverTimestamp(),
+      'upDateAt': FieldValue.serverTimestamp(),
       'uid': uid,
       'badCount': [],
       'read': [],

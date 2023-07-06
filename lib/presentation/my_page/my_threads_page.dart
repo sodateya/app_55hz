@@ -67,10 +67,10 @@ class MyThreadsPage extends StatelessWidget {
             ],
             title: Column(
               children: [
-                Text(
+                const Text(
                   'マイページ',
-                  style: GoogleFonts.sawarabiMincho(
-                    color: const Color(0xffFCFAF2),
+                  style: TextStyle(
+                    color: Color(0xffFCFAF2),
                     fontSize: 25.0,
                   ),
                 ),
@@ -79,15 +79,15 @@ class MyThreadsPage extends StatelessWidget {
                     color: const Color(0xffFCFAF2),
                     alignment: Alignment.center,
                     child: sort == 'createdAt'
-                        ? Text('投稿順',
-                            style: GoogleFonts.sawarabiMincho(
-                                color: const Color(0xffBA9132),
+                        ? const Text('投稿順',
+                            style: TextStyle(
+                                color: Color(0xffBA9132),
                                 fontSize: 15.0,
                                 fontWeight: FontWeight.bold))
-                        : Text(
+                        : const Text(
                             '更新順',
-                            style: GoogleFonts.sawarabiMincho(
-                                color: const Color(0xffBA9132),
+                            style: TextStyle(
+                                color: Color(0xffBA9132),
                                 fontSize: 15.0,
                                 fontWeight: FontWeight.bold),
                           ))
@@ -150,11 +150,8 @@ class MyThreadsPage extends StatelessWidget {
                                         posts[index].title,
                                         textAlign: TextAlign.left,
                                         overflow: TextOverflow.clip,
-                                        style: GoogleFonts.sawarabiMincho(
-                                            textStyle: Theme.of(context)
-                                                .textTheme
-                                                .headline4,
-                                            color: const Color(0xff43341B),
+                                        style: const TextStyle(
+                                            color: Color(0xff43341B),
                                             fontSize: 15.0,
                                             fontWeight: FontWeight.bold),
                                       ),

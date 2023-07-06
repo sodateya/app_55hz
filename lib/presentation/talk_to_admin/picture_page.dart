@@ -21,8 +21,8 @@ class PicturePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-        value: TalkToAdminModel(),
+    return ChangeNotifierProvider<TalkToAdminModel>(
+        create: (context) => TalkToAdminModel(),
         child: Consumer<TalkToAdminModel>(builder: (context, model, child) {
           model.imageFile = imageFile;
           return Scaffold(

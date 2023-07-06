@@ -1,8 +1,36 @@
 const admin = require('firebase-admin');
 const functions = require('firebase-functions');
+const algoliasearch = require('algoliasearch');
 
 admin.initializeApp();
 
+const client = algoliasearch('YUUAZI2TQ1', '90e9284829a4a54ca3abfb3aa02fe80b');
+const index = client.initIndex('9ch_posts');
+
+
+
+exports.addToIndex = functions.firestore.document('thread/{threadId}/post/{postId}')
+    .onCreate((snapshot, context) => {
+        const data = snapshot.data();
+        const objectID = snapshot.id;
+        const threadId = context.params.threadId; // ワイルドカードを使ってthreadIdを取得
+        const postId = context.params.postId; // ワイルドカードを使ってpostIdを取得
+        return index.saveObject({ ...data, objectID, threadId, postId });
+    });
+
+    exports.deleteFromIndex = functions.firestore.document('thread/{threadId}/post/{postId}')
+    .onDelete(snapshot => {
+        const objectID = snapshot.id;
+        return index.deleteObject(objectID);
+    });
+// exports.updateIndex = functions.firestore.document('thread/{threadId}/post/{postId}')
+//     .onUpdate((change, context) => {
+//         const newData = change.after.data();
+//         const objectID = change.after.id;
+//         const threadId = context.params.threadId; // ワイルドカードを使ってthreadIdを取得
+//         const postId = context.params.postId; // ワイルドカードを使ってpostIdを取得
+//         return index.saveObject({ ...newData, objectID, threadId, postId });
+//     });
 
 
 functions.pubsub.schedule()
@@ -85,6 +113,9 @@ function pushTotime(token, payload){
     throw new functions.https.HttpsError('unknown', error.message, error);
   });
 }
+
+
+
 
 
 // function timePush(token,paylode){functions.pubsub.schedule('10 12 28 10*')

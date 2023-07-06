@@ -38,7 +38,6 @@ class ForgotPassword extends StatelessWidget {
                           width: size.width * 0.8,
                           child: TextFormField(
                             controller: emailController,
-                            keyboardType: TextInputType.number,
                             decoration: const InputDecoration(
                                 border: OutlineInputBorder(
                                     borderRadius:

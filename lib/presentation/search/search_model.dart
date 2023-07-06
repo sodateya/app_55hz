@@ -1,129 +1,127 @@
-// import 'package:app_55hz/domain/blockUsers.dart';
-// import 'package:app_55hz/domain/post.dart';
-// import 'package:app_55hz/domain/thread.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'package:flutter/material.dart';
+import 'package:app_55hz/domain/blockUsers.dart';
+import 'package:app_55hz/domain/post.dart';
+import 'package:app_55hz/domain/post_algolia.dart';
+import 'package:app_55hz/domain/thread.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+import 'package:algolia/algolia.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-// class SearchModel extends ChangeNotifier {
-//   List<Thread> threads = [];
-//   List<Post> posts = [];
-//   List favoriteList = [];
-//   List<BlockUsers> blockUser = [];
-//   int documentLimit = 10;
-//   final firestore = FirebaseFirestore.instance;
-//   DocumentSnapshot lastDocument;
+class SearchModel extends ChangeNotifier {
+  bool resSort;
 
-//   Future fetchThread() async {
-//     final docs = await FirebaseFirestore.instance
-//         .collection('thread')
-//         .orderBy('createdAt', descending: true)
-//         .get();
-//     final threads = docs.docs.map((doc) => Thread(doc)).toList();
-//     this.threads = threads;
-//     notifyListeners();
-//   }
+  List favoriteList = [];
+  List<BlockUsers> blockUser = [];
+  int documentLimit = 10;
+  final firestore = FirebaseFirestore.instance;
+  DocumentSnapshot lastDocument;
+  DateFormat formattedTime = DateFormat('yyyy/MM/dd/HH:mm');
+  int search = 0;
+  bool isLoading = false;
+  List<PostAlgolia> posts = [];
+  Algolia algolia = const Algolia.init(
+    applicationId: 'YUUAZI2TQ1',
+    apiKey: '5431dfbb535f387c9f09f5c1ec89a751',
+  );
 
-//   Future getSearchPost(Thread thread, String searchWord) async {
-//     final querySnapshot = await firestore
-//         .collection('thread')
-//         .doc(thread.documentID)
-//         .collection('post')
-//         .orderBy('title')
-//         .startAt([searchWord])
-//         .endAt(['$searchWord\uf8ff'])
-//         .limit(documentLimit)
-//         .get();
-//     try {
-//       lastDocument = querySnapshot.docs.last;
-//       final posts = querySnapshot.docs.map((doc) => Post(doc)).toList();
-//       posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-//       this.posts = posts;
-//       notifyListeners();
-//       // ignore: empty_catches
-//     } catch (e) {}
-//   }
+  void startLoading() {
+    isLoading = true;
+    notifyListeners();
+  }
 
-//   Future getMoreSearchPost(Thread thread, String searchWord) async {
-//     try {
-//       final docs = await firestore
-//           .collection('thread')
-//           .doc(thread.documentID)
-//           .collection('post')
-//           .orderBy('title')
-//           .startAt([searchWord])
-//           .endAt(['$searchWord\uf8ff'])
-//           .startAfterDocument(lastDocument)
-//           .limit(5)
-//           .get();
-//       lastDocument = docs.docs.last;
-//       final posts = docs.docs.map((doc) => Post(doc)).toList();
-//       posts.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-//       this.posts.addAll(posts);
-//       print(this.posts.length);
-//       notifyListeners();
-//     } catch (e) {
-//       throw ('スレッドがありません');
-//     }
-//   }
+  void endLoading() {
+    isLoading = false;
+    // notifyListeners();
+  }
 
-//   // ignore: missing_return
-//   Future badAdd(Thread thread, String postDocumentID, String uid) {
-//     FirebaseFirestore.instance
-//         .collection('thread')
-//         .doc(thread.documentID)
-//         .collection('post')
-//         .doc(postDocumentID)
-//         .update({
-//       'badCount': FieldValue.arrayUnion([uid])
-//     });
-//     notifyListeners();
-//   }
+  Future searchAlgolia(String queryString, int page) async {
+    if (search == 0) {
+      startLoading();
+    }
+    AlgoliaQuery query = algolia.instance
+        .index('9ch_posts')
+        .query(queryString)
+        .setHitsPerPage(15)
+        .setPage(search);
 
-//   // ignore: missing_return
-//   Future deleteMyThread(Thread thread, String postDocID) {
-//     FirebaseFirestore.instance
-//         .collection('thread')
-//         .doc(thread.documentID)
-//         .collection('post')
-//         .doc(postDocID)
-//         .delete();
-//     notifyListeners();
-//   }
+    var results = await query.getObjects();
 
-//   // ignore: missing_return
-//   Future addToBlockList(String uid, String blockUser) {
-//     FirebaseFirestore.instance
-//         .collection('user')
-//         .doc(uid)
-//         .collection('blockList')
-//         .doc(uid.substring(20))
-//         .update({
-//       'blockUsers': FieldValue.arrayUnion([blockUser])
-//     });
-//   }
+    for (var record in results.hits) {
+      Map<String, dynamic> dataMap = record.data;
+      PostAlgolia post = PostAlgolia(dataMap);
+      posts.add(post);
+    }
+    if (search == 0) {
+      endLoading();
+    }
+    notifyListeners();
+  }
 
-//   // ignore: missing_return
-//   Future removeToBlockList(String uid, String blockUser) {
-//     FirebaseFirestore.instance
-//         .collection('user')
-//         .doc(uid)
-//         .collection('blockList')
-//         .doc(uid.substring(20))
-//         .update({
-//       'blockUsers': FieldValue.arrayRemove([blockUser])
-//     });
-//   }
+  Future getConfig() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    resSort = pref.getBool('resSort');
+    notifyListeners();
+  }
 
-//   Future fetchBlockList(String uid) async {
-//     final favoritePost = FirebaseFirestore.instance
-//         .collection('user')
-//         .doc(uid)
-//         .collection('blockList')
-//         .snapshots();
-//     favoritePost.listen((snapshots) async {
-//       final blockUsers = snapshots.docs.map((doc) => BlockUsers(doc)).toList();
-//       blockUser = blockUsers;
-//       notifyListeners();
-//     });
-//   }
-// }
+  // ignore: missing_return
+  Future badAdd(Thread thread, String postDocumentID, String uid) {
+    FirebaseFirestore.instance
+        .collection('thread')
+        .doc(thread.documentID)
+        .collection('post')
+        .doc(postDocumentID)
+        .update({
+      'badCount': FieldValue.arrayUnion([uid])
+    });
+    notifyListeners();
+  }
+
+  // ignore: missing_return
+  Future deleteMyThread(Thread thread, String postDocID) {
+    FirebaseFirestore.instance
+        .collection('thread')
+        .doc(thread.documentID)
+        .collection('post')
+        .doc(postDocID)
+        .delete();
+    notifyListeners();
+  }
+
+  // ignore: missing_return
+  Future addToBlockList(String uid, String blockUser) {
+    FirebaseFirestore.instance
+        .collection('user')
+        .doc(uid)
+        .collection('blockList')
+        .doc(uid.substring(20))
+        .update({
+      'blockUsers': FieldValue.arrayUnion([blockUser])
+    });
+  }
+
+  // ignore: missing_return
+  Future removeToBlockList(String uid, String blockUser) {
+    FirebaseFirestore.instance
+        .collection('user')
+        .doc(uid)
+        .collection('blockList')
+        .doc(uid.substring(20))
+        .update({
+      'blockUsers': FieldValue.arrayRemove([blockUser])
+    });
+  }
+
+  Future fetchBlockList(String uid) async {
+    final favoritePost = FirebaseFirestore.instance
+        .collection('user')
+        .doc(uid)
+        .collection('blockList')
+        .snapshots();
+    favoritePost.listen((snapshots) async {
+      final blockUsers = snapshots.docs.map((doc) => BlockUsers(doc)).toList();
+      blockUser = blockUsers;
+      notifyListeners();
+    });
+  }
+}

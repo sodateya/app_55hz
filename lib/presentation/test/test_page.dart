@@ -1,52 +1,106 @@
-import 'package:app_55hz/presentation/test/test_model.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:video_player/video_player.dart';
 
-class TestPage extends StatelessWidget {
-  String uid;
-  TestPage({Key key, this.uid}) : super(key: key);
+class SketchPage extends StatefulWidget {
+  @override
+  _SketchPageState createState() => _SketchPageState();
+}
+
+class _SketchPageState extends State<SketchPage> {
+  double xValue = 0;
+  double yValue = 0;
+
+  List<Offset> points = [];
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-        value: TestModel(),
-        child: Consumer<TestModel>(builder: (context, model, child) {
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('test'),
-            ),
-            body: Stack(
-              children: [
-                Column(
-                  children: [
-                    Text(model.statusMessage()),
-                    ElevatedButton(
-                        onPressed: () {
-                          model.startRecording();
+    final Size screenSize = MediaQuery.of(context).size;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Etch A Sketch'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.refresh),
+            onPressed: () {
+              setState(() {
+                points.clear();
+                xValue = 0;
+                yValue = 0;
+              });
+            },
+          ),
+        ],
+      ),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            flex: 4,
+            child: Stack(
+              children: <Widget>[
+                CustomPaint(
+                  painter: SketchPainter(points),
+                  size: Size.infinite,
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    height: 200, // adjust the height of the slider
+                    child: RotatedBox(
+                      quarterTurns: 1,
+                      child: Slider(
+                        value: yValue,
+                        min: 0,
+                        max: screenSize.height,
+                        onChanged: (value) {
+                          setState(() {
+                            yValue = value;
+                            points.add(Offset(xValue, yValue));
+                          });
                         },
-                        child: const Text('start')),
-                    ElevatedButton(
-                        onPressed: () {
-                          model.stopRecording();
-                        },
-                        child: const Text('stop')),
-                    ElevatedButton(
-                        onPressed: () async {
-                          model.startPlaying();
-                        },
-                        child: const Text('play')),
-                    ElevatedButton(
-                        onPressed: () {
-                          model.pausePlaying();
-                        },
-                        child: const Text('pose')),
-                  ],
-                )
+                      ),
+                    ),
+                  ),
+                ),
               ],
             ),
-          );
-        }));
+          ),
+          Slider(
+            value: xValue,
+            min: 0,
+            max: screenSize.width,
+            onChanged: (value) {
+              setState(() {
+                xValue = value;
+                points.add(Offset(xValue, yValue));
+              });
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SketchPainter extends CustomPainter {
+  final List<Offset> points;
+
+  SketchPainter(this.points);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = Colors.black
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 4.0;
+
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != null && points[i + 1] != null)
+        canvas.drawLine(points[i], points[i + 1], paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(SketchPainter oldDelegate) {
+    return oldDelegate.points != points;
   }
 }

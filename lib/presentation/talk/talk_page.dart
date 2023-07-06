@@ -2,6 +2,7 @@
 
 import 'dart:math';
 import 'package:app_55hz/domain/custom_cache_manager.dart';
+import 'package:app_55hz/domain/post_algolia.dart';
 import 'package:app_55hz/main/admob.dart';
 import 'package:app_55hz/presentation/talk/talk_model.dart';
 import 'package:app_55hz/presentation/talk_add/talk_add_page.dart';
@@ -9,7 +10,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -22,6 +22,7 @@ class TalkPage extends StatelessWidget {
   AdInterstitial adInterstitial;
   bool resSort;
   Post post;
+  PostAlgolia postAlgolia;
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
@@ -29,13 +30,21 @@ class TalkPage extends StatelessWidget {
     request: const AdRequest(),
   )..load();
 
-  TalkPage({Key key, this.uid, this.resSort, this.adInterstitial, this.post})
+  TalkPage(
+      {Key key,
+      this.uid,
+      this.resSort,
+      this.adInterstitial,
+      this.post,
+      this.postAlgolia,
+      String threadID})
       : super(key: key);
 
   int postCount = 0;
 
   @override
   Widget build(BuildContext context) {
+    post ??= postAlgolia.toPost();
     final Size size = MediaQuery.of(context).size;
     return ChangeNotifierProvider.value(
       value: TalkModel()
@@ -106,13 +115,12 @@ class TalkPage extends StatelessWidget {
               })
             ],
             title: Text(post.title,
-                style: GoogleFonts.sawarabiMincho(
-                    color: const Color(0xffFCFAF2), fontSize: 16))),
+                style:
+                    const TextStyle(color: Color(0xffFCFAF2), fontSize: 16))),
         backgroundColor: const Color(0xffFCFAF2),
         body: Consumer<TalkModel>(builder: (context, model, child) {
           final talks = model.talks;
           ScrollController scrollController = ScrollController();
-
           Future getMore() async {
             if (scrollController.position.pixels ==
                 scrollController.position.maxScrollExtent) {
@@ -156,7 +164,7 @@ class TalkPage extends StatelessWidget {
                           }
                           if (talks[index].badCount.length >= 5 ||
                               blockUsers.contains(talks[index].uid)) {
-                            return const SizedBox();
+                            return const SizedBox.shrink();
                           } else {
                             return Slidable(
                               actionPane: const SlidableBehindActionPane(),
@@ -218,10 +226,8 @@ class TalkPage extends StatelessWidget {
                                                 ),
                                                 child: Text(
                                                   talks[index].count.toString(),
-                                                  style: GoogleFonts
-                                                      .sawarabiMincho(
-                                                    color:
-                                                        const Color(0xff43341B),
+                                                  style: const TextStyle(
+                                                    color: Color(0xff43341B),
                                                   ),
                                                 ),
                                                 onPressed: () async {
@@ -241,10 +247,10 @@ class TalkPage extends StatelessWidget {
                                                         fullscreenDialog: true),
                                                   );
                                                 }),
-                                            Text(
+                                            const Text(
                                               ':',
-                                              style: GoogleFonts.sawarabiMincho(
-                                                color: const Color(0xff43341B),
+                                              style: TextStyle(
+                                                color: Color(0xff43341B),
                                               ),
                                             ),
                                             SizedBox(
@@ -253,29 +259,25 @@ class TalkPage extends StatelessWidget {
                                                   talks[index].name == ""
                                                       ? '名無しさん'
                                                       : talks[index].name,
-                                                  style: GoogleFonts
-                                                      .sawarabiMincho(
-                                                          color: const Color(
-                                                              0xff43341B))),
+                                                  style: const TextStyle(
+                                                      color:
+                                                          Color(0xff43341B))),
                                             ),
                                             Text(
                                                 '${talks[index].createdAt.year}/${talks[index].createdAt.month}/${talks[index].createdAt.day} ${talks[index].createdAt.hour}:${talks[index].createdAt.minute}:${talks[index].createdAt.second}.${talks[index].createdAt.millisecond}',
-                                                style:
-                                                    GoogleFonts.sawarabiMincho(
-                                                        color: const Color(
-                                                            0xff43341B),
-                                                        fontSize: 10.0),
+                                                style: const TextStyle(
+                                                    color: Color(0xff43341B),
+                                                    fontSize: 10.0),
                                                 textAlign: TextAlign.left),
                                             talks[index].uid == post.uid
-                                                ? Text(
+                                                ? const Text(
                                                     '  (主)',
-                                                    style: GoogleFonts
-                                                        .sawarabiMincho(
-                                                            color: const Color(
-                                                                0xff2EA9DF),
-                                                            fontSize: 8.0),
+                                                    style: TextStyle(
+                                                        color:
+                                                            Color(0xff2EA9DF),
+                                                        fontSize: 8.0),
                                                   )
-                                                : const SizedBox()
+                                                : const SizedBox.shrink()
                                           ],
                                         ),
                                         TextButton(
@@ -288,9 +290,8 @@ class TalkPage extends StatelessWidget {
                                           ),
                                           child: Text(
                                             'ID:${talks[index].uid.substring(20)}',
-                                            textAlign: TextAlign.left,
-                                            style: GoogleFonts.sawarabiMincho(
-                                                color: const Color(0xff33A6B8),
+                                            style: const TextStyle(
+                                                color: Color(0xff33A6B8),
                                                 fontSize: 8),
                                           ),
                                           onPressed: () {
@@ -304,16 +305,6 @@ class TalkPage extends StatelessWidget {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
-                                      width: size.width * 0.87,
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: const [
-                                          SizedBox(width: 10),
-                                        ],
-                                      ),
-                                    ),
                                     Row(
                                       children: [
                                         const SizedBox(width: 12),
@@ -322,8 +313,8 @@ class TalkPage extends StatelessWidget {
                                           child: SelectableText(
                                             talks[index].comment,
                                             textAlign: TextAlign.left,
-                                            style: GoogleFonts.sawarabiMincho(
-                                              color: const Color(0xff43341B),
+                                            style: const TextStyle(
+                                              color: Color(0xff43341B),
                                               fontWeight: FontWeight.bold,
                                               fontSize: 14.0,
                                             ),
@@ -351,9 +342,9 @@ class TalkPage extends StatelessWidget {
                                                                   text: talks[
                                                                           index]
                                                                       .url,
-                                                                  style: GoogleFonts
-                                                                      .sawarabiMincho(
-                                                                    color: const Color(
+                                                                  style:
+                                                                      const TextStyle(
+                                                                    color: Color(
                                                                         0xff33A6B8),
                                                                     fontSize:
                                                                         14.0,
@@ -373,9 +364,7 @@ class TalkPage extends StatelessWidget {
                                                                               await errorDialog(context);
                                                                             }
                                                                           }
-                                                                        }
-                                                                        ..onSecondaryTap =
-                                                                            () async {})
+                                                                        })
                                                             ]))),
                                       ],
                                     ),
@@ -422,8 +411,8 @@ class TalkPage extends StatelessWidget {
                                                           mainAxisAlignment:
                                                               MainAxisAlignment
                                                                   .center,
-                                                          children: [
-                                                            const SizedBox(
+                                                          children: const [
+                                                            SizedBox(
                                                               width: 80,
                                                               height: 80,
                                                               child: Image(
@@ -432,12 +421,11 @@ class TalkPage extends StatelessWidget {
                                                               ),
                                                             ),
                                                             Text('〜読み込み中〜',
-                                                                style: GoogleFonts
-                                                                    .sawarabiMincho(
-                                                                        color: const Color(
-                                                                            0xff43341B),
-                                                                        fontSize:
-                                                                            21)),
+                                                                style: TextStyle(
+                                                                    color: Color(
+                                                                        0xff43341B),
+                                                                    fontSize:
+                                                                        21)),
                                                           ],
                                                         )),
                                                       ))),
@@ -488,18 +476,18 @@ class TalkPage extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.black54,
-          title: Text('違反報告しますか？',
-              style: GoogleFonts.sawarabiMincho(
-                color: const Color(0xffFCFAF2),
+          title: const Text('違反報告しますか？',
+              style: TextStyle(
+                color: Color(0xffFCFAF2),
               )),
           actions: <Widget>[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 TextButton(
-                  child: Text('いいえ',
-                      style: GoogleFonts.sawarabiMincho(
-                          color: const Color(0xff33A6B8),
+                  child: const Text('いいえ',
+                      style: TextStyle(
+                          color: Color(0xff33A6B8),
                           fontSize: 15.0,
                           fontWeight: FontWeight.bold)),
                   onPressed: () async {
@@ -507,9 +495,9 @@ class TalkPage extends StatelessWidget {
                   },
                 ),
                 TextButton(
-                  child: Text('はい',
-                      style: GoogleFonts.sawarabiMincho(
-                          color: const Color(0xff33A6B8),
+                  child: const Text('はい',
+                      style: TextStyle(
+                          color: Color(0xff33A6B8),
                           fontSize: 15.0,
                           fontWeight: FontWeight.bold)),
                   onPressed: () async {
@@ -518,12 +506,12 @@ class TalkPage extends StatelessWidget {
                     await showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialog(
+                          return const AlertDialog(
                             backgroundColor: Colors.black54,
                             title: Text('通報しました',
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xffFCFAF2),
+                                style: TextStyle(
+                                  color: Color(0xffFCFAF2),
                                 )),
                           );
                         });
@@ -543,10 +531,10 @@ class TalkPage extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.black54,
-          title: Text(
+          title: const Text(
             '投稿を削除しますか？',
-            style: GoogleFonts.sawarabiMincho(
-                color: const Color(0xffFCFAF2),
+            style: TextStyle(
+                color: Color(0xffFCFAF2),
                 fontSize: 15.0,
                 fontWeight: FontWeight.bold),
           ),
@@ -555,18 +543,18 @@ class TalkPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 TextButton(
-                  child: Text('いいえ',
-                      style: GoogleFonts.sawarabiMincho(
-                          color: const Color(0xff33A6B8),
+                  child: const Text('いいえ',
+                      style: TextStyle(
+                          color: Color(0xff33A6B8),
                           fontWeight: FontWeight.bold)),
                   onPressed: () async {
                     Navigator.of(context).pop();
                   },
                 ),
                 TextButton(
-                  child: Text('はい',
-                      style: GoogleFonts.sawarabiMincho(
-                          color: const Color(0xff33A6B8),
+                  child: const Text('はい',
+                      style: TextStyle(
+                          color: Color(0xff33A6B8),
                           fontWeight: FontWeight.bold)),
                   onPressed: () async {
                     await model.deleteAdd(post, talk);
@@ -574,12 +562,12 @@ class TalkPage extends StatelessWidget {
                     await showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return AlertDialog(
+                          return const AlertDialog(
                             backgroundColor: Colors.black54,
                             title: Text('投稿を削除しました',
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xffFCFAF2),
+                                style: TextStyle(
+                                  color: Color(0xffFCFAF2),
                                 )),
                           );
                         });
@@ -599,9 +587,8 @@ class TalkPage extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.black54,
-          title: Text('URLが誤っているため\n表示できません',
-              style:
-                  GoogleFonts.sawarabiMincho(color: const Color(0xffFCFAF2))),
+          title: const Text('URLが誤っているため\n表示できません',
+              style: TextStyle(color: Color(0xffFCFAF2))),
           actions: [
             TextButton(
               child: const Text('閉じる'),
@@ -623,8 +610,7 @@ class TalkPage extends StatelessWidget {
         return AlertDialog(
           backgroundColor: Colors.black54,
           title: Text('${blockUser.substring(20)}をブロックしますか？',
-              style:
-                  GoogleFonts.sawarabiMincho(color: const Color(0xffFCFAF2))),
+              style: const TextStyle(color: Color(0xffFCFAF2))),
           actions: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -647,8 +633,8 @@ class TalkPage extends StatelessWidget {
                             backgroundColor: Colors.black54,
                             title: Text('${blockUser.substring(20)}をブロックしました',
                                 textAlign: TextAlign.center,
-                                style: GoogleFonts.sawarabiMincho(
-                                  color: const Color(0xffFCFAF2),
+                                style: const TextStyle(
+                                  color: Color(0xffFCFAF2),
                                 )),
                           );
                         });
@@ -684,8 +670,8 @@ class TalkPage extends StatelessWidget {
                             child: ListTile(
                               title: Text(
                                   '${model.accessBlockList[index].toString().substring(20)}のアクセスブロックを解除',
-                                  style: GoogleFonts.sawarabiMincho(
-                                      color: const Color(0xff43341B),
+                                  style: const TextStyle(
+                                      color: Color(0xff43341B),
                                       fontSize: 15.0,
                                       fontWeight: FontWeight.bold)),
                               onTap: () async {
@@ -697,11 +683,11 @@ class TalkPage extends StatelessWidget {
                         },
                       ))
                 else
-                  Padding(
-                    padding: const EdgeInsets.all(30.0),
+                  const Padding(
+                    padding: EdgeInsets.all(30.0),
                     child: Text('ブロックしてるユーザーはいません',
-                        style: GoogleFonts.sawarabiMincho(
-                            color: const Color(0xffFCFAF2),
+                        style: TextStyle(
+                            color: Color(0xffFCFAF2),
                             fontSize: 15.0,
                             fontWeight: FontWeight.bold)),
                   ),
@@ -712,9 +698,9 @@ class TalkPage extends StatelessWidget {
                     onPressed: () async {
                       Navigator.of(context).pop();
                     },
-                    child: Text('閉じる',
-                        style: GoogleFonts.sawarabiMincho(
-                            color: const Color(0xffFCFAF2),
+                    child: const Text('閉じる',
+                        style: TextStyle(
+                            color: Color(0xffFCFAF2),
                             fontSize: 15.0,
                             fontWeight: FontWeight.bold)))
               ],

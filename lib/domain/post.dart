@@ -17,6 +17,7 @@ class Post {
     postCount = data['postCount'];
     mainToken = data['mainToken'];
   }
+
   String title;
   DateTime createdAt;
   DateTime upDateAt;
@@ -28,4 +29,20 @@ class Post {
   String threadId;
   int postCount;
   String mainToken;
+
+  Post.fromMap(Map<String, dynamic> data, String documentID) {
+    title = data['title'];
+    final Timestamp timestamp = data['createdAt'];
+    createdAt = timestamp.toDate();
+    final Timestamp upDateAtStamp = data['upDateAt'];
+    upDateAt = upDateAtStamp.toDate();
+    this.documentID = documentID;
+    uid = data['uid'];
+    badCount = data['badCount'];
+    read = data['read'];
+    accessBlock = data['accessBlock'];
+    threadId = data['threadId'];
+    postCount = data['postCount'];
+    mainToken = data['mainToken'];
+  }
 }

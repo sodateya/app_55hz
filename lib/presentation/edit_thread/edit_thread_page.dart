@@ -69,11 +69,10 @@ class _EditThreadState extends State<EditThreadPage>
                   Navigator.of(context).pop(widget.isChanged);
                 },
               ),
-              title: Text(
+              title: const Text(
                 '設定',
-                style: GoogleFonts.sawarabiMincho(
-                    textStyle: Theme.of(context).textTheme.headline4,
-                    color: const Color(0xffFCFAF2),
+                style: TextStyle(
+                    color: Color(0xffFCFAF2),
                     fontSize: 25.0,
                     fontWeight: FontWeight.bold),
               ),
@@ -116,9 +115,9 @@ class _EditThreadState extends State<EditThreadPage>
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('アプリ起動時のスレッド表示を更新順にする',
-                                      style: GoogleFonts.sawarabiMincho(
-                                          color: const Color(0xff43341B))),
+                                  const Text('アプリ起動時のスレッド表示を更新順にする',
+                                      style:
+                                          TextStyle(color: Color(0xff43341B))),
                                   IconButton(
                                       onPressed: () async {
                                         if (model.threadSort == false) {
@@ -144,9 +143,9 @@ class _EditThreadState extends State<EditThreadPage>
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('コメントの表示を１からにする',
-                                      style: GoogleFonts.sawarabiMincho(
-                                          color: const Color(0xff43341B))),
+                                  const Text('コメントの表示を１からにする',
+                                      style:
+                                          TextStyle(color: Color(0xff43341B))),
                                   IconButton(
                                       onPressed: () async {
                                         if (model.resSort == false) {
@@ -176,15 +175,13 @@ class _EditThreadState extends State<EditThreadPage>
                             Container(
                               alignment: Alignment.center,
                               width: size.width,
-                              child: Padding(
-                                padding: const EdgeInsets.all(5.0),
+                              child: const Padding(
+                                padding: EdgeInsets.all(5.0),
                                 child: Text(
                                   '〜板設定〜',
-                                  style: GoogleFonts.sawarabiMincho(
+                                  style: TextStyle(
                                       fontWeight: FontWeight.bold,
-                                      textStyle:
-                                          Theme.of(context).textTheme.headline4,
-                                      color: const Color(0xff43341B),
+                                      color: Color(0xff43341B),
                                       fontSize: 15.0),
                                 ),
                               ),
@@ -197,17 +194,14 @@ class _EditThreadState extends State<EditThreadPage>
                                 itemBuilder: (context, index) {
                                   return index == 0
                                       ? ListTile(
-                                          title: Padding(
-                                            padding: const EdgeInsets.only(
+                                          title: const Padding(
+                                            padding: EdgeInsets.only(
                                                 top: 17, bottom: 10),
                                             child: Text(
                                               '全表示',
                                               textAlign: TextAlign.left,
                                               overflow: TextOverflow.clip,
-                                              style: GoogleFonts.sawarabiMincho(
-                                                  textStyle: Theme.of(context)
-                                                      .textTheme
-                                                      .headline4,
+                                              style: TextStyle(
                                                   color:
                                                       const Color(0xff43341B),
                                                   fontSize: 18.0,

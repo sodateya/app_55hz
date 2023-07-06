@@ -63,7 +63,7 @@ class AddTalkModel extends ChangeNotifier {
       }
       await doc.set({
         'comment': comment,
-        'createdAt': Timestamp.now(),
+        'createdAt': FieldValue.serverTimestamp(),
         'uid': uid,
         'count': count + 1,
         'badCount': [],
@@ -78,7 +78,7 @@ class AddTalkModel extends ChangeNotifier {
           .doc(post.documentID)
           .update({
         'read': [uid.substring(20)],
-        'upDateAt': Timestamp.now(),
+        'upDateAt': FieldValue.serverTimestamp(),
         'postCount': isUpdateToday(post.upDateAt) ? FieldValue.increment(1) : 1
       });
       if (post.mainToken != null && post.uid != uid) {
