@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileEditModel extends ChangeNotifier {
-  String handleName;
+  String? handleName;
 
   Future getName() async {
     SharedPreferences pref = await SharedPreferences.getInstance();

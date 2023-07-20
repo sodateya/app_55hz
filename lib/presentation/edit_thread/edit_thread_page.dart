@@ -1,27 +1,23 @@
-// ignore_for_file: library_private_types_in_public_api, sized_box_for_whitespace
+// ignore_for_file: library_private_types_in_public_api, sized_box_for_whitespace, must_be_immutable
 
 import 'package:app_55hz/main/admob.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'edit_thread_model.dart';
 
-// ignore: must_be_immutable
 class EditThreadPage extends StatefulWidget {
-  EditThreadPage({
-    Key key,
-    this.uid,
-  }) : super(key: key);
-  AdInterstitial adInterstitial;
+  EditThreadPage({super.key, required this.uid});
+  AdInterstitial? adInterstitial;
   String uid;
-  bool isChanged;
+  bool isChanged = false;
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
 
@@ -62,7 +58,7 @@ class _EditThreadState extends State<EditThreadPage>
               ),
               leading: IconButton(
                 icon: const Icon(
-                  Feather.chevron_left,
+                  FeatherIcons.chevronLeft,
                   color: Color(0xffFCFAF2),
                 ),
                 onPressed: () async {
@@ -130,11 +126,11 @@ class _EditThreadState extends State<EditThreadPage>
                                       },
                                       icon: model.threadSort == false
                                           ? const Icon(
-                                              Feather.toggle_left,
+                                              FeatherIcons.toggleLeft,
                                               color: Colors.grey,
                                             )
                                           : const Icon(
-                                              Feather.toggle_right,
+                                              FeatherIcons.toggleRight,
                                               color: Color(0xff2EA9DF),
                                             )),
                                 ],
@@ -158,11 +154,11 @@ class _EditThreadState extends State<EditThreadPage>
                                       },
                                       icon: model.resSort != false
                                           ? const Icon(
-                                              Feather.toggle_left,
+                                              FeatherIcons.toggleLeft,
                                               color: Colors.grey,
                                             )
                                           : const Icon(
-                                              Feather.toggle_right,
+                                              FeatherIcons.toggleRight,
                                               color: Color(0xff2EA9DF),
                                             ))
                                 ],
@@ -210,10 +206,11 @@ class _EditThreadState extends State<EditThreadPage>
                                           ),
                                           trailing: model.isMyThreads == false
                                               ? const Icon(
-                                                  Feather.toggle_right,
+                                                  FeatherIcons.toggleRight,
                                                   color: Color(0xff2EA9DF),
                                                 )
-                                              : const Icon(Feather.toggle_left),
+                                              : const Icon(
+                                                  FeatherIcons.toggleLeft),
                                           onTap: () async {
                                             widget.isChanged = true;
                                             if (model.isMyThreads == false) {
@@ -261,13 +258,13 @@ class _EditThreadState extends State<EditThreadPage>
                                                       threads[index - 1]
                                                           .documentID)
                                                   ? const Icon(
-                                                      Feather.toggle_right,
+                                                      FeatherIcons.toggleRight,
                                                       color: Color(0xff2EA9DF),
                                                     )
                                                   : const Icon(
-                                                      Feather.toggle_left)
+                                                      FeatherIcons.toggleLeft)
                                               : const Icon(
-                                                  Feather.toggle_right,
+                                                  FeatherIcons.toggleRight,
                                                   color: Color(0xff2EA9DF),
                                                 ),
                                           onTap: () async {
@@ -279,13 +276,13 @@ class _EditThreadState extends State<EditThreadPage>
                                                   ? await model.removeMyThreads(
                                                       widget.uid,
                                                       threads[index - 1]
-                                                          .documentID,
+                                                          .documentID!,
                                                     )
                                                   : await model.addMyThreads(
                                                       widget.uid,
                                                       threads[index - 1]
-                                                          .documentID,
-                                                      threads[index - 1].title,
+                                                          .documentID!,
+                                                      threads[index - 1].title!,
                                                       DateTime.now());
                                             }
                                           },

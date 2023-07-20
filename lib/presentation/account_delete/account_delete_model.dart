@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../login/login.dart';
-
 class AccountDeleteModel extends ChangeNotifier {
   String udid = 'UDID';
 
@@ -33,7 +31,7 @@ class AccountDeleteModel extends ChangeNotifier {
 
   Future deleteAccount(
       BuildContext context, AdInterstitial adInterstitial) async {
-    await FirebaseAuth.instance.currentUser.delete();
+    await FirebaseAuth.instance.currentUser!.delete();
     await showDialog(
       context: context,
       builder: (BuildContext context) {

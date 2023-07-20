@@ -5,30 +5,33 @@ import 'package:app_55hz/domain/post.dart';
 import 'package:app_55hz/main/admob.dart';
 import 'package:app_55hz/presentation/talk_add/talk_add_model.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 
 class AddTalkPage extends StatelessWidget {
   Post post;
   String uid;
-  String resNumber;
+  String? resNumber;
   int count;
   TextEditingController nameController = TextEditingController();
   TextEditingController urlController = TextEditingController();
   TextEditingController commentController = TextEditingController();
   TextEditingController imageController = TextEditingController();
-  File imageFile;
+  File? imageFile;
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
 
-  AddTalkPage({Key key, this.post, this.uid, this.resNumber, this.count})
-      : super(key: key);
+  AddTalkPage(
+      {super.key,
+      required this.post,
+      required this.uid,
+      this.resNumber,
+      required this.count});
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +95,7 @@ class AddTalkPage extends StatelessWidget {
                           Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              child,
+                              child!,
                               Container(
                                 child: imageFile == null
                                     ? Row(
@@ -140,7 +143,8 @@ class AddTalkPage extends StatelessWidget {
                                                 imageFile = model.imageFile;
                                                 imageController.clear();
                                               },
-                                              icon: const Icon(Feather.camera))
+                                              icon: const Icon(
+                                                  FeatherIcons.camera))
                                         ],
                                       )
                                     : Column(
@@ -155,7 +159,7 @@ class AddTalkPage extends StatelessWidget {
                                                         width: 150,
                                                         height: 100,
                                                         child: Image.file(
-                                                            imageFile)),
+                                                            imageFile!)),
                                                   ],
                                                 ),
                                               ),
@@ -187,7 +191,7 @@ class AddTalkPage extends StatelessWidget {
                                                                 model.imageFile;
                                                           },
                                                           child: const Icon(
-                                                              Feather.x)),
+                                                              FeatherIcons.x)),
                                                     ],
                                                   ),
                                                 ],
@@ -210,12 +214,12 @@ class AddTalkPage extends StatelessWidget {
                                                       imageFile =
                                                           model.imageFile;
                                                     },
-                                                    child: Row(
+                                                    child: const Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment
                                                               .center,
-                                                      children: const [
-                                                        Icon(Feather.edit),
+                                                      children: [
+                                                        Icon(FeatherIcons.edit),
                                                         SizedBox(width: 10),
                                                         Text(
                                                           '写真を編集',
@@ -245,6 +249,7 @@ class AddTalkPage extends StatelessWidget {
                                         onPressed: model.isLoading
                                             ? null
                                             : () async {
+                                                // ignore: unnecessary_null_comparison
                                                 if (imageController.text !=
                                                     null) {
                                                   model.imgURLtext =

@@ -1,21 +1,21 @@
 import 'package:app_55hz/domain/blockUsers.dart';
-import 'package:app_55hz/domain/post.dart';
 import 'package:app_55hz/domain/post_algolia.dart';
 import 'package:app_55hz/domain/thread.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:algolia/algolia.dart';
-import 'package:intl/intl.dart';
+// ignore: depend_on_referenced_packages
+import 'package:intl/intl.dart' show DateFormat;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SearchModel extends ChangeNotifier {
-  bool resSort;
+  bool? resSort;
 
   List favoriteList = [];
   List<BlockUsers> blockUser = [];
   int documentLimit = 10;
   final firestore = FirebaseFirestore.instance;
-  DocumentSnapshot lastDocument;
+  DocumentSnapshot? lastDocument;
   DateFormat formattedTime = DateFormat('yyyy/MM/dd/HH:mm');
   int search = 0;
   bool isLoading = false;
@@ -65,7 +65,7 @@ class SearchModel extends ChangeNotifier {
   }
 
   // ignore: missing_return
-  Future badAdd(Thread thread, String postDocumentID, String uid) {
+  Future badAdd(Thread thread, String postDocumentID, String uid) async {
     FirebaseFirestore.instance
         .collection('thread')
         .doc(thread.documentID)
@@ -78,7 +78,7 @@ class SearchModel extends ChangeNotifier {
   }
 
   // ignore: missing_return
-  Future deleteMyThread(Thread thread, String postDocID) {
+  Future deleteMyThread(Thread thread, String postDocID) async {
     FirebaseFirestore.instance
         .collection('thread')
         .doc(thread.documentID)
@@ -89,7 +89,7 @@ class SearchModel extends ChangeNotifier {
   }
 
   // ignore: missing_return
-  Future addToBlockList(String uid, String blockUser) {
+  Future addToBlockList(String uid, String blockUser) async {
     FirebaseFirestore.instance
         .collection('user')
         .doc(uid)
@@ -101,7 +101,7 @@ class SearchModel extends ChangeNotifier {
   }
 
   // ignore: missing_return
-  Future removeToBlockList(String uid, String blockUser) {
+  Future removeToBlockList(String uid, String blockUser) async {
     FirebaseFirestore.instance
         .collection('user')
         .doc(uid)

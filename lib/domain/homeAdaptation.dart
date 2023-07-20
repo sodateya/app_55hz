@@ -6,5 +6,5 @@ class HomeAdaptation {
   HomeAdaptation(DocumentSnapshot doc) {
     homeAdaptation = doc['homeAdaptation'];
   }
-  bool homeAdaptation;
+  bool? homeAdaptation;
 }

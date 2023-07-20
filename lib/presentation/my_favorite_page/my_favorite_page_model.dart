@@ -2,14 +2,22 @@ import 'package:app_55hz/domain/myPost.dart';
 import 'package:app_55hz/domain/post.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MyFavoritePageModel extends ChangeNotifier {
   List<MyPost> myPost = [];
   int documentLimit = 10;
   final firestore = FirebaseFirestore.instance;
-  DocumentSnapshot lastDocument;
+  DocumentSnapshot? lastDocument;
   List blockList = [];
-  Post post;
+  Post? post;
+  bool? resSort;
+
+  Future getResSort() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    resSort = pref.getBool('resSort');
+    notifyListeners();
+  }
 
   Future getBlockList(String uid) async {
     final querySnapshot = await firestore
@@ -18,7 +26,7 @@ class MyFavoritePageModel extends ChangeNotifier {
         .collection('blockList')
         .doc(uid.substring(20))
         .get();
-    final abList = await querySnapshot.data()['blockUsers'];
+    final abList = await querySnapshot.data()!['blockUsers'];
     blockList = abList;
     notifyListeners();
   }
@@ -48,7 +56,7 @@ class MyFavoritePageModel extends ChangeNotifier {
           .doc(uid)
           .collection('favoritePost')
           .orderBy('createdAt', descending: true)
-          .startAfterDocument(lastDocument)
+          .startAfterDocument(lastDocument!)
           .limit(5)
           .get();
       lastDocument = docs.docs.last;
@@ -69,7 +77,7 @@ class MyFavoritePageModel extends ChangeNotifier {
         .doc(postID)
         .get();
     post = Post(doc);
-    return post;
+    return post!;
   }
 
   Future deleteFavorite(

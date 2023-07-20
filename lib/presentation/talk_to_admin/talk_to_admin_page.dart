@@ -11,26 +11,31 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-File imageFile;
+File? imageFile;
+
 TextEditingController commentController = TextEditingController();
 
+// ignore: must_be_immutable
 class TalkToAdminPage extends StatelessWidget {
-  TalkToAdminPage({Key key, this.uid, this.adInterstitial, this.size})
-      : super(key: key);
+  TalkToAdminPage(
+      {super.key,
+      required this.uid,
+      required this.adInterstitial,
+      required this.size});
   Size size;
   AdInterstitial adInterstitial;
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
   String uid;
   final adominUid = 'rerVaRIZp9Zo9HTu8iwySUWAmi02';
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-        value: TalkToAdminModel()
+    return ChangeNotifierProvider<TalkToAdminModel>(
+        create: (context) => TalkToAdminModel()
           ..getTalk()
           ..getName(),
         child: Builder(builder: (ctx) {
@@ -258,6 +263,7 @@ Widget adminsTalk(BuildContext context, Size size, List talks, int index,
 Future addComment(
     BuildContext context, TalkToAdminModel model, String uid) async {
   model.comment = commentController.text;
+
   if (imageFile != null) {
     model.imageFile = imageFile;
   }
@@ -273,7 +279,7 @@ Future addComment(
   } finally {
     FocusScope.of(context).unfocus();
     imageFile = null;
-    model.comment = null;
+    model.comment = '';
     commentController
       ..clearComposing()
       ..clear();
@@ -281,7 +287,8 @@ Future addComment(
   }
 }
 
-Future deleteAdd(TalkToAdminModel model, BuildContext context, dynamic talk) {
+Future deleteAdd(
+    TalkToAdminModel model, BuildContext context, dynamic talk) async {
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -461,7 +468,7 @@ Widget InputForm(
                                   uid,
                                 );
                               },
-                              imageFile: model.imageFile,
+                              imageFile: model.imageFile!,
                               size: size,
                             ),
                             fullscreenDialog: true,

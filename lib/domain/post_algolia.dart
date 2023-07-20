@@ -31,8 +31,8 @@ class PostAlgolia {
   Post toPost() {
     return Post.fromMap({
       'title': title,
-      'createdAt': Timestamp.fromDate(createdAt),
-      'upDateAt': Timestamp.fromDate(upDateAt),
+      'createdAt': Timestamp.fromDate(createdAt!),
+      'upDateAt': Timestamp.fromDate(upDateAt!),
       'uid': uid,
       'badCount': badCount,
       'read': read,
@@ -40,19 +40,19 @@ class PostAlgolia {
       'threadId': threadId,
       'postCount': postCount,
       'mainToken': mainToken,
-    }, documentID);
+    }, documentID!);
   }
 
-  String title;
-  DateTime createdAt;
-  DateTime upDateAt;
-  String documentID;
-  String uid;
-  List badCount;
-  List read;
-  List accessBlock;
-  String threadId;
-  int postCount;
-  String mainToken;
-  String ojId;
+  String? title;
+  DateTime? createdAt;
+  DateTime? upDateAt;
+  String? documentID;
+  String? uid;
+  List? badCount;
+  List? read;
+  List? accessBlock;
+  String? threadId;
+  int? postCount;
+  String? mainToken;
+  String? ojId;
 }

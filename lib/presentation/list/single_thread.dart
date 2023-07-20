@@ -3,7 +3,8 @@
 import 'package:app_55hz/domain/thread.dart';
 import 'package:app_55hz/main/admob.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../add_thread/add_thread_page.dart';
@@ -15,13 +16,20 @@ class ThreadList extends StatelessWidget {
   String sort;
   String uid;
   AdInterstitial adInterstitial;
-  ThreadList({Key key, this.thread, this.sort, this.uid, this.adInterstitial})
-      : super(key: key);
+  bool resSort;
+
+  ThreadList(
+      {super.key,
+      required this.thread,
+      required this.sort,
+      required this.uid,
+      required this.adInterstitial,
+      required this.resSort});
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return ChangeNotifierProvider.value(
-      value: ListModel()
+    return ChangeNotifierProvider<ListModel>(
+      create: (context) => ListModel()
         ..getPost(thread, sort)
         ..fetchBlockList(uid),
       child: Scaffold(
@@ -65,12 +73,12 @@ class ThreadList extends StatelessWidget {
                           itemCount: posts.length,
                           physics: const AlwaysScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            final postUid = posts[index].uid.substring(20);
-                            return posts[index].accessBlock.contains(uid) ||
+                            final postUid = posts[index].uid!.substring(20);
+                            return posts[index].accessBlock!.contains(uid) ||
                                     blockUsers.contains(posts[index].uid)
                                 ? const SizedBox.shrink()
                                 : Card(
-                                    child: posts[index].badCount.length <= 5
+                                    child: posts[index].badCount!.length <= 5
                                         ? Container(
                                             decoration: BoxDecoration(
                                               borderRadius:
@@ -85,7 +93,7 @@ class ThreadList extends StatelessWidget {
                                             ),
                                             child: Stack(
                                               children: [
-                                                posts[index].read.contains(
+                                                posts[index].read!.contains(
                                                         uid.substring(20))
                                                     ? const SizedBox()
                                                     : Row(
@@ -135,7 +143,7 @@ class ThreadList extends StatelessWidget {
                                                             top: 17,
                                                             bottom: 10),
                                                     child: Text(
-                                                      posts[index].title,
+                                                      posts[index].title!,
                                                       textAlign: TextAlign.left,
                                                       overflow:
                                                           TextOverflow.clip,
@@ -177,7 +185,7 @@ class ThreadList extends StatelessWidget {
                                                                 context,
                                                                 uid,
                                                                 posts[index]
-                                                                    .uid,
+                                                                    .uid!,
                                                                 model);
                                                           }
                                                         },
@@ -192,7 +200,7 @@ class ThreadList extends StatelessWidget {
                                                       ),
                                                       const SizedBox(width: 10),
                                                       Text(
-                                                        '${posts[index].createdAt.year}/${posts[index].createdAt.month}/${posts[index].createdAt.day} ${posts[index].createdAt.hour}:${posts[index].createdAt.minute}:${posts[index].createdAt.second}.${posts[index].createdAt.millisecond}',
+                                                        '${posts[index].createdAt!.year}/${posts[index].createdAt!.month}/${posts[index].createdAt!.day} ${posts[index].createdAt!.hour}:${posts[index].createdAt!.minute}:${posts[index].createdAt!.second}.${posts[index].createdAt!.millisecond}',
                                                         style: GoogleFonts
                                                             .sawarabiMincho(
                                                                 color: const Color(
@@ -239,8 +247,8 @@ class ThreadList extends StatelessWidget {
                                                             builder: (context) {
                                                               return TalkPage(
                                                                 uid: uid,
-                                                                resSort: model
-                                                                    .resSort,
+                                                                resSort:
+                                                                    resSort,
                                                                 adInterstitial:
                                                                     adInterstitial,
                                                                 post: posts[
@@ -249,10 +257,11 @@ class ThreadList extends StatelessWidget {
                                                             }));
                                                     await model.addRead(
                                                         thread,
-                                                        posts[index].documentID,
+                                                        posts[index]
+                                                            .documentID!,
                                                         uid.substring(20));
                                                     posts[index]
-                                                        .read
+                                                        .read!
                                                         .add(uid.substring(20));
                                                   },
                                                   onLongPress: () async {
@@ -317,7 +326,7 @@ class ThreadList extends StatelessWidget {
                     const SizedBox(
                       width: 15,
                     ),
-                    const Icon(Feather.edit),
+                    const Icon(FeatherIcons.edit),
                   ],
                 ),
                 backgroundColor: const Color(0xff0C4842).withOpacity(0.7),
@@ -330,7 +339,7 @@ class ThreadList extends StatelessWidget {
                       MaterialPageRoute(
                           builder: (context) => AddThreadPage(
                                 thread: thread,
-                                title: thread.title,
+                                title: thread.title!,
                                 uid: uid,
                                 adInterstitial: adInterstitial,
                                 blockUsers: model.blockUser,
@@ -344,8 +353,8 @@ class ThreadList extends StatelessWidget {
     );
   }
 
-  Future blockDialog(
-      BuildContext context, String uid, String blockUser, ListModel model) {
+  Future blockDialog(BuildContext context, String uid, String blockUser,
+      ListModel model) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -391,7 +400,7 @@ class ThreadList extends StatelessWidget {
     );
   }
 
-  Future badAdd(ListModel model, BuildContext context, postDocID) {
+  Future badAdd(ListModel model, BuildContext context, postDocID) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -434,7 +443,8 @@ class ThreadList extends StatelessWidget {
     );
   }
 
-  Future deleteMyThread(ListModel model, BuildContext context, postDcouID) {
+  Future deleteMyThread(
+      ListModel model, BuildContext context, postDcouID) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {

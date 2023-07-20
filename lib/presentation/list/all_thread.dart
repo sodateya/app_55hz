@@ -3,7 +3,7 @@
 import 'package:app_55hz/domain/thread.dart';
 import 'package:app_55hz/main/admob.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:provider/provider.dart';
 import '../list/list_model.dart';
 import '../talk/talk_page.dart';
@@ -15,19 +15,21 @@ class AllThread extends StatelessWidget {
   String uid;
   AdInterstitial adInterstitial;
   List<Thread> threadList;
+  bool resSort;
+
   AllThread(
-      {Key key,
-      this.thread,
-      this.sort,
-      this.uid,
-      this.adInterstitial,
-      this.threadList})
-      : super(key: key);
+      {super.key,
+      required this.thread,
+      required this.sort,
+      required this.uid,
+      required this.adInterstitial,
+      required this.threadList,
+      required this.resSort});
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return ChangeNotifierProvider.value(
-      value: ListModel()
+    return ChangeNotifierProvider<ListModel>(
+      create: (context) => ListModel()
         ..getAll(thread, sort)
         ..fetchBlockList(uid),
       child: Scaffold(
@@ -35,6 +37,7 @@ class AllThread extends StatelessWidget {
         body: SizedBox(
           width: size.width,
           child: Consumer<ListModel>(builder: (context, model, child) {
+            print(model.resSort);
             final posts = model.posts;
             final blockUsers = model.blockUser;
             ScrollController scrollController = ScrollController();
@@ -78,13 +81,13 @@ class AllThread extends StatelessWidget {
                               itemCount: posts.length,
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemBuilder: (context, index) {
-                                final postUid = posts[index].uid.substring(20);
-                                if (posts[index].accessBlock.contains(uid) ||
+                                final postUid = posts[index].uid!.substring(20);
+                                if (posts[index].accessBlock!.contains(uid) ||
                                     blockUsers.contains(posts[index].uid)) {
                                   return const SizedBox();
                                 } else {
                                   return Card(
-                                      child: posts[index].badCount.length <= 5
+                                      child: posts[index].badCount!.length <= 5
                                           ? Container(
                                               decoration: BoxDecoration(
                                                 borderRadius:
@@ -102,7 +105,7 @@ class AllThread extends StatelessWidget {
                                               child: Stack(
                                                 children: [
                                                   if (posts[index]
-                                                      .read
+                                                      .read!
                                                       .contains(
                                                           uid.substring(20)))
                                                     const SizedBox()
@@ -149,7 +152,7 @@ class AllThread extends StatelessWidget {
                                                               top: 17,
                                                               bottom: 10),
                                                       child: Text(
-                                                        posts[index].title,
+                                                        posts[index].title!,
                                                         textAlign:
                                                             TextAlign.left,
                                                         overflow:
@@ -187,7 +190,7 @@ class AllThread extends StatelessWidget {
                                                                   context,
                                                                   uid,
                                                                   posts[index]
-                                                                      .uid,
+                                                                      .uid!,
                                                                   model);
                                                             }
                                                           },
@@ -202,7 +205,7 @@ class AllThread extends StatelessWidget {
                                                         const SizedBox(
                                                             width: 10),
                                                         Text(
-                                                          '${posts[index].createdAt.year}/${posts[index].createdAt.month}/${posts[index].createdAt.day} ${posts[index].createdAt.hour}:${posts[index].createdAt.minute}:${posts[index].createdAt.second}.${posts[index].createdAt.millisecond}',
+                                                          '${posts[index].createdAt!.year}/${posts[index].createdAt!.month}/${posts[index].createdAt!.day} ${posts[index].createdAt!.hour}:${posts[index].createdAt!.minute}:${posts[index].createdAt!.second}.${posts[index].createdAt!.millisecond}',
                                                           style: const TextStyle(
                                                               color: Color(
                                                                   0xff43341B),
@@ -250,29 +253,28 @@ class AllThread extends StatelessWidget {
                                                                   (context) {
                                                                 return TalkPage(
                                                                   uid: uid,
-                                                                  resSort: model
-                                                                      .resSort,
+                                                                  resSort:
+                                                                      resSort,
                                                                   adInterstitial:
                                                                       adInterstitial,
                                                                   post: posts[
                                                                       index],
                                                                 );
                                                               }));
-                                                      await model.setConfig();
                                                       if (posts[index]
-                                                          .read
+                                                          .read!
                                                           .contains(uid
                                                               .substring(20))) {
                                                       } else {
                                                         await model
                                                             .addReadforAll(
                                                                 posts[index]
-                                                                    .threadId,
+                                                                    .threadId!,
                                                                 posts[index]
-                                                                    .documentID,
+                                                                    .documentID!,
                                                                 uid.substring(
                                                                     20));
-                                                        posts[index].read.add(
+                                                        posts[index].read!.add(
                                                             uid.substring(20));
                                                       }
                                                     },
@@ -318,8 +320,8 @@ class AllThread extends StatelessWidget {
             elevation: 9,
             heroTag: 011,
             backgroundColor: const Color(0xff0C4842).withOpacity(0.7),
-            label: Row(
-              children: const [
+            label: const Row(
+              children: [
                 Text(
                   'スレを建てる',
                   style: TextStyle(
@@ -327,7 +329,7 @@ class AllThread extends StatelessWidget {
                       fontSize: 15.0,
                       fontWeight: FontWeight.bold),
                 ),
-                Icon(Feather.edit),
+                Icon(FeatherIcons.edit),
               ],
             ),
             onPressed: () {
@@ -339,8 +341,8 @@ class AllThread extends StatelessWidget {
     );
   }
 
-  Future blockDialog(
-      BuildContext context, String uid, String blockUser, ListModel model) {
+  Future blockDialog(BuildContext context, String uid, String blockUser,
+      ListModel model) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -385,7 +387,7 @@ class AllThread extends StatelessWidget {
     );
   }
 
-  Future badAdd(ListModel model, BuildContext context, threadID, postID) {
+  Future badAdd(ListModel model, BuildContext context, threadID, postID) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -430,7 +432,7 @@ class AllThread extends StatelessWidget {
 
   // ignore: missing_return
   Future deleteMyThread(
-      ListModel model, BuildContext context, threadID, postID) {
+      ListModel model, BuildContext context, threadID, postID) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {

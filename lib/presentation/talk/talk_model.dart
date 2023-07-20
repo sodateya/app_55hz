@@ -20,8 +20,8 @@ class TalkModel extends ChangeNotifier {
   List accessBlockList = [];
   final firestore = FirebaseFirestore.instance;
   int documentLimit = 13;
-  DocumentSnapshot lastDocument;
-  bool reverse;
+  DocumentSnapshot? lastDocument;
+  bool? reverse;
 
   Future getResSort() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -47,7 +47,7 @@ class TalkModel extends ChangeNotifier {
         .collection('post')
         .doc(post.documentID)
         .collection('talk')
-        .orderBy('createdAt', descending: reverse)
+        .orderBy('createdAt', descending: reverse!)
         .limit(documentLimit)
         .get();
     try {
@@ -64,7 +64,7 @@ class TalkModel extends ChangeNotifier {
           .collection('post')
           .doc(post.documentID)
           .get();
-      final abList = doc.data()['accessBlock'];
+      final abList = doc.data()!['accessBlock'];
       accessBlockList = abList;
     }
     notifyListeners();
@@ -78,9 +78,9 @@ class TalkModel extends ChangeNotifier {
           .collection('post')
           .doc(post.documentID)
           .collection('talk')
-          .orderBy('createdAt', descending: reverse)
+          .orderBy('createdAt', descending: reverse!)
           .limit(documentLimit)
-          .startAfterDocument(lastDocument)
+          .startAfterDocument(lastDocument!)
           .limit(15)
           .get();
       lastDocument = docs.docs.last;
@@ -113,7 +113,7 @@ class TalkModel extends ChangeNotifier {
         .collection('favoriteList')
         .doc(uid.substring(25))
         .update({
-      'favoriteThreads': FieldValue.arrayUnion([post.documentID.substring(10)])
+      'favoriteThreads': FieldValue.arrayUnion([post.documentID!.substring(10)])
     });
     await FirebaseFirestore.instance
         .collection('user')
@@ -137,7 +137,8 @@ class TalkModel extends ChangeNotifier {
         .collection('favoriteList')
         .doc(uid.substring(25))
         .update({
-      'favoriteThreads': FieldValue.arrayRemove([post.documentID.substring(10)])
+      'favoriteThreads':
+          FieldValue.arrayRemove([post.documentID!.substring(10)])
     });
     final docs = FirebaseFirestore.instance
         .collection('user')
@@ -182,12 +183,12 @@ class TalkModel extends ChangeNotifier {
         .doc(uid.substring(20))
         .snapshots();
     favoritePost.listen((snapshots) async {
-      final blockUsers = await snapshots.data()['blockUsers'];
+      final blockUsers = await snapshots.data()!['blockUsers'];
       blockUser = blockUsers;
     });
   }
 
-  Future addToBlockList(String uid, String blockUser) {
+  Future addToBlockList(String uid, String blockUser) async {
     FirebaseFirestore.instance
         .collection('user')
         .doc(uid)
@@ -198,7 +199,7 @@ class TalkModel extends ChangeNotifier {
     });
   }
 
-  Future removeToBlockList(String uid, String blockUser) {
+  Future removeToBlockList(String uid, String blockUser) async {
     FirebaseFirestore.instance
         .collection('user')
         .doc(uid)
@@ -209,7 +210,7 @@ class TalkModel extends ChangeNotifier {
     });
   }
 
-  Future removeToFavorite(String uid, String favoID) {
+  Future removeToFavorite(String uid, String favoID) async {
     FirebaseFirestore.instance
         .collection('user')
         .doc(uid)
@@ -227,7 +228,7 @@ class TalkModel extends ChangeNotifier {
         .collection('post')
         .doc(postID)
         .get();
-    final abList = doc.data()['accessBlock'];
+    final abList = doc.data()!['accessBlock'];
     accessBlockList = abList;
     print(abList);
     notifyListeners();

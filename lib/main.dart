@@ -9,15 +9,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'main/home.dart';
 
-AdInterstitial adInterstitial;
+AdInterstitial? adInterstitial;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   MobileAds.instance.initialize();
   adInterstitial = AdInterstitial();
-  adInterstitial.createAd;
+  adInterstitial!.createAd;
   runApp(MyApp(
-    adInterstitial: adInterstitial,
+    adInterstitial: adInterstitial!,
   ));
   final messaging = FirebaseMessaging.instance;
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
@@ -38,7 +38,7 @@ void main() async {
 
 // ignore: must_be_immutable
 class MyApp extends StatelessWidget {
-  MyApp({Key key, this.adInterstitial}) : super(key: key);
+  MyApp({super.key, required this.adInterstitial});
 
   final auth = FirebaseAuth.instance;
   AdInterstitial adInterstitial;
@@ -63,9 +63,8 @@ class MyApp extends StatelessWidget {
       home: auth.currentUser == null
           ? Login(adInterstitial: adInterstitial)
           : Home(
-              key: key,
               auth: auth,
-              uid: auth.currentUser.uid,
+              uid: auth.currentUser!.uid,
               adInterstitial: adInterstitial),
     );
   }

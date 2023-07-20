@@ -12,12 +12,12 @@ class AddThreadModel extends ChangeNotifier {
   String uid = '';
   String popTitle = '';
   String postID = '';
-  Timestamp popCreatedAt;
+  Timestamp? popCreatedAt;
   bool isLoading = false;
   DateTime upDateAt = DateTime.now();
   String token = '';
-  Post post;
-  bool resSort;
+  Post? post;
+  bool? resSort;
 
   Future startLoading() async {
     isLoading = true;

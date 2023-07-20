@@ -15,16 +15,17 @@ class MyFavoritePage extends StatelessWidget {
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
-  MyFavoritePage({Key key, this.uid}) : super(key: key);
+  MyFavoritePage({super.key, required this.uid});
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return ChangeNotifierProvider.value(
-      value: MyFavoritePageModel()
+    return ChangeNotifierProvider<MyFavoritePageModel>(
+      create: (context) => MyFavoritePageModel()
+        ..getResSort()
         ..getMyFavorite(uid)
         ..getBlockList(uid),
       child: Consumer<MyFavoritePageModel>(builder: (context, model, child) {
@@ -97,7 +98,7 @@ class MyFavoritePage extends StatelessWidget {
                               final blockUsers = model.blockList;
 
                               return blockUsers.contains(posts[index]
-                                          .threadUid
+                                          .threadUid!
                                           .substring(20)) ==
                                       true
                                   ? const SizedBox()
@@ -121,7 +122,7 @@ class MyFavoritePage extends StatelessWidget {
                                         child: ListTile(
                                           // contentPadding: const EdgeInsets.all(5),
                                           title: Text(
-                                            posts[index].title,
+                                            posts[index].title!,
                                             textAlign: TextAlign.left,
                                             overflow: TextOverflow.clip,
                                             style: const TextStyle(
@@ -134,28 +135,29 @@ class MyFavoritePage extends StatelessWidget {
                                             try {
                                               await model
                                                   .getThreadData(
-                                                      posts[index].threadID,
-                                                      posts[index].postID)
-                                                  .then(
-                                                      (value) => Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder:
-                                                                  (context) =>
-                                                                      TalkPage(
-                                                                uid: uid,
-                                                                adInterstitial:
-                                                                    adInterstitial,
-                                                                post: value,
-                                                              ),
-                                                            ),
-                                                          ));
+                                                      posts[index].threadID!,
+                                                      posts[index].postID!)
+                                                  .then((value) =>
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              TalkPage(
+                                                            uid: uid,
+                                                            adInterstitial:
+                                                                adInterstitial!,
+                                                            post: value,
+                                                            resSort:
+                                                                model.resSort!,
+                                                          ),
+                                                        ),
+                                                      ));
                                             } catch (e) {
                                               deleteFavoriteDialog(
                                                   context,
                                                   model,
                                                   uid,
-                                                  posts[index].postID);
+                                                  posts[index].postID!);
                                             }
                                           },
                                         ),

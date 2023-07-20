@@ -1,8 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:io';
-
-import 'package:algolia/algolia.dart';
 import 'package:app_55hz/domain/post.dart';
 import 'package:app_55hz/domain/thread.dart';
 import 'package:app_55hz/main.dart';
@@ -14,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_badger/flutter_app_badger.dart';
 import 'package:flutter_udid/flutter_udid.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -28,16 +25,16 @@ class ListModel extends ChangeNotifier {
   List myList = [];
   int documentLimit = 10;
   final firestore = FirebaseFirestore.instance;
-  DocumentSnapshot lastDocument;
+  DocumentSnapshot? lastDocument;
   String timeSort = 'createdAt';
-  bool isMyThreads;
-  bool threadSort;
-  bool resSort;
+  bool? isMyThreads;
+  bool? threadSort;
+  bool? resSort;
   var count = 0;
 
   bool isUpdateToday(Post post, int index) {
     final isUpdateToday =
-        '${posts[index].upDateAt.year}/${posts[index].upDateAt.month}/${posts[index].upDateAt.day}' ==
+        '${posts[index].upDateAt!.year}/${posts[index].upDateAt!.month}/${posts[index].upDateAt!.day}' ==
             '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}';
     return isUpdateToday;
   }
@@ -51,7 +48,7 @@ class ListModel extends ChangeNotifier {
     if (pref.getBool('token$uid') == null) {
       await pref.setBool('token$uid', false);
       final db = await firestore.collection('user').doc(uid).get();
-      final isToken = db.data()['pushToken'];
+      final isToken = db.data()!['pushToken'];
       if (isToken == null) {
         final token = await FirebaseMessaging.instance.getToken();
         await firestore.collection('user').doc(uid).set({
@@ -73,7 +70,7 @@ class ListModel extends ChangeNotifier {
       await pref.setBool('MyDB$uid', false);
       try {
         final doc = await firestore.collection('user').doc(uid).get();
-        doc.data()['uid'] != null;
+        doc.data()!['uid'] != null;
       } catch (e) {
         await firestore.collection('user').doc(uid).set({
           'uid': uid,
@@ -103,7 +100,7 @@ class ListModel extends ChangeNotifier {
     final doc = await firestore.collection('config').doc('config').snapshots();
     doc.listen((snapShoats) async {
       final version =
-          Version.parse(snapShoats.data()['ios_force_app_version'] as String);
+          Version.parse(snapShoats.data()!['ios_force_app_version'] as String);
       final packageInfo = await PackageInfo.fromPlatform();
       final appVersion = Version.parse(packageInfo.version);
       if (appVersion < version) {
@@ -148,7 +145,7 @@ class ListModel extends ChangeNotifier {
       }
     });
     doc.listen((snapshots) async {
-      final banList = await snapshots.data()['banList'];
+      final banList = await snapshots.data()!['banList'];
       String udid = await FlutterUdid.udid;
       if (banList.contains(udid)) {
         await showDialog(
@@ -282,7 +279,7 @@ class ListModel extends ChangeNotifier {
         .doc(thread.documentID)
         .collection('post')
         .orderBy(sort, descending: true)
-        .startAfterDocument(lastDocument)
+        .startAfterDocument(lastDocument!)
         .limit(10)
         .get();
 
@@ -300,7 +297,7 @@ class ListModel extends ChangeNotifier {
     final docs = await firestore
         .collectionGroup('post')
         .orderBy(sort, descending: true)
-        .startAfterDocument(lastDocument)
+        .startAfterDocument(lastDocument!)
         .limit(10)
         .get();
 
@@ -327,7 +324,7 @@ class ListModel extends ChangeNotifier {
     try {
       lastDocument = querySnapshot.docs.last;
       final posts = querySnapshot.docs.map((doc) => Post(doc)).toList();
-      posts.sort(((a, b) => b.postCount.compareTo(a.postCount)));
+      posts.sort(((a, b) => b.postCount!.compareTo(a.postCount!)));
       this.posts = posts;
       notifyListeners();
     } catch (e) {
@@ -341,14 +338,14 @@ class ListModel extends ChangeNotifier {
         .orderBy('upDateAt', descending: true)
         .where('upDateAt', isGreaterThanOrEqualTo: today)
         .orderBy('postCount', descending: true)
-        .startAfterDocument(lastDocument)
+        .startAfterDocument(lastDocument!)
         .limit(10)
         .get();
 
     try {
       lastDocument = docs.docs.last;
       final posts = docs.docs.map((doc) => Post(doc)).toList();
-      posts.sort(((a, b) => b.postCount.compareTo(a.postCount)));
+      posts.sort(((a, b) => b.postCount!.compareTo(a.postCount!)));
       this.posts.addAll(posts);
     } catch (e) {
       print('終了');
@@ -432,7 +429,7 @@ class ListModel extends ChangeNotifier {
         .doc(uid.substring(20))
         .snapshots();
     favoritePost.listen((snapshots) async {
-      final blockUsers = await snapshots.data()['blockUsers'];
+      final blockUsers = await snapshots.data()!['blockUsers'];
       blockUser = blockUsers;
       notifyListeners();
     });
@@ -479,12 +476,13 @@ class ListModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  // ignore: missing_return
   Future showBottmoSheet(
     BuildContext context,
     List<Thread> threadList,
     AdInterstitial ad,
     String uid,
-  ) {
+  ) async {
     showModalBottomSheet(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20.0),
@@ -531,15 +529,15 @@ class ListModel extends ChangeNotifier {
                               padding: const EdgeInsets.only(left: 5),
                               child: ActionChip(
                                 onPressed: () async {
-                                  if (adInterstitial.ready == false) {
-                                    await adInterstitial.createAdforSerch();
+                                  if (adInterstitial!.ready == false) {
+                                    await adInterstitial!.createAdforSerch();
                                   }
-                                  adInterstitial.showAdforSerch(Navigator.push(
+                                  adInterstitial!.showAdforSerch(Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => AddThreadPage(
                                                 thread: thread,
-                                                title: thread.title,
+                                                title: thread.title!,
                                                 uid: uid,
                                                 adInterstitial: ad,
                                                 blockUsers: blockUser,

@@ -6,23 +6,38 @@ admin.initializeApp();
 
 const client = algoliasearch('YUUAZI2TQ1', '90e9284829a4a54ca3abfb3aa02fe80b');
 const index = client.initIndex('9ch_posts');
-
+const adminToken = 'cPZoEIvZ1k9Gui-tKX4Fjv:APA91bHbVaAEUvpegXdNL5b8ibX0ssTViQcUpLbONqn5Kwdftwquc9Pm1bYegcn13xeQG9jd8jBfJuMuMi-cMlQKjIp9xSuuRC1fYaI86qJzYoVogmYHs8pxMRoX5OnaFzFlK_9SuRAU';
 
 
 exports.addToIndex = functions.firestore.document('thread/{threadId}/post/{postId}')
     .onCreate((snapshot, context) => {
         const data = snapshot.data();
         const objectID = snapshot.id;
-        const threadId = context.params.threadId; // ワイルドカードを使ってthreadIdを取得
-        const postId = context.params.postId; // ワイルドカードを使ってpostIdを取得
+        const threadId = context.params.threadId; 
+        const postId = context.params.postId; 
         return index.saveObject({ ...data, objectID, threadId, postId });
     });
 
-    exports.deleteFromIndex = functions.firestore.document('thread/{threadId}/post/{postId}')
-    .onDelete(snapshot => {
-        const objectID = snapshot.id;
-        return index.deleteObject(objectID);
+    // exports.deleteFromIndex = functions.firestore.document('thread/{threadId}/post/{postId}')
+    // .onDelete(snapshot => {
+    //     const objectID = snapshot.id;
+    //     return index.deleteObject(objectID);
+    // });
+
+exports.puehToAdmin = functions.firestore.document('inquiry/{inquiryID}')
+    .onCreate((snapshot) => {
+      const payload = {
+        notification: {
+          title: "9ちゃんねる",
+          body: snapshot.data()['comment'],
+          badge: "1",            
+          sound:"default"     
+        }
+      };
+       pushToDevice(adminToken,payload)
     });
+
+
 // exports.updateIndex = functions.firestore.document('thread/{threadId}/post/{postId}')
 //     .onUpdate((change, context) => {
 //         const newData = change.after.data();
@@ -63,9 +78,7 @@ exports.pushSubmitFromApp = functions.region('asia-northeast1').https.onCall(asy
             sound:"default"         //プッシュ通知音
           }
         };
-
   pushToDevice(token,payload);
-
 });
 
 
@@ -115,7 +128,32 @@ function pushTotime(token, payload){
 }
 
 
+//デリートログ
 
+exports.addDeleteLog = functions.firestore.document('thread/{ThreadID}/post/{postID}/talk/{talkID}')
+    .onDelete((snapshot, context) => {
+        // 新しく作成されたデータを取得
+        const newData = snapshot.data();
+        
+        // context.paramsからThreadIDとPostIDを取得
+        const ThreadID = context.params.ThreadID;
+        const PostID = context.params.postID;
+
+        // newDataにThreadIDとPostIDを追加
+        newData.ThreadID = ThreadID;
+        newData.PostID = PostID;
+
+        // newDataをKanshiコレクションに追加
+        return admin.firestore().collection('DeleteLog').add(newData)
+            .then(() => {
+                console.log('できた');
+                return null;
+            })
+            .catch((error) => {
+                console.error('エラー', error);
+                return null;
+            });
+    });
 
 
 // function timePush(token,paylode){functions.pubsub.schedule('10 12 28 10*')

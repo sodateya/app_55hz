@@ -15,19 +15,23 @@ class Emailcheck extends StatefulWidget {
   final String email;
   final String pswd;
   final int from; //1 → アカウント作成画面から    2 → ログイン画面から
-  AdInterstitial adInterstitial;
+  AdInterstitial? adInterstitial;
 
-  Emailcheck({Key key, this.email, this.pswd, this.from, this.adInterstitial})
-      : super(key: key);
+  Emailcheck(
+      {super.key,
+      required this.email,
+      required this.pswd,
+      required this.from,
+      this.adInterstitial});
   @override
   _Emailcheck createState() => _Emailcheck();
 }
 
 class _Emailcheck extends State<Emailcheck> {
   final _auth = FirebaseAuth.instance;
-  UserCredential _result;
-  String _nocheckText;
-  String _sentEmailText;
+  UserCredential? _result;
+  String? _nocheckText;
+  String? _sentEmailText;
   int _btn_click_num = 0;
 
   @override
@@ -69,13 +73,13 @@ class _Emailcheck extends State<Emailcheck> {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20.0, 0, 20.0, 20.0),
                   child: Text(
-                    _nocheckText,
+                    _nocheckText!,
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
 
                 // 確認メール送信時のメッセージ
-                Text(_sentEmailText),
+                Text(_sentEmailText!),
 
                 // 確認メールの再送信ボタン
                 Padding(
@@ -96,7 +100,7 @@ class _Emailcheck extends State<Emailcheck> {
                           password: widget.pswd,
                         );
 
-                        _result.user.sendEmailVerification();
+                        _result!.user!.sendEmailVerification();
                         setState(() {
                           _btn_click_num++;
                           _sentEmailText = '${widget.email}\nに確認メールを送信しました。';
@@ -132,39 +136,39 @@ class _Emailcheck extends State<Emailcheck> {
                       );
 
                       // Email確認が済んでいる場合は、Home画面へ遷移
-                      if (_result.user.emailVerified) {
+                      if (_result!.user!.emailVerified) {
                         final token =
                             await FirebaseMessaging.instance.getToken();
 
                         await FirebaseFirestore.instance
                             .collection('user')
-                            .doc(_result.user.uid)
+                            .doc(_result!.user!.uid)
                             .collection('blockList')
-                            .doc(_result.user.uid.substring(20))
+                            .doc(_result!.user!.uid.substring(20))
                             .set({'blockUsers': []});
                         await FirebaseFirestore.instance
                             .collection('user')
-                            .doc(_result.user.uid)
+                            .doc(_result!.user!.uid)
                             .set({
-                          'uid': _result.user.uid,
-                          'uid20': _result.user.uid.substring(20),
+                          'uid': _result!.user!.uid,
+                          'uid20': _result!.user!.uid.substring(20),
                           'udid': await FlutterUdid.udid,
                           'pushToken': token
                         });
 
                         await FirebaseFirestore.instance
                             .collection('user')
-                            .doc(_result.user.uid)
+                            .doc(_result!.user!.uid)
                             .collection('favoriteList')
-                            .doc(_result.user.uid.substring(25))
+                            .doc(_result!.user!.uid.substring(25))
                             .set({'favoriteThreads': []});
                         await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => Home(
                                 auth: _auth,
-                                uid: _result.user.uid,
-                                adInterstitial: adInterstitial,
+                                uid: _result!.user!.uid,
+                                adInterstitial: adInterstitial!,
                               ),
                             ));
                       } else {

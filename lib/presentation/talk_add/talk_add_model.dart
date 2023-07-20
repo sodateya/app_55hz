@@ -3,7 +3,6 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:app_55hz/domain/post.dart';
-import 'package:app_55hz/domain/thread.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -15,30 +14,32 @@ class AddTalkModel extends ChangeNotifier {
   String comment = '';
   String url = '';
   String name = '';
-  File imageFile;
+  File? mageFile;
   final picker = ImagePicker();
   bool isLoading = false;
-  String imgURLtext;
-  String mainToken;
+  String imgURLtext = '';
+  String? mainToken;
+  File? imageFile;
+
   bool isUpdateToday(DateTime upDateAt) {
     final isUpdateToday = '${upDateAt.year}/${upDateAt.month}/${upDateAt.day}' ==
         '${DateTime.now().year}/${DateTime.now().month}/${DateTime.now().day}';
     return isUpdateToday;
   }
 
-  Future startLoading() {
+  Future startLoading() async {
     isLoading = true;
     notifyListeners();
   }
 
-  Future endLoading() {
+  Future endLoading() async {
     isLoading = false;
     notifyListeners();
   }
 
   Future getName() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
-    name = pref.getString('handleName');
+    name = pref.getString('handleName')!;
     notifyListeners();
   }
 
@@ -54,11 +55,11 @@ class AddTalkModel extends ChangeNotifier {
           .doc(post.documentID)
           .collection('talk')
           .doc();
-      String imgURL;
+      String? imgURL;
       if (imageFile != null) {
         final task = await FirebaseStorage.instance
             .ref('talk/${doc.id}')
-            .putFile(imageFile);
+            .putFile(imageFile!);
         imgURL = await task.ref.getDownloadURL();
       }
       await doc.set({
@@ -79,13 +80,13 @@ class AddTalkModel extends ChangeNotifier {
           .update({
         'read': [uid.substring(20)],
         'upDateAt': FieldValue.serverTimestamp(),
-        'postCount': isUpdateToday(post.upDateAt) ? FieldValue.increment(1) : 1
+        'postCount': isUpdateToday(post.upDateAt!) ? FieldValue.increment(1) : 1
       });
       if (post.mainToken != null && post.uid != uid) {
-        await push('あなたのスレにコメントがつきました', post.mainToken);
+        await push('あなたのスレにコメントがつきました', post.mainToken!);
       }
     }
-    await Future.delayed(Duration(seconds: 2)); // 2秒待機
+    await Future.delayed(const Duration(seconds: 2)); // 2秒待機
     await endLoading();
   }
 
@@ -97,7 +98,7 @@ class AddTalkModel extends ChangeNotifier {
     return imageFile;
   }
 
-  Future resetImage() {
+  Future resetImage() async {
     imageFile = null;
     notifyListeners();
   }

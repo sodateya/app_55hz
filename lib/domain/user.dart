@@ -4,5 +4,5 @@ class User {
   User(DocumentSnapshot doc) {
     userID = doc['uid'];
   }
-  String userID;
+  String? userID;
 }

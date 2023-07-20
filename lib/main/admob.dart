@@ -26,15 +26,15 @@ class AdInterstitial with ChangeNotifier {
     }
   }
 
-  InterstitialAd _interstitialAd;
-  InterstitialAd get interstitialAd => _interstitialAd;
+  InterstitialAd? _interstitialAd;
+  InterstitialAd get interstitialAd => _interstitialAd!;
   set banner(InterstitialAd value) {
     _interstitialAd = value;
     notifyListeners();
   }
 
-  RewardedAd _rewardedAd;
-  RewardedAd get rewardedAd => _rewardedAd;
+  RewardedAd? _rewardedAd;
+  RewardedAd get rewardedAd => _rewardedAd!;
   set bannera(RewardedAd value) {
     _rewardedAd = value;
     notifyListeners();
@@ -44,7 +44,7 @@ class AdInterstitial with ChangeNotifier {
     print("### 広告を作成します");
     if (!ready) {
       await InterstitialAd.load(
-        adUnitId: interstitialAdUnitId,
+        adUnitId: interstitialAdUnitId!,
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (InterstitialAd ad) {
@@ -71,7 +71,7 @@ class AdInterstitial with ChangeNotifier {
       print('Warning: attempt to show interstitial before loaded.');
       return;
     }
-    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+    _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (InterstitialAd ad) {
         print("ad onAdshowedFullscreen");
       },
@@ -87,7 +87,7 @@ class AdInterstitial with ChangeNotifier {
       onAdImpression: (InterstitialAd ad) => print('$ad impression occurred.'),
     );
 
-    await _interstitialAd.show();
+    await _interstitialAd!.show();
     _interstitialAd = null;
   }
 
@@ -98,7 +98,7 @@ class AdInterstitial with ChangeNotifier {
       Completer completer = Completer();
 
       await InterstitialAd.load(
-        adUnitId: interstitialAdUnitId,
+        adUnitId: interstitialAdUnitId!,
         request: const AdRequest(),
         adLoadCallback: InterstitialAdLoadCallback(
           onAdLoaded: (InterstitialAd ad) {
@@ -130,7 +130,7 @@ class AdInterstitial with ChangeNotifier {
       print('Warning: attempt to show interstitial before loaded.');
       return;
     }
-    _interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+    _interstitialAd!.fullScreenContentCallback = FullScreenContentCallback(
       onAdShowedFullScreenContent: (InterstitialAd ad) {
         print("ad onAdshowedFullscreen");
       },
@@ -148,11 +148,12 @@ class AdInterstitial with ChangeNotifier {
       onAdImpression: (InterstitialAd ad) => print('$ad impression occurred.'),
     );
 
-    await _interstitialAd.show();
+    await _interstitialAd!.show();
     _interstitialAd = null;
   }
 
-  static String get interstitialAdUnitId {
+  // ignore: body_might_complete_normally_nullable
+  static String? get interstitialAdUnitId {
     if (Platform.isAndroid) {
       return 'ca-app-pub-3482694581552522/6996339951';
     } else if (Platform.isIOS) {
@@ -160,7 +161,8 @@ class AdInterstitial with ChangeNotifier {
     }
   }
 
-  static String get bannerAdUnitId {
+  // ignore: body_might_complete_normally_nullable
+  static String? get bannerAdUnitId {
     if (Platform.isAndroid) {
       return 'ca-app-pub-3482694581552522/3657134860';
     } else if (Platform.isIOS) {

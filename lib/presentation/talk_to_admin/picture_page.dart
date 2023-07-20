@@ -10,9 +10,9 @@ import 'package:provider/provider.dart';
 
 class PicturePage extends StatelessWidget {
   PicturePage({
-    this.ontap,
-    this.imageFile,
-    this.size,
+    required this.ontap,
+    required this.imageFile,
+    required this.size,
   });
 
   final AsyncCallback ontap;

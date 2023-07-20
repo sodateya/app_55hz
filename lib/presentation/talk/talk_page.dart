@@ -9,7 +9,7 @@ import 'package:app_55hz/presentation/talk_add/talk_add_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -21,35 +21,34 @@ class TalkPage extends StatelessWidget {
   String uid;
   AdInterstitial adInterstitial;
   bool resSort;
-  Post post;
-  PostAlgolia postAlgolia;
+  Post? post;
+  PostAlgolia? postAlgolia;
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
 
-  TalkPage(
-      {Key key,
-      this.uid,
-      this.resSort,
-      this.adInterstitial,
-      this.post,
-      this.postAlgolia,
-      String threadID})
-      : super(key: key);
+  TalkPage({
+    super.key,
+    required this.uid,
+    required this.resSort,
+    required this.adInterstitial,
+    this.post,
+    this.postAlgolia,
+  });
 
   int postCount = 0;
 
   @override
   Widget build(BuildContext context) {
-    post ??= postAlgolia.toPost();
+    post ??= postAlgolia!.toPost();
     final Size size = MediaQuery.of(context).size;
-    return ChangeNotifierProvider.value(
-      value: TalkModel()
+    return ChangeNotifierProvider<TalkModel>(
+      create: (context) => TalkModel()
         ..fetchMyFavorite(uid)
-        ..getTalk(post, resSort, uid)
+        ..getTalk(post!, resSort, uid)
         ..fetchBlockList(uid),
       child: Scaffold(
         appBar: AppBar(
@@ -72,13 +71,13 @@ class TalkPage extends StatelessWidget {
                 return favoriteThreads.isNotEmpty
                     ? Row(
                         children: [
-                          post.uid == uid
+                          post!.uid == uid
                               ? IconButton(
                                   onPressed: () async {
-                                    await model.getTalk(post, resSort, uid);
+                                    await model.getTalk(post!, resSort, uid);
                                     await showAccessBlockList(context, model);
                                   },
-                                  icon: const Icon(Feather.user_x))
+                                  icon: const Icon(FeatherIcons.userX))
                               : const Icon(null),
                           IconButton(
                               onPressed: () async {
@@ -88,22 +87,23 @@ class TalkPage extends StatelessWidget {
                                   }
                                   adInterstitial.counter = 7;
                                 });
-                                await model.getTalk(post, resSort, uid);
+                                await model.getTalk(post!, resSort, uid);
                               },
                               icon: Transform.rotate(
                                   angle: 90 * pi / 180,
-                                  child: const Icon(Feather.repeat))),
+                                  child: const Icon(FeatherIcons.repeat))),
                           IconButton(
                               onPressed: () async {
-                                if (favoriteThreads.first.favoriteThreads
-                                    .contains(post.documentID.substring(10))) {
-                                  await model.deleteFavorite(uid, post);
+                                if (favoriteThreads.first.favoriteThreads!
+                                    .contains(
+                                        post!.documentID!.substring(10))) {
+                                  await model.deleteFavorite(uid, post!);
                                 } else {
-                                  await model.addFavorite(uid, post);
+                                  await model.addFavorite(uid, post!);
                                 }
                               },
-                              icon: favoriteThreads.first.favoriteThreads
-                                      .contains(post.documentID.substring(10))
+                              icon: favoriteThreads.first.favoriteThreads!
+                                      .contains(post!.documentID!.substring(10))
                                   ? const Icon(
                                       Icons.favorite,
                                       color: Color(0xffD0104C),
@@ -114,7 +114,7 @@ class TalkPage extends StatelessWidget {
                     : const Icon(null);
               })
             ],
-            title: Text(post.title,
+            title: Text(post!.title!,
                 style:
                     const TextStyle(color: Color(0xffFCFAF2), fontSize: 16))),
         backgroundColor: const Color(0xffFCFAF2),
@@ -125,7 +125,7 @@ class TalkPage extends StatelessWidget {
             if (scrollController.position.pixels ==
                 scrollController.position.maxScrollExtent) {
               adInterstitial.counter++;
-              await model.getMoreTalk(post);
+              await model.getMoreTalk(post!);
             }
           }
 
@@ -150,7 +150,7 @@ class TalkPage extends StatelessWidget {
                     child: RefreshIndicator(
                       onRefresh: () async {
                         adInterstitial.counter++;
-                        await model.getTalk(post, resSort, uid);
+                        await model.getTalk(post!, resSort, uid);
                       },
                       child: ListView.builder(
                         cacheExtent: 9999,
@@ -159,27 +159,27 @@ class TalkPage extends StatelessWidget {
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
                           final blockUsers = model.blockUser;
-                          if (postCount < talks[index].count) {
-                            postCount = talks[index].count;
+                          if (postCount < talks[index].count!) {
+                            postCount = talks[index].count!;
                           }
-                          if (talks[index].badCount.length >= 5 ||
+                          if (talks[index].badCount!.length >= 5 ||
                               blockUsers.contains(talks[index].uid)) {
                             return const SizedBox.shrink();
                           } else {
                             return Slidable(
                               actionPane: const SlidableBehindActionPane(),
                               secondaryActions: [
-                                post.uid == uid && talks[index].uid != uid
+                                post!.uid == uid && talks[index].uid != uid
                                     ? IconSlideAction(
                                         color: const Color(0xffFCFAF2),
                                         caption: 'アクブロ',
                                         onTap: () async {
                                           await model.deleteFavorite(
-                                              talks[index].uid, post);
-                                          await model.addAccsessBlock(
-                                              context, post, talks[index].uid);
+                                              talks[index].uid!, post!);
+                                          await model.addAccsessBlock(context,
+                                              post!, talks[index].uid!);
                                         },
-                                        icon: Feather.user_x,
+                                        icon: FeatherIcons.userX,
                                       )
                                     : const SizedBox(width: 0.1),
                                 talks[index].uid == uid
@@ -190,7 +190,7 @@ class TalkPage extends StatelessWidget {
                                           deleteAdd(
                                               model, context, talks[index]);
                                         },
-                                        icon: Feather.trash,
+                                        icon: FeatherIcons.trash,
                                       )
                                     : IconSlideAction(
                                         color: const Color(0xffFCFAF2),
@@ -198,7 +198,7 @@ class TalkPage extends StatelessWidget {
                                         onTap: () {
                                           badAdd(model, context, talks[index]);
                                         },
-                                        icon: Feather.alert_triangle,
+                                        icon: FeatherIcons.alertTriangle,
                                       ),
                               ],
                               child: Container(
@@ -236,7 +236,7 @@ class TalkPage extends StatelessWidget {
                                                     MaterialPageRoute(
                                                         builder: (context) =>
                                                             AddTalkPage(
-                                                              post: post,
+                                                              post: post!,
                                                               uid: uid,
                                                               resNumber: talks[
                                                                       index]
@@ -256,20 +256,20 @@ class TalkPage extends StatelessWidget {
                                             SizedBox(
                                               width: size.width * 0.31,
                                               child: Text(
-                                                  talks[index].name == ""
+                                                  talks[index].name! == ""
                                                       ? '名無しさん'
-                                                      : talks[index].name,
+                                                      : talks[index].name!,
                                                   style: const TextStyle(
                                                       color:
                                                           Color(0xff43341B))),
                                             ),
                                             Text(
-                                                '${talks[index].createdAt.year}/${talks[index].createdAt.month}/${talks[index].createdAt.day} ${talks[index].createdAt.hour}:${talks[index].createdAt.minute}:${talks[index].createdAt.second}.${talks[index].createdAt.millisecond}',
+                                                '${talks[index].createdAt!.year}/${talks[index].createdAt!.month}/${talks[index].createdAt!.day} ${talks[index].createdAt!.hour}:${talks[index].createdAt!.minute}:${talks[index].createdAt!.second}.${talks[index].createdAt!.millisecond}',
                                                 style: const TextStyle(
                                                     color: Color(0xff43341B),
                                                     fontSize: 10.0),
                                                 textAlign: TextAlign.left),
-                                            talks[index].uid == post.uid
+                                            talks[index].uid == post!.uid
                                                 ? const Text(
                                                     '  (主)',
                                                     style: TextStyle(
@@ -289,7 +289,7 @@ class TalkPage extends StatelessWidget {
                                                 .shrinkWrap,
                                           ),
                                           child: Text(
-                                            'ID:${talks[index].uid.substring(20)}',
+                                            'ID:${talks[index].uid!.substring(20)}',
                                             style: const TextStyle(
                                                 color: Color(0xff33A6B8),
                                                 fontSize: 8),
@@ -298,7 +298,7 @@ class TalkPage extends StatelessWidget {
                                             blockDialog(
                                                 context,
                                                 uid,
-                                                talks[index].uid,
+                                                talks[index].uid!,
                                                 model,
                                                 blockUsers);
                                           },
@@ -311,7 +311,7 @@ class TalkPage extends StatelessWidget {
                                         SizedBox(
                                           width: size.width * 0.85,
                                           child: SelectableText(
-                                            talks[index].comment,
+                                            talks[index].comment!,
                                             textAlign: TextAlign.left,
                                             style: const TextStyle(
                                               color: Color(0xff43341B),
@@ -331,7 +331,7 @@ class TalkPage extends StatelessWidget {
                                                 ? null
                                                 : blockUsers.contains(
                                                         talks[index]
-                                                            .uid
+                                                            .uid!
                                                             .substring(20))
                                                     ? null
                                                     : RichText(
@@ -354,11 +354,11 @@ class TalkPage extends StatelessWidget {
                                                                         ..onTap =
                                                                             () async {
                                                                           if (await canLaunch(
-                                                                              talks[index].url)) {
-                                                                            await launch(talks[index].url);
+                                                                              talks[index].url!)) {
+                                                                            await launch(talks[index].url!);
                                                                           } else {
                                                                             try {
-                                                                              await launch(talks[index].url);
+                                                                              await launch(talks[index].url!);
                                                                             } catch (e) {
                                                                               print('error');
                                                                               await errorDialog(context);
@@ -375,22 +375,22 @@ class TalkPage extends StatelessWidget {
                                           child: talks[index].imgURL == ''
                                               ? null
                                               : blockUsers.contains(talks[index]
-                                                      .uid
+                                                      .uid!
                                                       .substring(20))
                                                   ? null
                                                   : GestureDetector(
                                                       onTap: () async {
                                                         if (await canLaunch(
                                                             talks[index]
-                                                                .imgURL)) {
+                                                                .imgURL!)) {
                                                           await launch(
                                                               talks[index]
-                                                                  .imgURL);
+                                                                  .imgURL!);
                                                         } else {
                                                           try {
                                                             await launch(
                                                                 talks[index]
-                                                                    .imgURL);
+                                                                    .imgURL!);
                                                           } catch (e) {
                                                             print('error');
                                                             await errorDialog(
@@ -399,8 +399,8 @@ class TalkPage extends StatelessWidget {
                                                         }
                                                       },
                                                       child: CachedNetworkImage(
-                                                        imageUrl:
-                                                            talks[index].imgURL,
+                                                        imageUrl: talks[index]
+                                                            .imgURL!,
                                                         fit: BoxFit.fill,
                                                         cacheManager:
                                                             customCacheManager,
@@ -452,14 +452,14 @@ class TalkPage extends StatelessWidget {
         ),
         floatingActionButton: FloatingActionButton(
           backgroundColor: const Color(0xff0C4842),
-          child: const Icon(Feather.edit_2),
+          child: const Icon(FeatherIcons.edit2),
           onPressed: () async {
             await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => AddTalkPage(
                   uid: uid,
-                  post: post,
+                  post: post!,
                   count: postCount,
                 ),
               ),
@@ -470,7 +470,7 @@ class TalkPage extends StatelessWidget {
     );
   }
 
-  Future badAdd(TalkModel model, BuildContext context, dynamic talk) {
+  Future badAdd(TalkModel model, BuildContext context, dynamic talk) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -501,7 +501,7 @@ class TalkPage extends StatelessWidget {
                           fontSize: 15.0,
                           fontWeight: FontWeight.bold)),
                   onPressed: () async {
-                    await model.badAdd(post, talk, uid);
+                    await model.badAdd(post!, talk, uid);
                     Navigator.of(context).pop();
                     await showDialog(
                         context: context,
@@ -525,7 +525,7 @@ class TalkPage extends StatelessWidget {
     );
   }
 
-  Future deleteAdd(TalkModel model, BuildContext context, dynamic talk) {
+  Future deleteAdd(TalkModel model, BuildContext context, dynamic talk) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -557,7 +557,7 @@ class TalkPage extends StatelessWidget {
                           color: Color(0xff33A6B8),
                           fontWeight: FontWeight.bold)),
                   onPressed: () async {
-                    await model.deleteAdd(post, talk);
+                    await model.deleteAdd(post!, talk);
                     Navigator.of(context).pop();
                     await showDialog(
                         context: context,
@@ -581,7 +581,7 @@ class TalkPage extends StatelessWidget {
     );
   }
 
-  Future errorDialog(BuildContext context) {
+  Future errorDialog(BuildContext context) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -603,7 +603,7 @@ class TalkPage extends StatelessWidget {
   }
 
   Future blockDialog(BuildContext context, String uid, String blockUser,
-      TalkModel model, List blockUsers) {
+      TalkModel model, List blockUsers) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -675,7 +675,7 @@ class TalkPage extends StatelessWidget {
                                       fontSize: 15.0,
                                       fontWeight: FontWeight.bold)),
                               onTap: () async {
-                                await model.removeAccsessBlock(context, post,
+                                await model.removeAccsessBlock(context, post!,
                                     model.accessBlockList[index].toString());
                               },
                             ),

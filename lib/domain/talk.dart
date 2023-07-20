@@ -13,13 +13,13 @@ class Talk {
     name = doc['name'];
     imgURL = doc['imgURL'];
   }
-  String uid;
-  DateTime createdAt;
-  String documentID;
-  String comment;
-  int count;
-  List badCount;
-  String url;
-  String name;
-  String imgURL;
+  String? uid;
+  DateTime? createdAt;
+  String? documentID;
+  String? comment;
+  int? count;
+  List? badCount;
+  String? url;
+  String? name;
+  String? imgURL;
 }

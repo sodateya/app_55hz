@@ -7,7 +7,7 @@ import 'email_check.dart';
 
 // アカウント登録ページ
 class Registration extends StatefulWidget {
-  const Registration({Key key}) : super(key: key);
+  const Registration({super.key});
 
   @override
   _RegistrationState createState() => _RegistrationState();
@@ -16,8 +16,8 @@ class Registration extends StatefulWidget {
 class _RegistrationState extends State<Registration> {
   // Firebase Authenticationを利用するためのインスタンス
   final _auth = FirebaseAuth.instance;
-  UserCredential _result;
-  User _user;
+  UserCredential? _result;
+  User? _user;
 
   String _newEmail = ""; // 入力されたメールアドレス
   String _newPassword = ""; // 入力されたパスワード
@@ -113,8 +113,8 @@ class _RegistrationState extends State<Registration> {
                           );
 
                           // 登録成功
-                          _user = _result.user; // 登録したユーザー情報
-                          _user.sendEmailVerification(); // Email確認のメールを送信
+                          _user = _result!.user; // 登録したユーザー情報
+                          _user!.sendEmailVerification(); // Email確認のメールを送信
                           await Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -127,7 +127,8 @@ class _RegistrationState extends State<Registration> {
                           // 登録に失敗した場合
                           setState(() {
                             print(e);
-                            _infoText = auth_error.register_error_msg(e.code);
+                            _infoText =
+                                auth_error.register_error_msg(e.toString());
                           });
                         }
                       } else {

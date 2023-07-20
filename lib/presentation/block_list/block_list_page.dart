@@ -2,18 +2,17 @@
 
 import 'package:app_55hz/main/admob.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import 'block_list_model.dart';
 
 class BlockListPage extends StatelessWidget {
   String uid;
-  BlockListPage({Key key, this.uid}) : super(key: key);
+  BlockListPage({super.key, required this.uid});
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
 
@@ -144,7 +143,7 @@ class BlockListPage extends StatelessWidget {
   }
 
   Future unBlockDialog(BuildContext context, String uid, String blockUser,
-      BlockListModel model) {
+      BlockListModel model) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {

@@ -7,7 +7,7 @@ import 'package:app_55hz/presentation/list/list_page.dart';
 import 'package:app_55hz/presentation/search/search_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
@@ -18,12 +18,12 @@ class Home extends StatelessWidget {
   String uid;
   AdInterstitial adInterstitial;
 
-  Home({Key key, this.auth, this.uid, this.adInterstitial}) : super(key: key);
+  Home({required this.auth, required this.uid, required this.adInterstitial});
 
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
 
@@ -56,6 +56,7 @@ class Home extends StatelessWidget {
                     sort: sort,
                     adInterstitial: adInterstitial,
                     threadList: model.threads,
+                    resSort: model.resSort!,
                   ))
               .toList();
 
@@ -84,7 +85,7 @@ class Home extends StatelessWidget {
                   ),
                   leading: Builder(builder: (context) {
                     return IconButton(
-                      icon: const Icon(Feather.user),
+                      icon: const Icon(FeatherIcons.user),
                       onPressed: () async {
                         Scaffold.of(context).openDrawer();
                       },
@@ -110,7 +111,7 @@ class Home extends StatelessWidget {
                                 );
                               }));
                         },
-                        icon: const Icon(Feather.search)),
+                        icon: const Icon(FeatherIcons.search)),
                   ],
                   title: Column(
                     children: [
@@ -161,68 +162,10 @@ class Home extends StatelessWidget {
       ),
     );
   }
-
-  Future searchThread(BuildContext context, ListModel model) {
-    TextEditingController searchController;
-
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          backgroundColor: const Color(0xffFCFAF2),
-          title: TextField(
-            controller: searchController,
-            keyboardType: TextInputType.multiline,
-            maxLines: null,
-            decoration: const InputDecoration(
-              labelText: '検索ワード',
-            ),
-          ),
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                TextButton(
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      '閉じる',
-                      style: TextStyle(
-                          color: Color(0xff33A6B8),
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.bold),
-                    )),
-                TextButton(
-                    onPressed: () async {
-                      Navigator.of(context).pop();
-                      await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => SearchPage(
-                                    adInterstitial: adInterstitial,
-                                    uid: uid,
-                                    searchWord: searchController.text,
-                                  )));
-                    },
-                    child: const Text(
-                      '検索',
-                      style: TextStyle(
-                          color: Color(0xff33A6B8),
-                          fontSize: 15.0,
-                          fontWeight: FontWeight.bold),
-                    )),
-              ],
-            )
-          ],
-        );
-      },
-    );
-  }
 }
 
 class SearchDialog extends StatefulWidget {
-  SearchDialog({Key key, this.adInterstitial, this.uid}) : super(key: key);
+  SearchDialog({required this.adInterstitial, required this.uid});
 
   TextEditingController con = TextEditingController();
   // final Function(String) onResult;
@@ -257,9 +200,6 @@ class _SearchDialogState extends State<SearchDialog> {
                     child: const Text('閉じる')),
                 TextButton(
                     onPressed: () async {
-                      // final stringItem = widget.con.text;
-                      // widget.onResult(stringItem);
-                      //  Navigator.pop(context);
                       Navigator.of(context).pop();
                       await Navigator.push(
                           context,

@@ -7,7 +7,7 @@ class Thread {
     createdAt = timestamp.toDate();
     documentID = doc.id;
   }
-  String title;
-  DateTime createdAt;
-  String documentID;
+  String? title;
+  DateTime? createdAt;
+  String? documentID;
 }

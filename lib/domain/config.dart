@@ -4,5 +4,5 @@ class Config {
   Config(DocumentSnapshot doc) {
     config = doc['ios_force_app_version'];
   }
-  String config;
+  String? config;
 }

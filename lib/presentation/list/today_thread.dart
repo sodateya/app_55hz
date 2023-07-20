@@ -3,7 +3,7 @@
 import 'package:app_55hz/domain/thread.dart';
 import 'package:app_55hz/main/admob.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:provider/provider.dart';
 import '../list/list_model.dart';
 import '../talk/talk_page.dart';
@@ -14,20 +14,21 @@ class TodayThread extends StatelessWidget {
   String uid;
   AdInterstitial adInterstitial;
   List<Thread> threadList;
+  bool resSort;
 
   TodayThread(
-      {Key key,
-      this.thread,
-      this.sort,
-      this.uid,
-      this.adInterstitial,
-      this.threadList})
-      : super(key: key);
+      {super.key,
+      required this.thread,
+      required this.sort,
+      required this.uid,
+      required this.adInterstitial,
+      required this.threadList,
+      required this.resSort});
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return ChangeNotifierProvider.value(
-      value: ListModel()
+    return ChangeNotifierProvider<ListModel>(
+      create: (context) => ListModel()
         ..getUpdateToday(thread, sort)
         ..fetchBlockList(uid),
       child: Scaffold(
@@ -81,12 +82,15 @@ class TodayThread extends StatelessWidget {
                               itemCount: posts.length,
                               physics: const AlwaysScrollableScrollPhysics(),
                               itemBuilder: (context, index) {
-                                final postUid = posts[index].uid.substring(20);
-                                return posts[index].accessBlock.contains(uid) ||
+                                final postUid = posts[index].uid!.substring(20);
+                                return posts[index]
+                                            .accessBlock!
+                                            .contains(uid) ||
                                         blockUsers.contains(posts[index].uid)
                                     ? const SizedBox()
                                     : Card(
-                                        child: posts[index].badCount.length <= 5
+                                        child: posts[index].badCount!.length <=
+                                                5
                                             ? Container(
                                                 decoration: BoxDecoration(
                                                   borderRadius:
@@ -103,7 +107,7 @@ class TodayThread extends StatelessWidget {
                                                 ),
                                                 child: Stack(
                                                   children: [
-                                                    posts[index].read.contains(
+                                                    posts[index].read!.contains(
                                                             uid.substring(20))
                                                         ? const SizedBox()
                                                         : Row(
@@ -153,7 +157,7 @@ class TodayThread extends StatelessWidget {
                                                                 top: 17,
                                                                 bottom: 10),
                                                         child: Text(
-                                                          posts[index].title,
+                                                          posts[index].title!,
                                                           textAlign:
                                                               TextAlign.left,
                                                           overflow:
@@ -191,7 +195,7 @@ class TodayThread extends StatelessWidget {
                                                                     context,
                                                                     uid,
                                                                     posts[index]
-                                                                        .uid,
+                                                                        .uid!,
                                                                     model);
                                                               }
                                                             },
@@ -206,7 +210,7 @@ class TodayThread extends StatelessWidget {
                                                           const SizedBox(
                                                               width: 10),
                                                           Text(
-                                                            '${posts[index].createdAt.year}/${posts[index].createdAt.month}/${posts[index].createdAt.day} ${posts[index].createdAt.hour}:${posts[index].createdAt.minute}:${posts[index].createdAt.second}.${posts[index].createdAt.millisecond}',
+                                                            '${posts[index].createdAt!.year}/${posts[index].createdAt!.month}/${posts[index].createdAt!.day} ${posts[index].createdAt!.hour}:${posts[index].createdAt!.minute}:${posts[index].createdAt!.second}.${posts[index].createdAt!.millisecond}',
                                                             style: const TextStyle(
                                                                 color: Color(
                                                                     0xff43341B),
@@ -255,8 +259,8 @@ class TodayThread extends StatelessWidget {
                                                                     (context) {
                                                                   return TalkPage(
                                                                     uid: uid,
-                                                                    resSort: model
-                                                                        .resSort,
+                                                                    resSort:
+                                                                        resSort,
                                                                     adInterstitial:
                                                                         adInterstitial,
                                                                     post: posts[
@@ -265,22 +269,23 @@ class TodayThread extends StatelessWidget {
                                                                 }));
                                                         await model.setConfig();
                                                         if (posts[index]
-                                                            .read
+                                                            .read!
                                                             .contains(
                                                                 uid.substring(
                                                                     20))) {
                                                         } else {
-                                                          await model
-                                                              .addReadforAll(
-                                                                  posts[index]
-                                                                      .threadId,
-                                                                  posts[index]
-                                                                      .documentID,
-                                                                  uid.substring(
-                                                                      20));
-                                                          posts[index].read.add(
+                                                          await model.addReadforAll(
+                                                              posts[index]
+                                                                  .threadId!,
+                                                              posts[index]
+                                                                  .documentID!,
                                                               uid.substring(
                                                                   20));
+                                                          posts[index]
+                                                              .read!
+                                                              .add(
+                                                                  uid.substring(
+                                                                      20));
                                                         }
                                                       },
                                                       onLongPress: () async {
@@ -324,8 +329,8 @@ class TodayThread extends StatelessWidget {
           return FloatingActionButton.extended(
             heroTag: 20,
             backgroundColor: const Color(0xff0C4842).withOpacity(0.7),
-            label: Row(
-              children: const [
+            label: const Row(
+              children: [
                 Text(
                   'スレを建てる',
                   style: TextStyle(
@@ -333,7 +338,7 @@ class TodayThread extends StatelessWidget {
                       fontSize: 15.0,
                       fontWeight: FontWeight.bold),
                 ),
-                Icon(Feather.edit),
+                Icon(FeatherIcons.edit),
               ],
             ),
             onPressed: () {
@@ -345,8 +350,8 @@ class TodayThread extends StatelessWidget {
     );
   }
 
-  Future blockDialog(
-      BuildContext context, String uid, String blockUser, ListModel model) {
+  Future blockDialog(BuildContext context, String uid, String blockUser,
+      ListModel model) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -391,7 +396,7 @@ class TodayThread extends StatelessWidget {
     );
   }
 
-  Future badAdd(ListModel model, BuildContext context, threadID, postID) {
+  Future badAdd(ListModel model, BuildContext context, threadID, postID) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -435,7 +440,7 @@ class TodayThread extends StatelessWidget {
   }
 
   Future deleteMyThread(
-      ListModel model, BuildContext context, threadID, postID) {
+      ListModel model, BuildContext context, threadID, postID) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {

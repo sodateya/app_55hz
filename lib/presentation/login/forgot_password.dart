@@ -58,7 +58,7 @@ class ForgotPassword extends StatelessWidget {
                       TextButton(
                         child: const Text('上記メールアドレスにパスワード再設定メールを送信'),
                         onPressed: () => model.auth
-                            .sendPasswordResetEmail(email: model.email),
+                            .sendPasswordResetEmail(email: model.email!),
                       ),
                     ],
                   ),

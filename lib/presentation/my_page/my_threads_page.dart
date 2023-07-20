@@ -3,10 +3,9 @@
 import 'package:app_55hz/main/admob.dart';
 import 'package:app_55hz/presentation/talk/talk_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'my_threads_model.dart';
 
 // ignore: must_be_immutable
@@ -17,18 +16,21 @@ class MyThreadsPage extends StatelessWidget {
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
 
-  MyThreadsPage({Key key, this.uid, this.adInterstitial, this.sort})
-      : super(key: key);
+  MyThreadsPage(
+      {super.key,
+      required this.uid,
+      required this.adInterstitial,
+      required this.sort});
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return ChangeNotifierProvider.value(
-      value: MyThreadsModel()
+    return ChangeNotifierProvider<MyThreadsModel>(
+      create: (context) => MyThreadsModel()
         ..getConfig()
         ..getMyPost(uid, sort),
       child: Consumer<MyThreadsModel>(builder: (context, model, child) {
@@ -147,7 +149,7 @@ class MyThreadsPage extends StatelessWidget {
                                     ),
                                     child: ListTile(
                                       title: Text(
-                                        posts[index].title,
+                                        posts[index].title!,
                                         textAlign: TextAlign.left,
                                         overflow: TextOverflow.clip,
                                         style: const TextStyle(
@@ -156,7 +158,7 @@ class MyThreadsPage extends StatelessWidget {
                                             fontWeight: FontWeight.bold),
                                       ),
                                       trailing: IconButton(
-                                          icon: const Icon(Feather.trash),
+                                          icon: const Icon(FeatherIcons.trash),
                                           onPressed: () async {
                                             await deleteMyThread(
                                                 model,
@@ -172,7 +174,7 @@ class MyThreadsPage extends StatelessWidget {
                                               uid: uid,
                                               adInterstitial: adInterstitial,
                                               post: posts[index],
-                                              resSort: model.resSort,
+                                              resSort: model.resSort!,
                                             ),
                                           ),
                                         );
@@ -201,7 +203,7 @@ class MyThreadsPage extends StatelessWidget {
   }
 
   Future deleteMyThread(
-      MyThreadsModel model, BuildContext context, threadID, postID) {
+      MyThreadsModel model, BuildContext context, threadID, postID) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {

@@ -11,9 +11,9 @@ class MyPost {
     title = doc['title'];
     threadUid = doc['threadUid'];
   }
-  String postID;
-  DateTime createdAt;
-  String threadID;
-  String title;
-  String threadUid;
+  String? postID;
+  DateTime? createdAt;
+  String? threadID;
+  String? title;
+  String? threadUid;
 }

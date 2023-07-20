@@ -10,7 +10,7 @@ import 'package:app_55hz/presentation/talk_to_admin/talk_to_admin_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -18,24 +18,21 @@ import '../presentation/account_delete/account_delete_page.dart';
 import '../presentation/list/list_model.dart';
 import '../presentation/my_page/my_threads_page.dart';
 import '../presentation/profile_edit/profile_edit_page.dart';
-import '../presentation/test/friend_page.dart';
-import '../presentation/test/test_page.dart';
 
 class DefaultDrawer extends StatelessWidget {
   String uid;
   String sort;
   FirebaseAuth auth;
-  bool isChanged = false;
+  bool? isChanged = false;
   ListModel model;
 
   DefaultDrawer({
-    Key key,
-    this.uid,
-    this.auth,
+    required this.uid,
+    required this.auth,
     this.isChanged,
-    this.model,
-    this.sort,
-  }) : super(key: key);
+    required this.model,
+    required this.sort,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +105,7 @@ class DefaultDrawer extends StatelessWidget {
                               },
                             );
                           },
-                          icon: const Icon(Feather.copy,
+                          icon: const Icon(FeatherIcons.copy,
                               color: Color(0xff43341B)))
                     ],
                   ),
@@ -132,16 +129,16 @@ class DefaultDrawer extends StatelessWidget {
                                   MaterialPageRoute(
                                       builder: (context) => MyThreadsPage(
                                           uid: uid,
-                                          adInterstitial: adInterstitial,
+                                          adInterstitial: adInterstitial!,
                                           sort: sort)));
-                            }, 'マイページ', Feather.user),
+                            }, 'マイページ', FeatherIcons.user),
                             DrawerTile(() async {
                               await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           MyFavoritePage(uid: uid)));
-                            }, 'お気に入り', Feather.heart),
+                            }, 'お気に入り', FeatherIcons.heart),
                             DrawerTile(() async {
                               final result = await Navigator.push(
                                   context,
@@ -152,21 +149,21 @@ class DefaultDrawer extends StatelessWidget {
                                 await model.fetchThread(uid);
                                 await model.getConfig();
                               }
-                            }, '設定', Feather.settings),
+                            }, '設定', FeatherIcons.settings),
                             DrawerTile(() async {
                               await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           ProfileEditPage(uid: uid)));
-                            }, 'プロフィール編集', Feather.user_check),
+                            }, 'プロフィール編集', FeatherIcons.userCheck),
                             DrawerTile(() async {
                               await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) =>
                                           BlockListPage(uid: uid)));
-                            }, 'ブロックリスト', Feather.user_x),
+                            }, 'ブロックリスト', FeatherIcons.userX),
                             DrawerTile(() async {
                               await Navigator.push(
                                   context,
@@ -174,21 +171,21 @@ class DefaultDrawer extends StatelessWidget {
                                       builder: (context) => TalkToAdminPage(
                                             size: size,
                                             uid: uid,
-                                            adInterstitial: adInterstitial,
+                                            adInterstitial: adInterstitial!,
                                           )));
-                            }, '管理人とお話し', Feather.message_circle),
+                            }, '管理人とお話し', FeatherIcons.messageCircle),
                             DrawerTile(() async {
                               await launch('https://hz-360fa.web.app/');
-                            }, '利用規約\nプライバシーポリシー', Feather.sidebar),
+                            }, '利用規約\nプライバシーポリシー', FeatherIcons.sidebar),
                             DrawerTile(() async {
                               await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => AccountDeletePage(
                                             uid: uid,
-                                            adInterstitial: adInterstitial,
+                                            adInterstitial: adInterstitial!,
                                           )));
-                            }, 'お問い合わせ・退会手続き', Feather.send),
+                            }, 'お問い合わせ・退会手続き', FeatherIcons.send),
                             DrawerTile(() async {
                               try {
                                 auth.signOut();
@@ -200,16 +197,15 @@ class DefaultDrawer extends StatelessWidget {
                                   context,
                                   MaterialPageRoute(
                                       builder: (context) => Login(
-                                          // adInterstitial: adInterstitial
-                                          )));
-                            }, 'ログアウト', Feather.log_out),
+                                          adInterstitial: adInterstitial)));
+                            }, 'ログアウト', FeatherIcons.logOut),
                             // DrawerTile(() async {
                             //   await Navigator.push(
                             //       context,
                             //       MaterialPageRoute(
                             //           builder: (context) =>
                             //               TestPage(uid: uid)));
-                            // }, 'test', Feather.log_out),
+                            // }, 'test', FeatherIcons.log_out),
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: Row(
@@ -256,7 +252,7 @@ class DefaultDrawer extends StatelessWidget {
                                       );
                                     },
                                     icon: const Icon(
-                                      Feather.copy,
+                                      FeatherIcons.copy,
                                       color: Color(0xff43341B),
                                     ))
                               ],
@@ -272,7 +268,7 @@ class DefaultDrawer extends StatelessWidget {
                                           'https://twitter.com/9channeru_');
                                     },
                                     icon: const Icon(
-                                      Feather.twitter,
+                                      FeatherIcons.twitter,
                                       color: Color(0xff43341B),
                                     ))
                               ],
@@ -291,7 +287,7 @@ class DefaultDrawer extends StatelessWidget {
 }
 
 class DrawerTile extends StatelessWidget {
-  DrawerTile(this.onTap, this.title, this.icon, {Key key}) : super(key: key);
+  DrawerTile(this.onTap, this.title, this.icon);
   final VoidCallback onTap;
   String title;
   IconData icon;

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_udid/flutter_udid.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'authentication_error.dart';
-import 'dart:math' as math;
 
 class LoginModel extends ChangeNotifier {
   final auth = FirebaseAuth.instance;
@@ -13,34 +12,23 @@ class LoginModel extends ChangeNotifier {
   final auth_error = Authentication_error(); // エラーメッセージを日本語化するためのクラス
   bool isreadAgree = false;
   bool ischeckedAgree = false;
-  UserCredential result;
-  User user;
-  String name;
-  bool agreeToTerms = false;
-  bool readTerms = false;
-  bool isUsedQR;
-  String randomStr = "";
-  String email;
+  UserCredential? result;
+  User? user;
+  String? name;
+  bool? agreeToTerms = false;
+  bool? readTerms = false;
+  bool? isUsedQR;
+
+  String? email;
 
   void isAgreeToTerms(bool value) {
-    agreeToTerms = value ?? false;
+    agreeToTerms = value;
     notifyListeners();
   }
 
   void isReadTerms(bool value) {
-    readTerms = value ?? false;
+    readTerms = value;
     notifyListeners();
-  }
-
-  Future randomString(int length) async {
-    randomStr = "";
-    var random = math.Random();
-    for (var i = 0; i < length; i++) {
-      int alphaNum = 65 + random.nextInt(26);
-      int isLower = random.nextBool() ? 32 : 0;
-      randomStr += String.fromCharCode(alphaNum + isLower);
-    }
-    return await randomStr;
   }
 
   Future readAgree() async {

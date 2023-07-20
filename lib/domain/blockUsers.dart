@@ -6,5 +6,5 @@ class BlockUsers {
   BlockUsers(DocumentSnapshot doc) {
     blockUsers = doc['blockUsers'];
   }
-  List blockUsers;
+  List? blockUsers;
 }

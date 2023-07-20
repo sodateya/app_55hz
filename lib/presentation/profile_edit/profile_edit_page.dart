@@ -1,27 +1,23 @@
 import 'dart:math';
-
-import 'package:app_55hz/main/admob.dart';
 import 'package:app_55hz/presentation/profile_edit/profile_edit_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // ignore: must_be_immutable
 class ProfileEditPage extends StatelessWidget {
   String uid;
-  AdInterstitial adInterstitial;
-  bool isChanged;
+
   ProfileEditPage({
-    Key key,
-    this.uid,
-  }) : super(key: key);
+    super.key,
+    required this.uid,
+  });
   TextEditingController nameController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    return ChangeNotifierProvider.value(
-      value: ProfileEditModel()..getName(),
+    return ChangeNotifierProvider<ProfileEditModel>(
+      create: (context) => ProfileEditModel()..getName(),
       child: GestureDetector(
         onTap: () => FocusScope.of(context).unfocus(),
         child: Scaffold(

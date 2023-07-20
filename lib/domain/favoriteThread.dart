@@ -6,5 +6,5 @@ class FavoriteThread {
   FavoriteThread(DocumentSnapshot doc) {
     favoriteThreads = doc['favoriteThreads'];
   }
-  List favoriteThreads;
+  List? favoriteThreads;
 }

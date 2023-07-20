@@ -1,9 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, must_be_immutable
 
 import 'package:app_55hz/domain/thread.dart';
 import 'package:app_55hz/main/admob.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
@@ -22,17 +22,16 @@ class AddThreadPage extends StatelessWidget {
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
   AddThreadPage(
-      {Key key,
-      this.thread,
-      this.title,
-      this.uid,
-      this.adInterstitial,
-      this.blockUsers})
-      : super(key: key);
+      {super.key,
+      required this.thread,
+      required this.title,
+      required this.uid,
+      required this.adInterstitial,
+      required this.blockUsers});
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider.value(
@@ -122,7 +121,7 @@ class AddThreadPage extends StatelessWidget {
                                         await addThread(model, context);
                                         await model.endLoading();
                                       },
-                                icon: const Icon(Feather.edit_3),
+                                icon: const Icon(FeatherIcons.edit3),
                                 label: Text('スレッドを投稿する',
                                     style: GoogleFonts.sawarabiMincho(
                                       color: const Color(0xffFCFAF2),
@@ -172,7 +171,7 @@ class AddThreadPage extends StatelessWidget {
                       builder: (context) => TalkPage(
                           uid: uid,
                           adInterstitial: adInterstitial,
-                          post: model.post,
+                          post: model.post!,
                           resSort: resSort),
                     ),
                   );
@@ -189,19 +188,5 @@ class AddThreadPage extends StatelessWidget {
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
-  }
-}
-
-class MyImageWidget extends StatelessWidget {
-  const MyImageWidget({Key key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Image(
-      image: const AssetImage('images/washi1.png'),
-      fit: BoxFit.cover,
-      color: const Color(0xff616138),
-      colorBlendMode: BlendMode.modulate,
-    );
   }
 }

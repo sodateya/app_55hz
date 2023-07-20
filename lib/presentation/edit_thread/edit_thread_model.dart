@@ -6,9 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 class EditThreadModel extends ChangeNotifier {
   List<Thread> threads = [];
   List<String> myThreads = [];
-  bool isMyThreads;
-  bool threadSort;
-  bool resSort;
+  bool? isMyThreads;
+  bool? threadSort;
+  bool? resSort;
 
   Future getConfig() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -107,7 +107,7 @@ class EditThreadModel extends ChangeNotifier {
         .snapshots();
     docs.listen((snapshots) async {
       final favoriteThreads =
-          snapshots.docs.map((doc) => Thread(doc).documentID).toList();
+          snapshots.docs.map((doc) => Thread(doc).documentID!).toList();
       myThreads = favoriteThreads;
       notifyListeners();
     });

@@ -13,7 +13,7 @@ class BlockListModel extends ChangeNotifier {
         .doc(uid.substring(20))
         .snapshots();
     favoritePost.listen((snapshots) async {
-      final blockUsers = await snapshots.data()['blockUsers'];
+      final blockUsers = await snapshots.data()!['blockUsers'];
       blockList = blockUsers;
       notifyListeners();
     });

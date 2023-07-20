@@ -13,9 +13,9 @@ class LoginModel extends ChangeNotifier {
   final auth_error = Authentication_error(); // エラーメッセージを日本語化するためのクラス
   bool isreadAgree = false;
   bool ischeckedAgree = false;
-  UserCredential result;
-  User user;
-  AuthorizationCredentialAppleID appleIdCredential;
+  UserCredential? result;
+  User? user;
+  AuthorizationCredentialAppleID? appleIdCredential;
 
   Future readAgree() async {
     isreadAgree = true;

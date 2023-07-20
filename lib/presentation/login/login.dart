@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, must_be_immutable
 
 import 'dart:io';
 
@@ -21,26 +21,26 @@ import 'email_check.dart';
 import 'login_model.dart';
 
 class Login extends StatelessWidget {
-  AdInterstitial adInterstitial;
-  GoogleSignInAccount googleUser;
-  GoogleSignInAuthentication googleAuth;
-  AuthCredential credential;
+  AdInterstitial? adInterstitial;
+  GoogleSignInAccount? googleUser;
+  GoogleSignInAuthentication? googleAuth;
+  AuthCredential? credential;
 
-  Login({Key key, this.adInterstitial}) : super(key: key);
+  Login({super.key, required this.adInterstitial});
 
   String login_Email = ""; // 入力されたメールアドレス
   String login_Password = "";
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-        value: LoginModel(),
+    return ChangeNotifierProvider<LoginModel>(
+        create: (context) => LoginModel(),
         child: Consumer<LoginModel>(builder: (context, model, child) {
           return Scaffold(
               body: Stack(
@@ -162,7 +162,7 @@ class Login extends StatelessWidget {
                                                                         true);
                                                                 model
                                                                     .isAgreeToTerms(
-                                                                        value);
+                                                                        value!);
                                                                 Navigator.pop(
                                                                     context);
                                                               },
@@ -174,7 +174,7 @@ class Login extends StatelessWidget {
                                                   );
                                                 });
                                           } else {
-                                            model.isAgreeToTerms(value);
+                                            model.isAgreeToTerms(value!);
                                           }
                                         },
                                       ),
@@ -210,19 +210,19 @@ class Login extends StatelessWidget {
                                                 password: login_Password,
                                               );
                                               // ログイン成功
-                                              model.user = model.result
+                                              model.user = model.result!
                                                   .user; // ログインユーザーのIDを取得
 
-                                              if (model.user.emailVerified) {
+                                              if (model.user!.emailVerified) {
                                                 await Navigator.push(
                                                     context,
                                                     MaterialPageRoute(
                                                       builder: (context) =>
                                                           Home(
                                                         auth: model.auth,
-                                                        uid: model.user.uid,
+                                                        uid: model.user!.uid,
                                                         adInterstitial:
-                                                            adInterstitial,
+                                                            adInterstitial!,
                                                       ),
                                                     ));
                                               } else {
@@ -235,6 +235,8 @@ class Login extends StatelessWidget {
                                                             pswd:
                                                                 login_Password,
                                                             from: 2,
+                                                            adInterstitial:
+                                                                adInterstitial!,
                                                           )),
                                                 );
                                               }
@@ -368,7 +370,7 @@ class Login extends StatelessWidget {
                                                       final user = result.user;
                                                       await model
                                                           .createUserDatabase(
-                                                              user);
+                                                              user!);
                                                       await Navigator
                                                           .pushAndRemoveUntil(
                                                               context,
@@ -380,7 +382,7 @@ class Login extends StatelessWidget {
                                                                       .auth,
                                                                   uid: user.uid,
                                                                   adInterstitial:
-                                                                      adInterstitial,
+                                                                      adInterstitial!,
                                                                 ),
                                                               ),
                                                               (_) => false);
@@ -396,21 +398,21 @@ class Login extends StatelessWidget {
                                           : () async {
                                               googleUser =
                                                   await GoogleSignIn().signIn();
-                                              googleAuth = await googleUser
+                                              googleAuth = await googleUser!
                                                   .authentication;
                                               credential =
                                                   GoogleAuthProvider.credential(
                                                 accessToken:
-                                                    googleAuth.accessToken,
-                                                idToken: googleAuth.idToken,
+                                                    googleAuth!.accessToken,
+                                                idToken: googleAuth!.idToken,
                                               );
                                               try {
                                                 final result = await model.auth
                                                     .signInWithCredential(
-                                                        credential);
+                                                        credential!);
                                                 final user = result.user;
                                                 await model
-                                                    .createUserDatabase(user);
+                                                    .createUserDatabase(user!);
                                                 await Navigator
                                                     .pushAndRemoveUntil(
                                                         context,
@@ -420,7 +422,7 @@ class Login extends StatelessWidget {
                                                             auth: model.auth,
                                                             uid: user.uid,
                                                             adInterstitial:
-                                                                adInterstitial,
+                                                                adInterstitial!,
                                                           ),
                                                         ),
                                                         (_) => false);

@@ -6,7 +6,7 @@ import 'package:app_55hz/presentation/login/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -19,10 +19,11 @@ class AccountDeletePage extends StatelessWidget {
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
-  AccountDeletePage({Key key, this.uid, this.adInterstitial}) : super(key: key);
+  AccountDeletePage(
+      {super.key, required this.uid, required this.adInterstitial});
   FirebaseAuth auth = FirebaseAuth.instance;
   @override
   Widget build(BuildContext context) {
@@ -79,7 +80,7 @@ class AccountDeletePage extends StatelessWidget {
                             ),
                             const SizedBox(height: 10),
                             Text(
-                              'ユーザーID : ${uid.substring(20)}\nE-mail : ${auth.currentUser.email}',
+                              'ユーザーID : ${uid.substring(20)}\nE-mail : ${auth.currentUser!.email}',
                               style: GoogleFonts.sawarabiMincho(
                                 color: const Color(0xff43341B),
                               ),
@@ -91,7 +92,7 @@ class AccountDeletePage extends StatelessWidget {
                               onPressed: () async {
                                 final data = ClipboardData(
                                     text:
-                                        'ユーザーID : ${uid.substring(20)}\nE-mail : ${auth.currentUser.email}');
+                                        'ユーザーID : ${uid.substring(20)}\nE-mail : ${auth.currentUser!.email}');
                                 await Clipboard.setData(data);
                                 await showDialog(
                                   context: context,
@@ -120,7 +121,7 @@ class AccountDeletePage extends StatelessWidget {
                           label: Text('メールを送る',
                               style: GoogleFonts.sawarabiMincho(
                                   color: const Color(0xffFCFAF2))),
-                          icon: const Icon(Feather.mail),
+                          icon: const Icon(FeatherIcons.mail),
                           onPressed: () async {
                             showDialog(
                               context: context,
@@ -146,7 +147,9 @@ class AccountDeletePage extends StatelessWidget {
                                           child: const Text('メールアプリを開く'),
                                           onPressed: () async {
                                             model.openMailApp(
-                                                uid, auth.currentUser.email);
+                                                uid,
+                                                auth.currentUser!.email
+                                                    .toString());
                                             Navigator.of(context).pop();
                                           },
                                         )
@@ -197,7 +200,7 @@ class AccountDeletePage extends StatelessWidget {
                                     },
                                   );
                                 },
-                                icon: const Icon(Feather.copy,
+                                icon: const Icon(FeatherIcons.copy,
                                     color: Color(0xff43341B)))
                           ],
                         ),
@@ -211,7 +214,7 @@ class AccountDeletePage extends StatelessWidget {
                           label: Text('退会手続き',
                               style: GoogleFonts.sawarabiMincho(
                                   color: const Color(0xffFCFAF2))),
-                          icon: const Icon(Feather.trash_2),
+                          icon: const Icon(FeatherIcons.trash2),
                           onPressed: () async {
                             showDialog(
                               context: context,
@@ -260,9 +263,8 @@ class AccountDeletePage extends StatelessWidget {
                                                   context,
                                                   MaterialPageRoute(
                                                       builder: (context) => Login(
-                                                          // adInterstitial:
-                                                          //     adInterstitial
-                                                          )));
+                                                          adInterstitial:
+                                                              adInterstitial)));
                                             } catch (e) {
                                               await showDialog(
                                                 context: context,
@@ -312,9 +314,9 @@ class AccountDeletePage extends StatelessWidget {
                                                               await Navigator.push(
                                                                   context,
                                                                   MaterialPageRoute(
-                                                                      builder: (context) => Login(
-                                                                          // adInterstitial: adInterstitial
-                                                                          )));
+                                                                      builder: (context) =>
+                                                                          Login(
+                                                                              adInterstitial: adInterstitial)));
                                                             },
                                                           ),
                                                         ],

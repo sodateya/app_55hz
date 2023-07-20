@@ -10,10 +10,10 @@ class MyThreadsModel extends ChangeNotifier {
   List<Post> posts = [];
   int documentLimit = 10;
   final firestore = FirebaseFirestore.instance;
-  DocumentSnapshot lastDocument;
+  DocumentSnapshot? lastDocument;
   String timeSort = 'createdAt';
-  bool threadSort;
-  bool resSort;
+  bool? threadSort;
+  bool? resSort;
 
   Future getMyPost(String uid, String sort) async {
     final querySnapshot = await firestore
@@ -36,7 +36,7 @@ class MyThreadsModel extends ChangeNotifier {
           .collectionGroup('post')
           .where('uid', whereIn: [uid])
           .orderBy(sort, descending: true)
-          .startAfterDocument(lastDocument)
+          .startAfterDocument(lastDocument!)
           .limit(5)
           .get();
       lastDocument = docs.docs.last;
@@ -52,7 +52,7 @@ class MyThreadsModel extends ChangeNotifier {
     }
   }
 
-  Future deleteMyThread(String threadID, String postID) {
+  Future deleteMyThread(String threadID, String postID) async {
     FirebaseFirestore.instance
         .collection('thread')
         .doc(threadID)

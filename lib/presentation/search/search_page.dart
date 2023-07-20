@@ -1,27 +1,26 @@
 // ignore_for_file: must_be_immutable, library_private_types_in_public_api
 
-import 'package:app_55hz/domain/thread.dart';
-import 'package:app_55hz/main.dart';
 import 'package:app_55hz/main/admob.dart';
 import 'package:app_55hz/presentation/search/search_model.dart';
 import 'package:app_55hz/presentation/talk/talk_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_icons/flutter_icons.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class SearchPage extends StatelessWidget {
   AdInterstitial adInterstitial;
   String uid;
   String searchWord;
 
-  SearchPage({Key key, this.adInterstitial, this.uid, this.searchWord})
-      : super(key: key);
+  SearchPage(
+      {super.key,
+      required this.adInterstitial,
+      required this.uid,
+      required this.searchWord});
   BannerAd banner = BannerAd(
     listener: const BannerAdListener(),
     size: AdSize.banner,
-    adUnitId: AdInterstitial.bannerAdUnitId,
+    adUnitId: AdInterstitial.bannerAdUnitId!,
     request: const AdRequest(),
   )..load();
 
@@ -123,7 +122,7 @@ class SearchPage extends StatelessWidget {
                                                       const Color(0xff78C2C4),
                                                   child:
                                                       posts[index]
-                                                                  .badCount
+                                                                  .badCount!
                                                                   .length <=
                                                               5
                                                           ? Container(
@@ -151,7 +150,7 @@ class SearchPage extends StatelessWidget {
                                                                           .all(8),
                                                                   child: Text(
                                                                     posts[index]
-                                                                        .title,
+                                                                        .title!,
                                                                     textAlign:
                                                                         TextAlign
                                                                             .left,
@@ -183,13 +182,13 @@ class SearchPage extends StatelessWidget {
                                                                           () {
                                                                         if (posts[index].uid !=
                                                                             uid) {
-                                                                          blockUsers.first.blockUsers.contains(posts[index].uid.substring(20))
-                                                                              ? unBlockDialog(context, uid, posts[index].uid.substring(20), model)
-                                                                              : blockDialog(context, uid, posts[index].uid.substring(20), model);
+                                                                          blockUsers.first.blockUsers!.contains(posts[index].uid!.substring(20))
+                                                                              ? unBlockDialog(context, uid, posts[index].uid!.substring(20), model)
+                                                                              : blockDialog(context, uid, posts[index].uid!.substring(20), model);
                                                                         }
                                                                       },
                                                                       child: Text(
-                                                                          '  ID : ${posts[index].uid.substring(20)}',
+                                                                          '  ID : ${posts[index].uid!.substring(20)}',
                                                                           style: const TextStyle(
                                                                               color: Color(0xffFCFAF2),
                                                                               fontSize: 12.0)),
@@ -201,7 +200,7 @@ class SearchPage extends StatelessWidget {
                                                                       model
                                                                           .formattedTime
                                                                           .format(
-                                                                              posts[index].createdAt),
+                                                                              posts[index].createdAt!),
                                                                       style: const TextStyle(
                                                                           color: Color(
                                                                               0xff43341B),
@@ -220,7 +219,7 @@ class SearchPage extends StatelessWidget {
                                                                     return TalkPage(
                                                                       uid: uid,
                                                                       resSort: model
-                                                                          .resSort,
+                                                                          .resSort!,
                                                                       adInterstitial:
                                                                           adInterstitial,
                                                                       postAlgolia:
@@ -256,7 +255,7 @@ class SearchPage extends StatelessWidget {
   }
 
   // ignore: missing_return
-  Future badAdd(SearchModel model, BuildContext context, postDocID) {
+  Future badAdd(SearchModel model, BuildContext context, postDocID) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -288,7 +287,8 @@ class SearchPage extends StatelessWidget {
   }
 
   // ignore: missing_return
-  Future deleteMyThread(SearchModel model, BuildContext context, postDcouID) {
+  Future deleteMyThread(
+      SearchModel model, BuildContext context, postDcouID) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -320,8 +320,8 @@ class SearchPage extends StatelessWidget {
   }
 
   // ignore: missing_return
-  Future blockDialog(
-      BuildContext context, String uid, String blockUser, SearchModel model) {
+  Future blockDialog(BuildContext context, String uid, String blockUser,
+      SearchModel model) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -355,8 +355,8 @@ class SearchPage extends StatelessWidget {
   }
 
   // ignore: missing_return
-  Future unBlockDialog(
-      BuildContext context, String uid, String blockUser, SearchModel model) {
+  Future unBlockDialog(BuildContext context, String uid, String blockUser,
+      SearchModel model) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -390,9 +390,7 @@ class SearchPage extends StatelessWidget {
   }
 
   // ignore: missing_return
-  Future blockThreadDialog(
-    BuildContext context,
-  ) {
+  Future blockThreadDialog(BuildContext context) async {
     showDialog(
       context: context,
       builder: (BuildContext context) {

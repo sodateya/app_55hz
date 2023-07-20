@@ -15,10 +15,10 @@ class TalkToAdminModel extends ChangeNotifier {
   List accessBlockList = [];
   final firestore = FirebaseFirestore.instance;
   int documentLimit = 13;
-  DocumentSnapshot lastDocument;
-  String comment;
+  DocumentSnapshot? lastDocument;
+  String comment = '';
   final picker = ImagePicker();
-  File imageFile;
+  File? imageFile;
   bool isLoading = false;
   final adominUid = 'rerVaRIZp9Zo9HTu8iwySUWAmi02';
 
@@ -56,7 +56,7 @@ class TalkToAdminModel extends ChangeNotifier {
         .collection('inquiry')
         .orderBy('createdAt', descending: true)
         .limit(documentLimit)
-        .startAfterDocument(lastDocument)
+        .startAfterDocument(lastDocument!)
         .limit(10)
         .snapshots();
     docs.listen((snapshots) async {
@@ -84,11 +84,11 @@ class TalkToAdminModel extends ChangeNotifier {
     if (comment.isEmpty && imageFile == null) {
       throw ('メッセージまたは写真を入力してください');
     }
-    String imgURL;
+    String? imgURL;
     if (imageFile != null) {
       final task = await FirebaseStorage.instance
           .ref('talk/${db.id}')
-          .putFile(imageFile);
+          .putFile(imageFile!);
       imgURL = await task.ref.getDownloadURL();
     }
 
@@ -106,11 +106,11 @@ class TalkToAdminModel extends ChangeNotifier {
 
   Future addImage(String uid) async {
     final doc = FirebaseFirestore.instance.collection('inquiry').doc();
-    String imgURL;
+    String? imgURL;
     if (imageFile != null) {
       final task = await FirebaseStorage.instance
           .ref('talk/${doc.id}')
-          .putFile(imageFile);
+          .putFile(imageFile!);
       imgURL = await task.ref.getDownloadURL();
     }
     await doc.set({
@@ -129,16 +129,16 @@ class TalkToAdminModel extends ChangeNotifier {
   Future pickImage() async {
     final pickedFile = await picker.pickImage(
         source: ImageSource.gallery, maxHeight: 400, maxWidth: 400);
-    imageFile = File(pickedFile.path);
+    imageFile = File(pickedFile!.path);
     return imageFile;
   }
 
-  Future resetImage() {
+  Future resetImage() async {
     imageFile = null;
     notifyListeners();
   }
 
-  String handleName;
+  String? handleName;
 
   Future getName() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -152,47 +152,4 @@ class TalkToAdminModel extends ChangeNotifier {
   }
 
   int count = 0;
-
-  Future allDelete(String threadID, String postID, String uid) async {
-    final last = await FirebaseFirestore.instance
-        .collection('thread')
-        .doc(threadID)
-        .collection('post')
-        .doc(postID)
-        .collection('talk')
-        .where('uid', isEqualTo: uid)
-        .orderBy('createdAt', descending: true)
-        .limit(1)
-        .get();
-    final lastPosts = last.docs.last;
-    try {
-      for (var i = lastPosts;
-          i.id != null;
-          i = await FirebaseFirestore.instance
-              .collection('thread')
-              .doc(threadID)
-              .collection('post')
-              .doc(postID)
-              .collection('talk')
-              .where('uid', isEqualTo: uid)
-              .orderBy('createdAt', descending: true)
-              .startAfterDocument(i)
-              .limit(1)
-              .get()
-              .then((value) => value.docs.last)) {
-        await FirebaseFirestore.instance
-            .collection('thread')
-            .doc(threadID)
-            .collection('post')
-            .doc(postID)
-            .collection('talk')
-            .doc(i.id)
-            .delete();
-        count++;
-        print(count);
-      }
-    } catch (e) {
-      print('fin');
-    }
-  }
 }
