@@ -31,7 +31,8 @@ class SearchPage extends StatelessWidget {
     return ChangeNotifierProvider<SearchModel>(
       create: (context) => SearchModel()
         ..searchAlgolia(searchWord, 0)
-        ..fetchBlockList(uid),
+        ..fetchBlockList(uid)
+        ..getConfig(),
       child: Scaffold(
         appBar: AppBar(
           flexibleSpace: const Image(
