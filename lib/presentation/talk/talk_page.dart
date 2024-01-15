@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable, use_build_context_synchronously, missing_return
 
 import 'dart:math';
+
 import 'package:app_55hz/domain/custom_cache_manager.dart';
 import 'package:app_55hz/domain/post_algolia.dart';
 import 'package:app_55hz/main/admob.dart';
@@ -10,10 +11,10 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
 import '../../domain/post.dart';
 
@@ -158,6 +159,21 @@ class TalkPage extends StatelessWidget {
                         itemCount: talks.length,
                         physics: const AlwaysScrollableScrollPhysics(),
                         itemBuilder: (context, index) {
+                          void acBlock(BuildContext context) async {
+                            await model.deleteFavorite(
+                                talks[index].uid!, post!);
+                            await model.addAccsessBlock(
+                                context, post!, talks[index].uid!);
+                          }
+
+                          void deleteComment(BuildContext context) {
+                            deleteAdd(model, context, talks[index]);
+                          }
+
+                          void addBad(BuildContext context) {
+                            badAdd(model, context, talks[index]);
+                          }
+
                           final blockUsers = model.blockUser;
                           if (postCount < talks[index].count!) {
                             postCount = talks[index].count!;
@@ -167,40 +183,35 @@ class TalkPage extends StatelessWidget {
                             return const SizedBox.shrink();
                           } else {
                             return Slidable(
-                              actionPane: const SlidableBehindActionPane(),
-                              secondaryActions: [
-                                post!.uid == uid && talks[index].uid != uid
-                                    ? IconSlideAction(
-                                        color: const Color(0xffFCFAF2),
-                                        caption: 'アクブロ',
-                                        onTap: () async {
-                                          await model.deleteFavorite(
-                                              talks[index].uid!, post!);
-                                          await model.addAccsessBlock(context,
-                                              post!, talks[index].uid!);
-                                        },
-                                        icon: FeatherIcons.userX,
-                                      )
-                                    : const SizedBox(width: 0.1),
-                                talks[index].uid == uid
-                                    ? IconSlideAction(
-                                        color: const Color(0xffFCFAF2),
-                                        caption: '削除',
-                                        onTap: () {
-                                          deleteAdd(
-                                              model, context, talks[index]);
-                                        },
-                                        icon: FeatherIcons.trash,
-                                      )
-                                    : IconSlideAction(
-                                        color: const Color(0xffFCFAF2),
-                                        caption: '報告',
-                                        onTap: () {
-                                          badAdd(model, context, talks[index]);
-                                        },
-                                        icon: FeatherIcons.alertTriangle,
-                                      ),
-                              ],
+                              endActionPane: ActionPane(
+                                motion: const ScrollMotion(),
+                                children: [
+                                  post!.uid == uid && talks[index].uid != uid
+                                      ? SlidableAction(
+                                          backgroundColor:
+                                              const Color(0xffFCFAF2),
+                                          label: 'アクブロ',
+                                          onPressed: acBlock,
+                                          icon: FeatherIcons.userX,
+                                        )
+                                      : const SizedBox(width: 0.1),
+                                  talks[index].uid == uid
+                                      ? SlidableAction(
+                                          backgroundColor:
+                                              const Color(0xffFCFAF2),
+                                          label: '削除',
+                                          onPressed: deleteComment,
+                                          icon: FeatherIcons.trash,
+                                        )
+                                      : SlidableAction(
+                                          backgroundColor:
+                                              const Color(0xffFCFAF2),
+                                          label: '報告',
+                                          onPressed: addBad,
+                                          icon: FeatherIcons.alertTriangle,
+                                        ),
+                                ],
+                              ),
                               child: Container(
                                 decoration: const BoxDecoration(
                                     border: Border(
@@ -406,12 +417,12 @@ class TalkPage extends StatelessWidget {
                                                             customCacheManager,
                                                         placeholder: (context,
                                                                 url) =>
-                                                            SizedBox(
+                                                            const SizedBox(
                                                                 child: Column(
                                                           mainAxisAlignment:
                                                               MainAxisAlignment
                                                                   .center,
-                                                          children: const [
+                                                          children: [
                                                             SizedBox(
                                                               width: 80,
                                                               height: 80,
@@ -435,6 +446,7 @@ class TalkPage extends StatelessWidget {
                               ),
                             );
                           }
+                          return null;
                         },
                       ),
                     ),
@@ -693,7 +705,7 @@ class TalkPage extends StatelessWidget {
                   ),
                 ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      primary: const Color(0xff0C4842),
+                      backgroundColor: const Color(0xff0C4842),
                     ),
                     onPressed: () async {
                       Navigator.of(context).pop();
