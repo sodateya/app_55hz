@@ -26,6 +26,8 @@
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+.firebaserc
+.fireabase
 .packages
 .pub-cache/
 .pub/
@@ -44,3 +46,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 node_modules
+
+
+/ios/
+**/firebase_options.dart
