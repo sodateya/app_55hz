@@ -1,5 +1,4 @@
-import 'package:app_55hz/main/admob.dart';
-import 'package:app_55hz/presentation/login/login.dart';
+import 'package:app_55hz/router/provider/router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -7,47 +6,43 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-import 'main/home.dart';
-
-AdInterstitial? adInterstitial;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   MobileAds.instance.initialize();
-  adInterstitial = AdInterstitial();
-  adInterstitial!.createAd;
-  runApp(MyApp(
-    adInterstitial: adInterstitial!,
-  ));
+
+  runApp(ProviderScope(child: MyApp()));
   final messaging = FirebaseMessaging.instance;
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-    alert: true, // Required to display a heads up notification
-    badge: false,
-    sound: true,
-  );
+      alert: true, // Required to display a heads up notification
+      badge: false,
+      sound: true);
+
   await messaging.requestPermission(
-    alert: true,
-    announcement: false,
-    badge: true,
-    carPlay: false,
-    criticalAlert: false,
-    provisional: false,
-    sound: true,
-  );
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true);
 }
 
 // ignore: must_be_immutable
-class MyApp extends StatelessWidget {
-  MyApp({super.key, required this.adInterstitial});
+class MyApp extends ConsumerWidget {
+  MyApp({super.key});
 
   final auth = FirebaseAuth.instance;
-  AdInterstitial adInterstitial;
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
+  Widget build(BuildContext context, WidgetRef ref) {
+    return MaterialApp.router(
       theme: ThemeData(
+          appBarTheme: const AppBarTheme(
+              iconTheme: IconThemeData(color: Color(0xffFCFAF2)),
+              actionsIconTheme: IconThemeData(color: Color(0xffFCFAF2))),
           textTheme: GoogleFonts.sawarabiMinchoTextTheme(),
           cardTheme: const CardTheme(
             elevation: 9,
@@ -56,17 +51,11 @@ class MyApp extends StatelessWidget {
             color: Color(0xff939650),
           )),
       debugShowCheckedModeBanner: false,
-      // ignore: prefer_const_literals_to_create_immutables
-      localizationsDelegates: [
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      home: auth.currentUser == null
-          ? Login(adInterstitial: adInterstitial)
-          : Home(
-              auth: auth,
-              uid: auth.currentUser!.uid,
-              adInterstitial: adInterstitial),
+      routerConfig: ref.watch(routerProvider),
     );
   }
 }

@@ -1,0 +1,21 @@
+import 'package:app_55hz/%20presentation/login/provider/auth/firebase_auth/firebase_auth_provider.dart';
+import 'package:app_55hz/model/favorite/favorite_post_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:riverpod_annotation/riverpod_annotation.dart';
+
+part 'favorite_ref_provider.g.dart';
+
+@riverpod
+CollectionReference<FavoritePostData> favoritePostDataRef(
+    FavoritePostDataRefRef ref) {
+  final uid = ref.read(firebaseAuthInstanceProvider).currentUser!.uid;
+  return FirebaseFirestore.instance
+      .collection('user')
+      .doc(uid)
+      .collection('favoritePost')
+      .withConverter<FavoritePostData>(
+        fromFirestore: (snapshot, _) =>
+            FavoritePostData.fromJson(snapshot.data()!),
+        toFirestore: (product, _) => product.toJson(),
+      );
+}
