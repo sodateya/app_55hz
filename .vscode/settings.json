@@ -1,3 +1,15 @@
 {
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "cSpell.words": [
+        "Admob",
+        "Cupertino",
+        "Favo",
+        "LTRB",
+        "Mincho",
+        "sawarabi",
+        "signin",
+        "udid",
+        "unfocus",
+        "washi"
+    ]
 }
